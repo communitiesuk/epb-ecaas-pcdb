@@ -1,0 +1,109 @@
+{
+  "heatPump": [
+    {
+      "op": "test",
+      "path": "/$defs/HeatSourceWetDetails/oneOf/0/properties/type/const",
+      "value": "HeatPump"
+    },
+    {
+      "op": "add",
+      "path": "/$defs/HeatSourceWetDetails/oneOf/1",
+      "value": {
+        "type": "object",
+        "title": "HeatPump",
+        "required": [
+          "EnergySupply",
+          "product_reference",
+          "type"
+        ],
+        "properties": {
+          "BufferTank": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/HeatPumpBufferTank"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "EnergySupply": {
+            "type": "string"
+          },
+          "EnergySupply_heat_network": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "MechanicalVentilation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "boiler": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/HeatPumpBoiler"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "eahp_mixed_max_temp": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "eahp_mixed_min_temp": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "min_modulation_rate_20": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "min_modulation_rate_35": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "min_modulation_rate_55": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "product_reference": {
+            "type": "string"
+          },
+          "temp_distribution_heat_network": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "type": {
+            "type": "string",
+            "const": "HeatPump"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  ]
+}
