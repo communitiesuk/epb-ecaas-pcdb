@@ -6,6 +6,10 @@ use serde_valid::Validate;
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
+fn find_product_by_reference(reference: &str) -> Option<&Product> {
+    PCDB_PRODUCTS.get(reference)
+}
+
 static PCDB_PRODUCTS: LazyLock<HashMap<String, Product>> =
     LazyLock::new(|| serde_json::from_str(include_str!("products.json")).unwrap());
 
@@ -178,5 +182,16 @@ mod tests {
     #[rstest]
     fn test_can_read_fake_file() {
         assert_eq!(PCDB_PRODUCTS.len(), 3);
+    }
+
+    #[rstest]
+    fn test_find_product_by_reference() {
+        assert_eq!(
+            find_product_by_reference("HEATPUMP-SMALL")
+                .unwrap()
+                .model_name,
+            "Small Heat Pump"
+        );
+        assert!(find_product_by_reference("HEATPUMP-UNKNOWN").is_none());
     }
 }
