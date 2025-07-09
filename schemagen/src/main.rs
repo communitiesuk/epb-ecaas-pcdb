@@ -2,7 +2,7 @@
 
 use clap::Parser;
 use json_patch::Patch;
-use serde_json::{Value as JsonValue};
+use serde_json::Value as JsonValue;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
