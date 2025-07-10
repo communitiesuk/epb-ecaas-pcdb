@@ -1,16 +1,16 @@
 #![allow(dead_code)]
 
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use serde_enum_str::{Deserialize_enum_str, Serialize_enum_str};
 use serde_valid::Validate;
-use std::collections::HashMap;
 use std::sync::LazyLock;
 
 fn find_product_by_reference(reference: &str) -> Option<&Product> {
     PCDB_PRODUCTS.get(reference)
 }
 
-static PCDB_PRODUCTS: LazyLock<HashMap<String, Product>> =
+static PCDB_PRODUCTS: LazyLock<IndexMap<String, Product>> =
     LazyLock::new(|| serde_json::from_str(include_str!("products.json")).unwrap());
 
 #[derive(Debug, Deserialize, Validate)]

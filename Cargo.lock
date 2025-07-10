@@ -1130,6 +1130,7 @@ name = "resolve-products"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "indexmap",
  "rstest",
  "serde",
  "serde-enum-str",
