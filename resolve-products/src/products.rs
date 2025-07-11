@@ -1,10 +1,30 @@
 #![allow(dead_code)]
 
+use anyhow::anyhow;
 use indexmap::IndexMap;
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_enum_str::{Deserialize_enum_str, Serialize_enum_str};
 use serde_valid::Validate;
+use smartstring::alias::String;
+use std::collections::HashMap;
 use std::sync::LazyLock;
+
+pub(crate) fn find_products_for_references<'a>(
+    product_references: &[String],
+) -> anyhow::Result<HashMap<&'a str, &'a Product<'a>>> {
+    PCDB_PRODUCTS
+        .iter()
+        .filter(|(k, _)| product_references.contains(k))
+        .map(|(k, v)| {
+            if product_references.contains(k) {
+                Ok((k.as_str(), v))
+            } else {
+                Err(anyhow!("Product reference not found: {}", k.as_str()))
+            }
+        })
+        .collect()
+}
 
 fn find_product_by_reference(reference: &str) -> Option<&Product> {
     PCDB_PRODUCTS.get(reference)
@@ -41,7 +61,7 @@ struct Manufacturer<'a> {
 
 #[derive(Debug, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
-struct Product<'a> {
+pub(crate) struct Product<'a> {
     #[serde(rename = "ID")]
     id: u32,
     manufacturer: Manufacturer<'a>,
@@ -52,7 +72,7 @@ struct Product<'a> {
     first_year_of_manufacture: u16,
     final_year_of_manufacture: Option<YearOfManufacture>,
     #[serde(flatten)]
-    technology: Technology<'a>,
+    pub(crate) technology: Technology<'a>,
 }
 
 #[derive(Debug, Clone)]
@@ -100,7 +120,7 @@ impl<'de> Deserialize<'de> for YearOfManufacture {
 
 #[derive(Debug, Deserialize)]
 #[serde(tag = "technologyType", rename_all = "camelCase", deny_unknown_fields)]
-enum Technology<'a> {
+pub(crate) enum Technology<'a> {
     #[serde(rename = "Air Source Heat Pump", rename_all = "camelCase")]
     AirSourceHeatPump {
         fuel: &'a str,
@@ -109,17 +129,17 @@ enum Technology<'a> {
         backup_control_type: HeatPumpBackupControlType,
         modulating_control: bool,
         #[serde(rename = "standardRatingCapacity20C")]
-        standard_rating_capacity_20c: Option<&'a str>,
+        standard_rating_capacity_20c: Option<Decimal>,
         #[serde(rename = "standardRatingCapacity35C")]
-        standard_rating_capacity_35c: Option<&'a str>,
+        standard_rating_capacity_35c: Option<Decimal>,
         #[serde(rename = "standardRatingCapacity55C")]
-        standard_rating_capacity_55c: Option<&'a str>,
-        minimum_modulation_rate: &'a str,
+        standard_rating_capacity_55c: Option<Decimal>,
+        minimum_modulation_rate: Decimal,
         variable_temp_control: bool,
-        power_standby: &'a str,
-        power_crankcase_heater: Option<&'a str>,
-        power_off: Option<&'a str>,
-        power_maximum_backup: Option<&'a str>,
+        power_standby: Decimal,
+        power_crankcase_heater: Decimal,
+        power_off: Decimal,
+        power_maximum_backup: Option<Decimal>,
         test_data: Vec<HeatPumpTestDatum>,
     },
 }
@@ -154,19 +174,19 @@ pub(crate) enum HeatPumpBackupControlType {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
-struct HeatPumpTestDatum {
-    design_flow_temperature: i32,
-    test_condition: HeatPumpTestLetter,
-    test_condition_temperature: i32,
-    inlet_temperature: f64,
-    outlet_temperature: f64,
-    heating_capacity: f64,
-    coefficient_of_performance: f64,
-    degradation_coefficient: f64,
+pub(crate) struct HeatPumpTestDatum {
+    pub(crate) design_flow_temperature: i32,
+    pub(crate) test_condition: HeatPumpTestLetter,
+    pub(crate) test_condition_temperature: i32,
+    pub(crate) inlet_temperature: Decimal,
+    pub(crate) outlet_temperature: Decimal,
+    pub(crate) heating_capacity: Decimal,
+    pub(crate) coefficient_of_performance: Decimal,
+    pub(crate) degradation_coefficient: Decimal,
 }
 
 #[derive(Debug, Deserialize_enum_str, Serialize_enum_str)]
-enum HeatPumpTestLetter {
+pub(crate) enum HeatPumpTestLetter {
     A,
     B,
     C,
