@@ -3,7 +3,7 @@
 use anyhow::anyhow;
 use indexmap::IndexMap;
 use rust_decimal::Decimal;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use serde_enum_str::{Deserialize_enum_str, Serialize_enum_str};
 use serde_valid::Validate;
 use smartstring::alias::String;
@@ -134,8 +134,16 @@ pub(crate) enum Technology<'a> {
         standard_rating_capacity_35c: Option<Decimal>,
         #[serde(rename = "standardRatingCapacity55C")]
         standard_rating_capacity_55c: Option<Decimal>,
-        minimum_modulation_rate: Decimal,
+        minimum_modulation_rate: Option<Decimal>,
+        time_constant_on_off_operation: i32,
+        temp_return_feed_max: Decimal,
+        temp_lower_operating_limit: Decimal,
+        min_temp_diff_flow_return_for_hp_to_operate: i32,
+        #[serde(rename = "varFlowTempCtrlDuringTest")]
         variable_temp_control: bool,
+        power_heating_circ_pump: Option<Decimal>,
+        power_heating_warm_air_fan: Option<Decimal>,
+        power_source_circ_pump: Decimal,
         power_standby: Decimal,
         power_crankcase_heater: Decimal,
         power_off: Decimal,
@@ -144,7 +152,7 @@ pub(crate) enum Technology<'a> {
     },
 }
 
-#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Copy, Clone, Debug, Deserialize_enum_str, PartialEq, Serialize_enum_str)]
 pub(crate) enum HeatPumpSourceType {
     Ground,
     OutsideAir,
@@ -158,14 +166,13 @@ pub(crate) enum HeatPumpSourceType {
 
 // following heat pump related enums are copied in from epb-home-energy-model for now
 
-#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Copy, Clone, Debug, Deserialize_enum_str, PartialEq, Serialize_enum_str)]
 pub(crate) enum HeatPumpSinkType {
     Water,
     Air,
-    Glycol25,
 }
 
-#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Copy, Clone, Debug, Deserialize_enum_str, PartialEq, Serialize_enum_str)]
 pub(crate) enum HeatPumpBackupControlType {
     None,
     TopUp,
@@ -185,12 +192,13 @@ pub(crate) struct HeatPumpTestDatum {
     pub(crate) degradation_coefficient: Decimal,
 }
 
-#[derive(Debug, Deserialize_enum_str, Serialize_enum_str)]
+#[derive(Copy, Clone, Debug, Deserialize_enum_str, PartialEq, Serialize_enum_str)]
 pub(crate) enum HeatPumpTestLetter {
     A,
     B,
     C,
     D,
+    E,
     F,
 }
 

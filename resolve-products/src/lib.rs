@@ -1,6 +1,8 @@
 mod products;
 
-use crate::products::{find_products_for_references, HeatPumpTestDatum, Product, Technology};
+use crate::products::{
+    find_products_for_references, HeatPumpTestDatum, HeatPumpTestLetter, Product, Technology,
+};
 use anyhow::{anyhow, bail};
 use itertools::Itertools;
 use jsonpath_rust::query::Queried;
@@ -112,7 +114,17 @@ fn transform_heat_pump(
     // can remove following "allow" when there is more than one technology variant modelled
     #[allow(irrefutable_let_patterns)]
     if let Technology::AirSourceHeatPump {
+        source_type,
+        sink_type,
+        backup_control_type,
+        min_temp_diff_flow_return_for_hp_to_operate,
         modulating_control,
+        time_constant_on_off_operation,
+        temp_lower_operating_limit,
+        temp_return_feed_max,
+        power_heating_circ_pump,
+        power_heating_warm_air_fan,
+        power_source_circ_pump,
         power_crankcase_heater,
         power_off,
         power_standby,
@@ -121,30 +133,53 @@ fn transform_heat_pump(
         ..
     } = product.technology
     {
-        heat_pump.insert("backup_ctrl_type".into(), "None".into()); // assuming passing None for this? where does value come from
+        heat_pump.insert(
+            "backup_ctrl_type".into(),
+            backup_control_type.to_string().into(),
+        );
         heat_pump.insert(
             "min_temp_diff_flow_return_for_hp_to_operate".into(),
-            0.into(),
-        ); // using 0 as canned value for now (as per demo JSON files)
+            min_temp_diff_flow_return_for_hp_to_operate.into(),
+        );
         heat_pump.insert("modulating_control".into(), modulating_control.into());
         heat_pump.insert(
             "power_crankcase_heater".into(),
             power_crankcase_heater.to_f64().into(),
         );
-        heat_pump.insert("power_heating_circ_pump".into(), 0.015.into()); // canned value for now using value from demo files
+        if let Some(power_heating_circ_pump) = power_heating_circ_pump {
+            heat_pump.insert(
+                "power_heating_circ_pump".into(),
+                power_heating_circ_pump.to_f64().into(),
+            );
+        }
+        if let Some(power_heating_warm_air_fan) = power_heating_warm_air_fan {
+            heat_pump.insert(
+                "power_heating_warm_air_fan".into(),
+                power_heating_warm_air_fan.to_f64().into(),
+            );
+        }
         heat_pump.insert("power_off".into(), power_off.to_f64().into());
-        heat_pump.insert("power_source_circ_pump".into(), 0.01.into()); // canned value for now using value from demo files
+        heat_pump.insert(
+            "power_source_circ_pump".into(),
+            power_source_circ_pump.to_f64().into(),
+        );
         heat_pump.insert("power_standby".into(), power_standby.to_f64().into());
-        heat_pump.insert("sink_type".into(), "Water".into()); // canned value, assuming a water sink type until we know where this value comes from
-        heat_pump.insert("source_type".into(), "OutsideAir".into()); // canned value, assuming air-source heat pumps have this source type
-        heat_pump.insert("temp_lower_operating_limit".into(), JsonValue::from(-5)); // canned value for now using value from demo files
-        heat_pump.insert("temp_return_feed_max".into(), JsonValue::from(70)); // canned value for now using value from demo files
+        heat_pump.insert("sink_type".into(), sink_type.to_string().into());
+        heat_pump.insert("source_type".into(), source_type.to_string().into());
+        heat_pump.insert(
+            "temp_lower_operating_limit".into(),
+            temp_lower_operating_limit.to_f64().into(),
+        );
+        heat_pump.insert(
+            "temp_return_feed_max".into(),
+            temp_return_feed_max.to_f64().into(),
+        );
         heat_pump.insert(
             "test_data_EN14825".into(),
             JsonValue::from(
                 test_data
                     .iter()
-                    .map(|datum| {
+                    .filter_map(|datum| {
                         let HeatPumpTestDatum {
                             heating_capacity,
                             coefficient_of_performance,
@@ -155,7 +190,8 @@ fn transform_heat_pump(
                             test_condition_temperature,
                             test_condition,
                         } = datum;
-                        json!({
+                        // 'E' is not accepted in HEM, so filter this out
+                        (*test_condition != HeatPumpTestLetter::E).then_some(json!({
                             "capacity": heating_capacity.to_f64(),
                             "cop": coefficient_of_performance.to_f64(),
                             "degradation_coeff": degradation_coefficient.to_f64(),
@@ -164,22 +200,27 @@ fn transform_heat_pump(
                             "temp_source": inlet_temperature.to_f64(),
                             "temp_test": test_condition_temperature.to_f64(),
                             "test_letter": test_condition,
-                        })
+                        }))
                     })
                     .collect_vec(),
             ),
         );
-        heat_pump.insert("time_constant_onoff_operation".into(), 140.into()); // canned value for now using value from demo files
+        heat_pump.insert(
+            "time_constant_onoff_operation".into(),
+            time_constant_on_off_operation.into(),
+        );
         heat_pump.insert("time_delay_backup".into(), 2.into()); // canned value for now using one of the values from demo files
         heat_pump.insert(
             "var_flow_temp_ctrl_during_test".into(),
             variable_temp_control.into(),
-        ); // assuming these fields map to each other
+        );
 
         // now remove product reference
         heat_pump.remove(PRODUCT_REFERENCE_FIELD);
     } else {
-        bail!("Product reference '{product_reference}' is not a air source heat pump.");
+        bail!(
+            "Product reference '{product_reference}' does not relate to an air source heat pump."
+        );
     }
 
     Ok(())
@@ -221,6 +262,10 @@ mod tests {
             .expect("Schema file was not parseable.");
         let validator =
             jsonschema::validator_for(&schema).expect("Failed to create validator for schema.");
+        for error in validator.iter_errors(&result_json) {
+            eprintln!("Error: {error}");
+            eprintln!("Location: {}", error.instance_path);
+        }
         assert!(validator.is_valid(&result_json));
     }
 }
