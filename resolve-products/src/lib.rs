@@ -119,11 +119,13 @@ fn transform_heat_pump(
         backup_control_type,
         min_temp_diff_flow_return_for_hp_to_operate,
         modulating_control,
+        minimum_modulation_rate,
         time_constant_on_off_operation,
         temp_lower_operating_limit,
         temp_return_feed_max,
         power_heating_circ_pump,
         power_heating_warm_air_fan,
+        power_maximum_backup,
         power_source_circ_pump,
         power_crankcase_heater,
         power_off,
@@ -141,6 +143,22 @@ fn transform_heat_pump(
             "min_temp_diff_flow_return_for_hp_to_operate".into(),
             min_temp_diff_flow_return_for_hp_to_operate.into(),
         );
+        if let (true, Some(minimum_modulation_rate)) = (modulating_control, minimum_modulation_rate)
+        {
+            // write in the rate for the different temperatures for now
+            heat_pump.insert(
+                "min_modulation_rate_20".into(),
+                minimum_modulation_rate.to_f64().into(),
+            );
+            heat_pump.insert(
+                "min_modulation_rate_35".into(),
+                minimum_modulation_rate.to_f64().into(),
+            );
+            heat_pump.insert(
+                "min_modulation_rate_55".into(),
+                minimum_modulation_rate.to_f64().into(),
+            );
+        }
         heat_pump.insert("modulating_control".into(), modulating_control.into());
         heat_pump.insert(
             "power_crankcase_heater".into(),
@@ -156,6 +174,12 @@ fn transform_heat_pump(
             heat_pump.insert(
                 "power_heating_warm_air_fan".into(),
                 power_heating_warm_air_fan.to_f64().into(),
+            );
+        }
+        if let Some(power_maximum_backup) = power_maximum_backup {
+            heat_pump.insert(
+                "power_max_backup".into(),
+                power_maximum_backup.to_f64().into(),
             );
         }
         heat_pump.insert("power_off".into(), power_off.to_f64().into());
