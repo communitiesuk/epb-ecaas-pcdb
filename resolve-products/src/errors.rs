@@ -27,6 +27,8 @@ pub enum ResolvePcdbProductsError {
 #[derive(Debug, Error)]
 pub struct JsonValidationError {
     value: Value,
+    #[allow(dead_code)]
+    kind: JsonValidationErrorKind,
     instance_path: String,
     schema_path: String,
 }
@@ -47,17 +49,19 @@ impl From<ValidationError<'_>> for JsonValidationError {
             instance,
             instance_path,
             schema_path,
-            ..
+            kind,
         } = value;
         Self {
             value: instance.into_owned(),
             instance_path: instance_path.to_string(),
             schema_path: schema_path.to_string(),
+            kind: kind.into(),
         }
     }
 }
 
 /// Simplified mapping from jsonschema::ValidationErrorKind
+#[derive(Clone, Debug, PartialEq)]
 pub enum JsonValidationErrorKind {
     /// The input array contain more items than expected.
     AdditionalItems { limit: usize },
