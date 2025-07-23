@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
-use anyhow::anyhow;
+use crate::errors::ResolvePcdbProductsError;
+use crate::ResolveProductsResult;
 use indexmap::IndexMap;
 use rust_decimal::Decimal;
 use serde::Deserialize;
@@ -12,7 +13,7 @@ use std::sync::LazyLock;
 
 pub(crate) fn find_products_for_references<'a>(
     product_references: &[String],
-) -> anyhow::Result<HashMap<&'a str, &'a Product<'a>>> {
+) -> ResolveProductsResult<HashMap<&'a str, &'a Product<'a>>> {
     PCDB_PRODUCTS
         .iter()
         .filter(|(k, _)| product_references.contains(k))
@@ -20,7 +21,9 @@ pub(crate) fn find_products_for_references<'a>(
             if product_references.contains(k) {
                 Ok((k.as_str(), v))
             } else {
-                Err(anyhow!("Product reference not found: {}", k.as_str()))
+                Err(ResolvePcdbProductsError::UnknownProductReference(
+                    k.to_string(),
+                ))
             }
         })
         .collect()

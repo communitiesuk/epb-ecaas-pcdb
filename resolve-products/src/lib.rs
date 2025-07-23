@@ -1,11 +1,11 @@
+mod errors;
 mod products;
 
+use crate::errors::{JsonPathError, JsonValidationError, ResolvePcdbProductsError};
 use crate::products::{
     find_products_for_references, HeatPumpTestDatum, HeatPumpTestLetter, Product, Technology,
 };
-use anyhow::{anyhow, bail};
 use itertools::Itertools;
-use jsonpath_rust::query::Queried;
 use jsonpath_rust::JsonPath;
 use jsonschema::Validator;
 use rust_decimal::prelude::ToPrimitive;
@@ -16,14 +16,15 @@ use std::fmt::Debug;
 use std::io::{BufReader, Cursor, Read};
 use std::sync::LazyLock;
 
-pub fn resolve_products(json: impl Read) -> anyhow::Result<impl Read + Debug> {
+pub fn resolve_products(json: impl Read) -> ResolveProductsResult<impl Read + Debug> {
     let reader = BufReader::new(json);
 
-    let mut input: JsonValue = serde_json::from_reader(reader)?;
+    let mut input: JsonValue =
+        serde_json::from_reader(reader).map_err(|_| ResolvePcdbProductsError::InvalidJson)?;
 
     // validate first
-    if !SCHEMA_VALIDATOR.is_valid(&input) {
-        bail!("Input was invalid.");
+    if let Err(e) = SCHEMA_VALIDATOR.validate(&input) {
+        return Err(JsonValidationError::from(e).into());
     }
 
     transform_json(&mut input)?;
@@ -40,28 +41,30 @@ static SCHEMA_VALIDATOR: LazyLock<Validator> = LazyLock::new(|| {
     )
 });
 
-fn extract_product_references(json: &JsonValue) -> anyhow::Result<Vec<String>> {
-    let instances = if let Queried::Ok(instances) =
-        json.query_with_path(&format!("$..{PRODUCT_REFERENCE_FIELD}"))
-    {
-        instances
-    } else {
-        bail!("Finding product references using JSONPath failed.");
+fn extract_product_references(json: &JsonValue) -> ResolveProductsResult<Vec<String>> {
+    let instances = match json.query_with_path(&format!("$..{PRODUCT_REFERENCE_FIELD}")) {
+        Ok(instances) => instances,
+        Err(json_path_error) => {
+            return Err(JsonPathError::from(json_path_error).into());
+        }
     };
 
     instances
         .into_iter()
-        .map(|v| -> anyhow::Result<String> {
-            anyhow::Ok(String::from(v.val().as_str().ok_or_else(|| {
-                anyhow!("JSON value for product_reference was expected to be a string.")
-            })?))
+        .map(|v| -> ResolveProductsResult<String> {
+            match v.val() {
+                JsonValue::String(value) => Ok(String::from(value)),
+                value => Err(ResolvePcdbProductsError::InvalidProductCategoryReference(
+                    value.to_owned(),
+                )),
+            }
         })
-        .collect::<anyhow::Result<Vec<String>>>()
+        .collect::<ResolveProductsResult<Vec<String>>>()
 }
 
 const PRODUCT_REFERENCE_FIELD: &'static str = "product_reference";
 
-fn transform_json(json: &mut JsonValue) -> anyhow::Result<()> {
+fn transform_json(json: &mut JsonValue) -> ResolveProductsResult<()> {
     let product_references = extract_product_references(json)?;
     let products = find_products_for_references(&product_references)?;
 
@@ -71,7 +74,7 @@ fn transform_json(json: &mut JsonValue) -> anyhow::Result<()> {
 fn transform_heat_pumps(
     json: &mut JsonValue,
     products: &HashMap<&str, &Product>,
-) -> anyhow::Result<()> {
+) -> ResolveProductsResult<()> {
     let heat_source_wets = match json.pointer_mut("/HeatSourceWet") {
         Some(node) => {
             if node.is_object() {
@@ -91,7 +94,9 @@ fn transform_heat_pumps(
             {
                 let product_reference = std::string::String::from(
                     heat_pump[PRODUCT_REFERENCE_FIELD].as_str().ok_or_else(|| {
-                        anyhow!("Product reference was not expressed as a string.")
+                        ResolvePcdbProductsError::InvalidProductCategoryReference(
+                            heat_pump[PRODUCT_REFERENCE_FIELD].clone(),
+                        )
                     })?,
                 );
                 transform_heat_pump(
@@ -110,7 +115,9 @@ fn transform_heat_pump(
     heat_pump: &mut Map<std::string::String, JsonValue>,
     product: &Product,
     product_reference: &str,
-) -> anyhow::Result<()> {
+) -> ResolveProductsResult<()> {
+    let mut category_mismatches = vec![];
+
     // can remove following "allow" when there is more than one technology variant modelled
     #[allow(irrefutable_let_patterns)]
     if let Technology::AirSourceHeatPump {
@@ -242,13 +249,21 @@ fn transform_heat_pump(
         // now remove product reference
         heat_pump.remove(PRODUCT_REFERENCE_FIELD);
     } else {
-        bail!(
+        category_mismatches.push(format!(
             "Product reference '{product_reference}' does not relate to an air source heat pump."
-        );
+        ));
+    }
+
+    if category_mismatches.len() > 0 {
+        return Err(ResolvePcdbProductsError::ProductCategoryMismatches(
+            category_mismatches,
+        ));
     }
 
     Ok(())
 }
+
+type ResolveProductsResult<T> = Result<T, ResolvePcdbProductsError>;
 
 #[cfg(test)]
 mod tests {
