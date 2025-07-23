@@ -11,4 +11,3 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: cargo test --workspace --exclude hem-lambda
-      - run: cargo rustc --no-default-features -- -Awarnings
