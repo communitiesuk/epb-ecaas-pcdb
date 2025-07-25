@@ -1,4 +1,4 @@
-mod errors;
+pub mod errors;
 mod products;
 
 use crate::errors::{JsonPathError, JsonValidationError, ResolvePcdbProductsError};
