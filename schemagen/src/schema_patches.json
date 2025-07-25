@@ -10,7 +10,7 @@
       "path": "/$defs/HeatSourceWetDetails/oneOf/1",
       "value": {
         "type": "object",
-        "title": "HeatPump",
+        "title": "HeatPump (with HEM product reference)",
         "required": [
           "EnergySupply",
           "product_reference",
