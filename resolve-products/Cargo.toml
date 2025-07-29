@@ -17,4 +17,4 @@ thiserror = "2.0.12"
 smartstring = { version = "1.0.1", features = ["serde"] }
 
 [dev-dependencies]
-rstest = "0.25.0"
+rstest = "0.26.1"
