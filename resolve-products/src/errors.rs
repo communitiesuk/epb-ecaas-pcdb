@@ -142,7 +142,7 @@ impl From<ValidationErrorKind> for JsonValidationErrorKind {
             ValidationErrorKind::AdditionalProperties { unexpected } => {
                 Self::AdditionalProperties { unexpected }
             }
-            ValidationErrorKind::AnyOf => Self::AnyOf,
+            ValidationErrorKind::AnyOf { context: _ } => Self::AnyOf,
             ValidationErrorKind::BacktrackLimitExceeded { .. } => Self::BacktrackLimitExceeded,
             ValidationErrorKind::Constant { expected_value } => Self::Constant { expected_value },
             ValidationErrorKind::Contains => Self::Contains,
@@ -169,8 +169,8 @@ impl From<ValidationErrorKind> for JsonValidationErrorKind {
             ValidationErrorKind::MinProperties { limit } => Self::MinProperties { limit },
             ValidationErrorKind::MultipleOf { multiple_of } => Self::MultipleOf { multiple_of },
             ValidationErrorKind::Not { schema } => Self::Not { schema },
-            ValidationErrorKind::OneOfMultipleValid => Self::OneOfMultipleValid,
-            ValidationErrorKind::OneOfNotValid => Self::OneOfNotValid,
+            ValidationErrorKind::OneOfMultipleValid { context: _ } => Self::OneOfMultipleValid,
+            ValidationErrorKind::OneOfNotValid { context: _ } => Self::OneOfNotValid,
             ValidationErrorKind::Pattern { pattern } => Self::Pattern { pattern },
             ValidationErrorKind::PropertyNames { error } => Self::PropertyNames {
                 error: format!("associated error: {error:?}"),
