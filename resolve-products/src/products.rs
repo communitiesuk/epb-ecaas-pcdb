@@ -29,7 +29,7 @@ pub(crate) fn find_products_for_references<'a>(
         .collect()
 }
 
-fn find_product_by_reference(reference: &str) -> Option<&Product> {
+fn find_product_by_reference(reference: &str) -> Option<&Product<'_>> {
     PCDB_PRODUCTS.get(reference)
 }
 
