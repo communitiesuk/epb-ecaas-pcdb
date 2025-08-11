@@ -29,3 +29,20 @@ must be a conforming JSON document) and returns another value that implements `s
 
 At the current time the PCDB data backend is a flat file, products.json, that contains three fake air-source heat pump
 products. However, it is expected that this package will extended to work with e.g. a database instance.
+
+### Temporary binary for resolving JSON
+
+There is also, while PCDB is represented as a flat file, a binary entry point for this package that can be used to
+resolve input JSON.
+
+To convert a JSON document from a local file:
+
+```shell
+cargo run -p resolve-products --features=cli -- [PATH_TO_FILE]
+```
+
+To convert JSON copied in a Mac OS clipboard:
+
+```shell
+pbpaste | cargo run -p resolve-products --features=cli -- -
+```

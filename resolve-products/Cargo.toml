@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+clap = { version = "4.5.43", features = ["derive"], optional = true }
 indexmap = "2.10.0"
 itertools = "0.14.0"
 jsonpath-rust = "1.0.3"
@@ -16,5 +17,13 @@ serde_valid = "1.0.5"
 thiserror = "2.0.12"
 smartstring = { version = "1.0.1", features = ["serde"] }
 
+[features]
+default = []
+cli = ["dep:clap"]
+
 [dev-dependencies]
 rstest = "0.26.1"
+
+[[bin]]
+name = "resolve-products"
+required-features = ["cli"]
