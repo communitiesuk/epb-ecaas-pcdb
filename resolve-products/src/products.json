@@ -32,7 +32,7 @@
     "standardRatingCapacity20C": null,
     "standardRatingCapacity35C": 14.000,
     "standardRatingCapacity55C": 14.500,
-    "minimumModulationRate": null,
+    "minimumModulationRate": 0.35,
     "timeConstantOnOffOperation": 140,
     "tempReturnFeedMax": 45.0,
     "tempLowerOperatingLimit": -5,
