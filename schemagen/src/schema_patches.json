@@ -2,21 +2,27 @@
   "heatPump": [
     {
       "op": "test",
-      "path": "/$defs/HeatSourceWetDetails/oneOf/0/properties/type/const",
-      "value": "HeatPump"
+      "path": "/properties/HeatSourceWet/anyOf/0/additionalProperties/oneOf/0/$ref",
+      "value": "#/$defs/HeatSourceWetHeatPump"
     },
     {
       "op": "add",
-      "path": "/$defs/HeatSourceWetDetails/oneOf/1",
+      "path": "/properties/HeatSourceWet/anyOf/0/additionalProperties/oneOf/1",
       "value": {
-        "type": "object",
-        "title": "HeatPump (with HEM product reference)",
-        "required": [
-          "EnergySupply",
-          "product_reference",
-          "type"
-        ],
+        "$ref": "#/$defs/HeatSourceWetHeatPumpWithProductReference"
+      }
+    },
+    {
+      "op": "add",
+      "path": "/$defs/HeatSourceWetHeatPumpWithProductReference",
+      "value": {
+        "additionalProperties": false,
         "properties": {
+          "type": {
+            "const": "HeatPump",
+            "title": "Type",
+            "type": "string"
+          },
           "BufferTank": {
             "anyOf": [
               {
@@ -25,22 +31,36 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "default": null
           },
           "EnergySupply": {
+            "title": "Energysupply",
             "type": "string"
           },
           "EnergySupply_heat_network": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Energysupply Heat Network"
           },
           "MechanicalVentilation": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Mechanicalventilation"
           },
           "boiler": {
             "anyOf": [
@@ -50,42 +70,68 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "default": null
           },
           "eahp_mixed_max_temp": {
-            "type": [
-              "number",
-              "null"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
             ],
-            "format": "double"
+            "default": null,
+            "title": "Eahp Mixed Max Temp"
           },
           "eahp_mixed_min_temp": {
-            "type": [
-              "number",
-              "null"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
             ],
-            "format": "double"
+            "default": null,
+            "title": "Eahp Mixed Min Temp"
           },
           "min_modulation_rate_20": {
-            "type": [
-              "number",
-              "null"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
             ],
-            "format": "double"
+            "default": null,
+            "title": "Min Modulation Rate 20"
           },
           "min_modulation_rate_35": {
-            "type": [
-              "number",
-              "null"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
             ],
-            "format": "double"
+            "default": null,
+            "title": "Min Modulation Rate 35"
           },
           "min_modulation_rate_55": {
-            "type": [
-              "number",
-              "null"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
             ],
-            "format": "double"
+            "default": null,
+            "title": "Min Modulation Rate 55"
           },
           "product_reference": {
             "type": "string",
@@ -93,18 +139,25 @@
             "description": "A unique reference to a product held within the HEM database (PCDB)"
           },
           "temp_distribution_heat_network": {
-            "type": [
-              "number",
-              "null"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
             ],
-            "format": "double"
-          },
-          "type": {
-            "type": "string",
-            "const": "HeatPump"
+            "default": null,
+            "title": "Temp Distribution Heat Network"
           }
         },
-        "additionalProperties": false
+        "required": [
+          "type",
+          "EnergySupply",
+          "product_reference"
+        ],
+        "title": "HeatSourceWetHeatPumpWithProductReference",
+        "type": "object"
       }
     }
   ]
