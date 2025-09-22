@@ -2,19 +2,29 @@
   "heatPump": [
     {
       "op": "test",
-      "path": "/properties/HeatSourceWet/anyOf/0/additionalProperties/oneOf/0/$ref",
-      "value": "#/$defs/HeatSourceWetHeatPump"
+      "path": "/properties/HeatSourceWet/additionalProperties/allOf/0/if/properties/type/const",
+      "value": "HeatPump"
+    },
+    {
+      "op": "move",
+      "from": "/properties/HeatSourceWet/additionalProperties/allOf/0/then",
+      "path": "/heatpumpstash"
     },
     {
       "op": "add",
-      "path": "/properties/HeatSourceWet/anyOf/0/additionalProperties/oneOf/1",
+      "path": "/properties/HeatSourceWet/additionalProperties/allOf/0/then",
       "value": {
-        "$ref": "#/$defs/HeatSourceWetHeatPumpWithProductReference"
+        "anyOf": []
       }
     },
     {
+      "op": "move",
+      "from": "/heatpumpstash",
+      "path": "/properties/HeatSourceWet/additionalProperties/allOf/0/then/anyOf/0"
+    },
+    {
       "op": "add",
-      "path": "/$defs/HeatSourceWetHeatPumpWithProductReference",
+      "path": "/properties/HeatSourceWet/additionalProperties/allOf/0/then/anyOf/1",
       "value": {
         "additionalProperties": false,
         "properties": {
