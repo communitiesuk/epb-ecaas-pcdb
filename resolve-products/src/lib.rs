@@ -126,7 +126,8 @@ fn transform_heat_pump(
         backup_control_type,
         min_temp_diff_flow_return_for_hp_to_operate,
         modulating_control,
-        minimum_modulation_rate,
+        minimum_modulation_rate_35,
+        minimum_modulation_rate_55,
         time_constant_on_off_operation,
         temp_lower_operating_limit,
         temp_return_feed_max,
@@ -150,20 +151,15 @@ fn transform_heat_pump(
             "min_temp_diff_flow_return_for_hp_to_operate".into(),
             min_temp_diff_flow_return_for_hp_to_operate.into(),
         );
-        if let (true, Some(minimum_modulation_rate)) = (modulating_control, minimum_modulation_rate)
-        {
+        if modulating_control {
             // write in the rate for the different temperatures for now
             heat_pump.insert(
-                "min_modulation_rate_20".into(),
-                minimum_modulation_rate.to_f64().into(),
-            );
-            heat_pump.insert(
                 "min_modulation_rate_35".into(),
-                minimum_modulation_rate.to_f64().into(),
+                minimum_modulation_rate_35.to_f64().into(),
             );
             heat_pump.insert(
                 "min_modulation_rate_55".into(),
-                minimum_modulation_rate.to_f64().into(),
+                minimum_modulation_rate_55.to_f64().into(),
             );
         }
         heat_pump.insert("modulating_control".into(), modulating_control.into());
@@ -171,24 +167,18 @@ fn transform_heat_pump(
             "power_crankcase_heater".into(),
             power_crankcase_heater.to_f64().into(),
         );
-        if let Some(power_heating_circ_pump) = power_heating_circ_pump {
-            heat_pump.insert(
-                "power_heating_circ_pump".into(),
-                power_heating_circ_pump.to_f64().into(),
-            );
-        }
-        if let Some(power_heating_warm_air_fan) = power_heating_warm_air_fan {
-            heat_pump.insert(
-                "power_heating_warm_air_fan".into(),
-                power_heating_warm_air_fan.to_f64().into(),
-            );
-        }
-        if let Some(power_maximum_backup) = power_maximum_backup {
-            heat_pump.insert(
-                "power_max_backup".into(),
-                power_maximum_backup.to_f64().into(),
-            );
-        }
+        heat_pump.insert(
+            "power_heating_circ_pump".into(),
+            power_heating_circ_pump.to_f64().into(),
+        );
+        heat_pump.insert(
+            "power_heating_warm_air_fan".into(),
+            power_heating_warm_air_fan.to_f64().into(),
+        );
+        heat_pump.insert(
+            "power_max_backup".into(),
+            power_maximum_backup.to_f64().into(),
+        );
         heat_pump.insert("power_off".into(), power_off.to_f64().into());
         heat_pump.insert(
             "power_source_circ_pump".into(),
@@ -212,25 +202,25 @@ fn transform_heat_pump(
                     .iter()
                     .filter_map(|datum| {
                         let HeatPumpTestDatum {
-                            heating_capacity,
+                            capacity,
                             coefficient_of_performance,
                             degradation_coefficient,
                             design_flow_temperature,
-                            outlet_temperature,
-                            inlet_temperature,
-                            test_condition_temperature,
-                            test_condition,
+                            temperature_outlet,
+                            temperature_source,
+                            temperature_test,
+                            test_letter,
                         } = datum;
                         // 'E' is not accepted in HEM, so filter this out
-                        (*test_condition != HeatPumpTestLetter::E).then_some(json!({
-                            "capacity": heating_capacity.to_f64(),
+                        (*test_letter != HeatPumpTestLetter::E).then_some(json!({
+                            "capacity": capacity.to_f64(),
                             "cop": coefficient_of_performance.to_f64(),
                             "degradation_coeff": degradation_coefficient.to_f64(),
                             "design_flow_temp": design_flow_temperature.to_f64(),
-                            "temp_outlet": outlet_temperature.to_f64(),
-                            "temp_source": inlet_temperature.to_f64(),
-                            "temp_test": test_condition_temperature.to_f64(),
-                            "test_letter": test_condition,
+                            "temp_outlet": temperature_outlet.to_f64(),
+                            "temp_source": temperature_source.to_f64(),
+                            "temp_test": temperature_test.to_f64(),
+                            "test_letter": test_letter,
                         }))
                     })
                     .collect_vec(),

@@ -126,31 +126,34 @@ impl<'de> Deserialize<'de> for YearOfManufacture {
 pub(crate) enum Technology<'a> {
     #[serde(rename = "Air Source Heat Pump", rename_all = "camelCase")]
     AirSourceHeatPump {
-        fuel: &'a str,
+        energy_supply: &'a str,
         source_type: HeatPumpSourceType,
         sink_type: HeatPumpSinkType,
         backup_control_type: HeatPumpBackupControlType,
         modulating_control: bool,
         #[serde(rename = "standardRatingCapacity20C")]
-        standard_rating_capacity_20c: Option<Decimal>,
+        standard_rating_capacity_20c: Decimal,
         #[serde(rename = "standardRatingCapacity35C")]
-        standard_rating_capacity_35c: Option<Decimal>,
+        standard_rating_capacity_35c: Decimal,
         #[serde(rename = "standardRatingCapacity55C")]
-        standard_rating_capacity_55c: Option<Decimal>,
-        minimum_modulation_rate: Option<Decimal>,
+        standard_rating_capacity_55c: Decimal,
+        #[serde(rename = "minimumModulationRate35")]
+        minimum_modulation_rate_35: Decimal,
+        #[serde(rename = "minimumModulationRate55")]
+        minimum_modulation_rate_55: Decimal,
         time_constant_on_off_operation: i32,
         temp_return_feed_max: Decimal,
         temp_lower_operating_limit: Decimal,
         min_temp_diff_flow_return_for_hp_to_operate: i32,
         #[serde(rename = "varFlowTempCtrlDuringTest")]
         variable_temp_control: bool,
-        power_heating_circ_pump: Option<Decimal>,
-        power_heating_warm_air_fan: Option<Decimal>,
+        power_heating_circ_pump: Decimal,
+        power_heating_warm_air_fan: Decimal,
         power_source_circ_pump: Decimal,
         power_standby: Decimal,
         power_crankcase_heater: Decimal,
         power_off: Decimal,
-        power_maximum_backup: Option<Decimal>,
+        power_maximum_backup: Decimal,
         test_data: Vec<HeatPumpTestDatum>,
     },
 }
@@ -186,11 +189,11 @@ pub(crate) enum HeatPumpBackupControlType {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(crate) struct HeatPumpTestDatum {
     pub(crate) design_flow_temperature: i32,
-    pub(crate) test_condition: HeatPumpTestLetter,
-    pub(crate) test_condition_temperature: i32,
-    pub(crate) inlet_temperature: Decimal,
-    pub(crate) outlet_temperature: Decimal,
-    pub(crate) heating_capacity: Decimal,
+    pub(crate) test_letter: HeatPumpTestLetter,
+    pub(crate) temperature_test: i32,
+    pub(crate) temperature_source: Decimal,
+    pub(crate) temperature_outlet: Decimal,
+    pub(crate) capacity: Decimal,
     pub(crate) coefficient_of_performance: Decimal,
     pub(crate) degradation_coefficient: Decimal,
 }
