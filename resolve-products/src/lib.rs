@@ -284,7 +284,7 @@ mod tests {
     fn test_resolve_products_produces_passing_output() {
         let json = Cursor::new(include_str!("../test/demo_heat_pump_product_ref.json"));
         let result = resolve_products(json);
-        assert!(result.is_ok());
+        assert!(result.is_ok(), "Result: {result:#?}");
         let result_json: JsonValue =
             serde_json::from_reader(BufReader::new(result.unwrap())).unwrap();
         let schema = serde_json::from_str(include_str!("../test/target_schema.json"))

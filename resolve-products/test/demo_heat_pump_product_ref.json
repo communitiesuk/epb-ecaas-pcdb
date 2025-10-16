@@ -176,8 +176,7 @@
       "type": "StorageTank",
       "volume": 80.0,
       "daily_losses": 1.68,
-      "min_temp": 52.0,
-      "setpoint_temp": 55.0,
+      "init_temp": 60.0,
       "ColdWaterSource": "mains water",
       "HeatSource": {
         "hp": {
@@ -185,9 +184,10 @@
           "name": "hp",
           "temp_flow_limit_upper": 65,
           "EnergySupply": "mains elec",
-          "Control": "hw timer",
           "heater_position": 0.1,
-          "thermostat_position": 0.33
+          "thermostat_position": 0.33,
+          "Controlmax": "control",
+          "Controlmin": "control"
         }
       },
       "primary_pipework": [
@@ -292,7 +292,6 @@
   "SpaceHeatSystem": {
     "zone 1 radiators": {
       "type": "WetDistribution",
-      "wet_emitter_type": "radiators",
       "advanced_start": 1,
       "thermal_mass": 0.14,
       "emitters": [
@@ -333,11 +332,11 @@
       "temp_setback": 20.0,
       "rated_power": 6.0,
       "frac_convective": 0.4,
-      "EnergySupply": "mains elec"
+      "EnergySupply": "mains elec",
+      "Control": "control"
     },
     "zone 2 radiators": {
       "type": "WetDistribution",
-      "wet_emitter_type": "radiators",
       "advanced_start": 1,
       "thermal_mass": 0.14,
       "emitters": [
@@ -378,7 +377,8 @@
       "temp_setback": 20.0,
       "rated_power": 6.0,
       "frac_convective": 0.4,
-      "EnergySupply": "mains elec"
+      "EnergySupply": "mains elec",
+      "Control": "control"
     }
   },
   "SpaceCoolSystem": {
@@ -388,7 +388,8 @@
       "cooling_capacity": 3.0,
       "efficiency": 4.3,
       "frac_convective": 0.95,
-      "EnergySupply": "mains elec"
+      "EnergySupply": "mains elec",
+      "Control": "control"
     },
     "cooling system 1 backup": {
       "type": "AirConditioning",
@@ -396,7 +397,8 @@
       "cooling_capacity": 3.0,
       "efficiency": 4.3,
       "frac_convective": 0.95,
-      "EnergySupply": "mains elec"
+      "EnergySupply": "mains elec",
+      "Control": "control"
     },
     "cooling system 2": {
       "type": "AirConditioning",
@@ -405,7 +407,8 @@
       "cooling_capacity": 3.0,
       "efficiency": 4.3,
       "frac_convective": 0.95,
-      "EnergySupply": "mains elec"
+      "EnergySupply": "mains elec",
+      "Control": "control"
     },
     "cooling system 2 backup": {
       "type": "AirConditioning",
@@ -413,7 +416,8 @@
       "cooling_capacity": 3.0,
       "efficiency": 4.3,
       "frac_convective": 0.95,
-      "EnergySupply": "mains elec"
+      "EnergySupply": "mains elec",
+      "Control": "control"
     }
   },
   "General": {
@@ -421,7 +425,7 @@
     "build_type": "house"
   },
   "InfiltrationVentilation": {
-    "cross_vent_factor": true,
+    "cross_vent_possible": true,
     "shield_class": "Normal",
     "terrain_class": "OpenField",
     "ventilation_zone_base_height": 2.5,
@@ -452,19 +456,14 @@
     "MechanicalVentilation": {
       "mechvent1": {
         "sup_air_flw_ctrl": "ODA",
-        "sup_air_temp_ctrl": "CONST",
-        "design_zone_cooling_covered_by_mech_vent": 3.4,
-        "design_zone_heating_covered_by_mech_vent": 1,
+        "sup_air_temp_ctrl": "NO_CTRL",
         "vent_type": "Centralised continuous MEV",
         "measured_fan_power": 12.26,
         "measured_air_flow_rate": 37,
         "EnergySupply": "mains elec",
-        "design_outdoor_air_flow_rate": 80
+        "design_outdoor_air_flow_rate": 80,
+        "SFP": 1.5
       }
-    },
-    "PDUs": {
-    },
-    "Cowls": {
     },
     "CombustionAppliances": {
       "Fireplace": {
@@ -651,7 +650,8 @@
           "type": "ThermalBridgePoint",
           "heat_transfer_coeff": 2.0
         }
-      }
+      },
+      "temp_setpnt_init": 60.0
     },
     "zone 2": {
       "SpaceHeatSystem": [
@@ -814,7 +814,9 @@
           "type": "ThermalBridgePoint",
           "heat_transfer_coeff": 2.0
         }
-      }
+      },
+      "temp_setpnt_init": 60.0
     }
-  }
+  },
+  "temp_internal_air_static_calcs": 20.0
 }
