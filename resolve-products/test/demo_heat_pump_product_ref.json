@@ -285,8 +285,7 @@
     "hp": {
       "type": "HeatPump",
       "EnergySupply": "mains elec",
-      "product_reference": "HEATPUMP-MEDIUM",
-      "EnergySupply_heat_network": "hn"
+      "product_reference": "HEATPUMP-MEDIUM"
     }
   },
   "SpaceHeatSystem": {
