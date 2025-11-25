@@ -204,18 +204,17 @@ fn transform_heat_pump(
                         let HeatPumpTestDatum {
                             capacity,
                             coefficient_of_performance,
-                            degradation_coefficient,
                             design_flow_temperature,
                             temperature_outlet,
                             temperature_source,
                             temperature_test,
                             test_letter,
+                            ..
                         } = datum;
                         // 'E' is not accepted in HEM, so filter this out
                         (*test_letter != HeatPumpTestLetter::E).then_some(json!({
                             "capacity": capacity.to_f64(),
                             "cop": coefficient_of_performance.to_f64(),
-                            "degradation_coeff": degradation_coefficient.to_f64(),
                             "design_flow_temp": design_flow_temperature.to_f64(),
                             "temp_outlet": temperature_outlet.to_f64(),
                             "temp_source": temperature_source.to_f64(),
@@ -293,7 +292,7 @@ mod tests {
             jsonschema::validator_for(&schema).expect("Failed to create validator for schema.");
         for error in validator.iter_errors(&result_json) {
             eprintln!("Error: {error}");
-            eprintln!("Location: {}", error.instance_path);
+            eprintln!("Location: {}", error.instance_path());
         }
         assert!(validator.is_valid(&result_json));
     }
