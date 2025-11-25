@@ -45,12 +45,7 @@ impl Display for JsonValidationError {
 
 impl From<ValidationError<'_>> for JsonValidationError {
     fn from(value: ValidationError) -> Self {
-        let ValidationError {
-            instance,
-            instance_path,
-            schema_path,
-            kind,
-        } = value;
+        let (instance, kind, instance_path, schema_path) = value.into_parts();
         Self {
             value: instance.into_owned(),
             instance_path: instance_path.to_string(),
