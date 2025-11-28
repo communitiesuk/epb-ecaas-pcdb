@@ -2,80 +2,90 @@
 
 use crate::errors::ResolvePcdbProductsError;
 use crate::ResolveProductsResult;
-use indexmap::IndexMap;
+use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
+use aws_sdk_dynamodb::Client as DynamoDbClient;
 use rust_decimal::Decimal;
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
+use serde_dynamo::from_item;
 use serde_enum_str::{Deserialize_enum_str, Serialize_enum_str};
 use serde_valid::Validate;
 use smartstring::alias::String;
 use std::collections::HashMap;
-use std::sync::LazyLock;
 
-pub(crate) fn find_products_for_references<'a>(
+pub(crate) async fn find_products_for_references<'a>(
     product_references: &[String],
-) -> ResolveProductsResult<HashMap<&'a str, &'a Product<'a>>> {
-    PCDB_PRODUCTS
+    dynamo_db_client: &DynamoDbClient,
+) -> ResolveProductsResult<HashMap<String, Product>> {
+    if product_references.is_empty() {
+        return Ok(HashMap::new());
+    }
+
+    let results = dynamo_db_client
+        .batch_get_item()
+        .request_items(
+            "products",
+            KeysAndAttributes::builder()
+                .keys(
+                    product_references
+                        .iter()
+                        .map(|product_ref| {
+                            (
+                                std::string::String::from("id"),
+                                AttributeValue::N(product_ref.to_string()),
+                            )
+                        })
+                        .collect(),
+                )
+                .build()
+                .unwrap(),
+        )
+        .send()
+        .await;
+
+    let results = match results {
+        Ok(results) => results,
+        Err(e) => {
+            return Err(ResolvePcdbProductsError::AccessError(e.into()));
+        }
+    };
+
+    let products = results.responses().unwrap().get("products").unwrap();
+
+    if products.len() != product_references.len() {
+        return Err(ResolvePcdbProductsError::UnknownProductReference(format!(
+            "At least one product reference from the list ({}) could not be found within the PCDB store.",
+            product_references.join(", "),
+        )));
+    }
+
+    let products = products
         .iter()
-        .filter(|(k, _)| product_references.contains(k))
-        .map(|(k, v)| {
-            if product_references.contains(k) {
-                Ok((k.as_str(), v))
-            } else {
-                Err(ResolvePcdbProductsError::UnknownProductReference(
-                    k.to_string(),
-                ))
-            }
+        .cloned()
+        .map(|item| {
+            let product = from_item::<_, Product>(item);
+            let product = match product {
+                Ok(product) => product,
+                Err(e) => return Err(e),
+            };
+
+            Ok((String::from(product.id.to_string()), product))
         })
-        .collect()
-}
+        .collect::<Result<HashMap<_, _>, _>>();
 
-fn find_product_by_reference(reference: &str) -> Option<&Product<'_>> {
-    PCDB_PRODUCTS.get(reference)
-}
-
-static PCDB_PRODUCTS: LazyLock<IndexMap<String, Product>> =
-    LazyLock::new(|| serde_json::from_str(include_str!("products.json")).unwrap());
-
-#[derive(Debug, Deserialize, Validate)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
-struct Manufacturer<'a> {
-    #[serde(rename = "ID")]
-    #[validate(pattern = r"^\d+$")]
-    id: &'a str,
-    #[serde(rename = "manufacturerReferenceNo")]
-    #[validate(pattern = r"^\d+$")]
-    manufacturer_reference_number: &'a str,
-    current_name: &'a str,
-    secondary_addressable: Option<&'a str>,
-    primary_addressable: Option<&'a str>,
-    street_name: &'a str,
-    locality_name: Option<&'a str>,
-    town_name: &'a str,
-    administrative_area_name: Option<&'a str>,
-    postcode: &'a str,
-    country: Option<&'a str>,
-    phone_number: &'a str,
-    url: &'a str,
-    #[validate(
-        pattern = r"(19|20)\d{2}-(0[1-9]|1[1,2])-(0[1-9]|[12][0-9]|3[01])\s([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])"
-    )]
-    updated: &'a str,
+    products.map_err(|e| ResolvePcdbProductsError::DeserializeError(e.into()))
 }
 
 #[derive(Debug, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct Product<'a> {
-    #[serde(rename = "ID")]
+pub(crate) struct Product {
     id: u32,
-    manufacturer: Manufacturer<'a>,
-    original_manufacturer_name: Option<&'a str>,
-    brand_name: &'a str,
-    model_name: &'a str,
-    model_qualifier: &'a str,
+    brand_name: String,
+    model_name: String,
+    model_qualifier: Option<String>,
     first_year_of_manufacture: u16,
     final_year_of_manufacture: Option<YearOfManufacture>,
     #[serde(flatten)]
-    pub(crate) technology: Technology<'a>,
+    pub(crate) technology: Technology,
 }
 
 #[derive(Debug, Clone)]
@@ -122,40 +132,50 @@ impl<'de> Deserialize<'de> for YearOfManufacture {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(tag = "technologyType", rename_all = "camelCase", deny_unknown_fields)]
-pub(crate) enum Technology<'a> {
-    #[serde(rename = "Air Source Heat Pump", rename_all = "camelCase")]
+#[serde(tag = "technologyType", rename_all = "camelCase")]
+pub(crate) enum Technology {
+    #[serde(rename = "air source heat pump")]
     AirSourceHeatPump {
-        energy_supply: &'a str,
+        #[serde(rename = "EnergySupply")]
+        energy_supply: String,
         source_type: HeatPumpSourceType,
         sink_type: HeatPumpSinkType,
+        #[serde(rename = "backup_ctrl_type")]
         backup_control_type: HeatPumpBackupControlType,
+        #[serde(deserialize_with = "deserialize_numeric_bool")]
         modulating_control: bool,
-        #[serde(rename = "standardRatingCapacity20C")]
-        standard_rating_capacity_20c: Decimal,
-        #[serde(rename = "standardRatingCapacity35C")]
-        standard_rating_capacity_35c: Decimal,
-        #[serde(rename = "standardRatingCapacity55C")]
-        standard_rating_capacity_55c: Decimal,
-        #[serde(rename = "minimumModulationRate35")]
         minimum_modulation_rate_35: Decimal,
-        #[serde(rename = "minimumModulationRate55")]
         minimum_modulation_rate_55: Decimal,
+        #[serde(rename = "time_constant_onoff_operation")]
         time_constant_on_off_operation: i32,
         temp_return_feed_max: Decimal,
         temp_lower_operating_limit: Decimal,
         min_temp_diff_flow_return_for_hp_to_operate: i32,
-        #[serde(rename = "varFlowTempCtrlDuringTest")]
+        #[serde(
+            rename = "var_flow_temp_ctrl_during_test",
+            deserialize_with = "deserialize_numeric_bool"
+        )]
         variable_temp_control: bool,
-        power_heating_circ_pump: Decimal,
-        power_heating_warm_air_fan: Decimal,
+        power_heating_circ_pump: Option<Decimal>,
+        power_heating_warm_air_fan: Option<Decimal>,
         power_source_circ_pump: Decimal,
         power_standby: Decimal,
         power_crankcase_heater: Decimal,
         power_off: Decimal,
-        power_maximum_backup: Decimal,
+        #[serde(rename = "power_max_backup")]
+        power_maximum_backup: Option<Decimal>,
+        #[serde(rename = "testData")]
         test_data: Vec<HeatPumpTestDatum>,
     },
+}
+
+// special deserialization logic so that booleans that are indicated by 0 or 1 are deserialized as true or false
+pub(crate) fn deserialize_numeric_bool<'de, D>(deserializer: D) -> Result<bool, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let bool_int: u8 = Deserialize::deserialize(deserializer)?;
+    Ok(bool_int == 1)
 }
 
 #[derive(Copy, Clone, Debug, Deserialize_enum_str, PartialEq, Serialize_enum_str)]
@@ -186,15 +206,20 @@ pub(crate) enum HeatPumpBackupControlType {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(crate) struct HeatPumpTestDatum {
+    #[serde(rename = "design_flow_temp")]
     pub(crate) design_flow_temperature: i32,
     pub(crate) test_letter: HeatPumpTestLetter,
+    #[serde(rename = "temp_test")]
     pub(crate) temperature_test: i32,
+    #[serde(rename = "temp_source")]
     pub(crate) temperature_source: Decimal,
+    #[serde(rename = "temp_outlet")]
     pub(crate) temperature_outlet: Decimal,
     pub(crate) capacity: Decimal,
+    #[serde(rename = "cop")]
     pub(crate) coefficient_of_performance: Decimal,
+    #[serde(rename = "degradation_coeff")]
     pub(crate) degradation_coefficient: Decimal,
 }
 
@@ -208,24 +233,19 @@ pub(crate) enum HeatPumpTestLetter {
     F,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use rstest::*;
-
-    #[rstest]
-    fn test_can_read_fake_file() {
-        assert_eq!(PCDB_PRODUCTS.len(), 3);
-    }
-
-    #[rstest]
-    fn test_find_product_by_reference() {
-        assert_eq!(
-            find_product_by_reference("HEATPUMP-SMALL")
-                .unwrap()
-                .model_name,
-            "Small Heat Pump"
-        );
-        assert!(find_product_by_reference("HEATPUMP-UNKNOWN").is_none());
-    }
-}
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     use rstest::*;
+//
+//     #[rstest]
+//     fn test_find_product_by_reference() {
+//         assert_eq!(
+//             find_product_by_reference("HEATPUMP-SMALL")
+//                 .unwrap()
+//                 .model_name,
+//             "Small Heat Pump"
+//         );
+//         assert!(find_product_by_reference("HEATPUMP-UNKNOWN").is_none());
+//     }
+// }

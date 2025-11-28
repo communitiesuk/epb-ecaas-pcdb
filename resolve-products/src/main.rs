@@ -1,3 +1,4 @@
+use aws_config::BehaviorVersion;
 use clap::Parser;
 use std::fs::File;
 use std::io::{self, Read};
@@ -29,13 +30,20 @@ fn read_input(path: &PathBuf) -> io::Result<String> {
     }
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+#[::tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let config = aws_config::defaults(BehaviorVersion::latest())
+        .endpoint_url("http://localhost:8000")
+        .load()
+        .await;
+    let dynamo_client = aws_sdk_dynamodb::Client::new(&config);
+
     let cli = Cli::parse();
 
     let input_str = read_input(&cli.input)?;
     let input_bytes = input_str.as_bytes();
 
-    let mut resolved = resolve_products::resolve_products(input_bytes)?;
+    let mut resolved = resolve_products::resolve_products(input_bytes, &dynamo_client).await?;
 
     io::copy(&mut resolved, &mut io::stdout())?;
 

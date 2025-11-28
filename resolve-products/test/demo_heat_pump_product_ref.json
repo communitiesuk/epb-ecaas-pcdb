@@ -168,7 +168,7 @@
     "hp": {
       "type": "HeatPump",
       "EnergySupply": "mains elec",
-      "product_reference": "HEATPUMP-MEDIUM",
+      "product_reference": "2751",
       "is_heat_network": false
     }
   },

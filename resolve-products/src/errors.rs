@@ -22,6 +22,10 @@ pub enum ResolvePcdbProductsError {
     InvalidProductCategoryReference(Value),
     #[error("Product reference {0} was not found within the PCDB")]
     UnknownProductReference(String),
+    #[error("Error encountered while accessing PCDB store: {0}")]
+    AccessError(#[from] aws_sdk_dynamodb::Error),
+    #[error("Error encountered while deserializing PCDB products: {0:?}")]
+    DeserializeError(serde_dynamo::Error),
 }
 
 #[derive(Debug, Error)]

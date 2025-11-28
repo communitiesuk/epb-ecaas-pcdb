@@ -1175,7 +1175,6 @@
                     "power_standby",
                     "power_crankcase_heater",
                     "power_off",
-                    "power_max_backup",
                     "time_delay_backup",
                     "test_data_EN14825",
                     "time_constant_onoff_operation"
@@ -1257,8 +1256,18 @@
                       "minimum": 0
                     },
                     "power_max_backup": {
-                      "type": "number",
-                      "minimum": 0
+                      "anyOf": [
+                        {
+                          "minimum": 0,
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "description": "Maximum backup power (unit: kW)",
+                      "title": "Power Max Backup"
                     },
                     "BufferTank": {
                       "type": "object",
