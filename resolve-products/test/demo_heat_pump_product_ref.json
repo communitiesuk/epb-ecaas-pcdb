@@ -134,7 +134,12 @@
       }
     },
     "Bath": {},
-    "Other": {}
+    "Other": {
+      "other": {
+        "flowrate": 12.0,
+        "ColdWaterSource": "mains water"
+      }
+    }
   },
   "Events": {
     "Shower": {
@@ -294,11 +299,13 @@
       "restofdwelling_area": 80.0,
       "volume": 500.0,
       "Lighting": {
-        "bulbs": {
-          "count": 20,
-          "power": 3,
-          "efficacy": 150
-        }
+        "bulbs": [
+          {
+            "count": 20,
+            "power": 3,
+            "efficacy": 150
+          }
+        ]
       },
       "BuildingElement": {
         "roof 0": {
