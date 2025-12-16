@@ -184,6 +184,14 @@ fn transform_heat_pump(
                 power_heating_warm_air_fan.to_f64().into(),
             );
         }
+        heat_pump.insert(
+            "power_max_backup".into(),
+            if let Some(power_maximum_backup) = power_maximum_backup {
+                power_maximum_backup.to_f64().into()
+            } else {
+                ().into()
+            },
+        );
         if let Some(power_maximum_backup) = power_maximum_backup {
             heat_pump.insert(
                 "power_max_backup".into(),
