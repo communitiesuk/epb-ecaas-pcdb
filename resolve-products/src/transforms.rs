@@ -1,8 +1,8 @@
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{
-    HeatPumpTestDatum, HeatPumpTestLetter, Product, Technology, find_products_for_references,
+    find_products_for_references, HeatPumpTestDatum, HeatPumpTestLetter, Product, Technology,
 };
-use crate::{PRODUCT_REFERENCE_FIELD, extract_product_references};
+use crate::{extract_product_references, PRODUCT_REFERENCE_FIELD};
 use aws_sdk_dynamodb::client::Client as DynamoDbClient;
 use itertools::Itertools;
 use rust_decimal::prelude::ToPrimitive;
@@ -71,7 +71,7 @@ fn transform_heat_pump(
 
     // can remove following "allow" when there is more than one technology variant modelled
     #[allow(irrefutable_let_patterns)]
-    if let Technology::AirSourceHeatPump {
+    if let Technology::HeatPump {
         source_type,
         sink_type,
         backup_control_type,
@@ -132,18 +132,8 @@ fn transform_heat_pump(
         }
         heat_pump.insert(
             "power_max_backup".into(),
-            if let Some(power_maximum_backup) = power_maximum_backup {
-                power_maximum_backup.to_f64().into()
-            } else {
-                ().into()
-            },
+            power_maximum_backup.map(|x| x.to_f64()).into(),
         );
-        if let Some(power_maximum_backup) = power_maximum_backup {
-            heat_pump.insert(
-                "power_max_backup".into(),
-                power_maximum_backup.to_f64().into(),
-            );
-        }
         heat_pump.insert("power_off".into(), power_off.to_f64().into());
         heat_pump.insert(
             "power_source_circ_pump".into(),

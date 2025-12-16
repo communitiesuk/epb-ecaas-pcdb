@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
-use crate::ResolveProductsResult;
 use crate::errors::ResolvePcdbProductsError;
-use aws_sdk_dynamodb::Client as DynamoDbClient;
+use crate::ResolveProductsResult;
 use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
+use aws_sdk_dynamodb::Client as DynamoDbClient;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Deserializer};
 use serde_dynamo::from_item;
@@ -134,8 +134,15 @@ impl<'de> Deserialize<'de> for YearOfManufacture {
 #[derive(Debug, Deserialize)]
 #[serde(tag = "technologyType", rename_all = "camelCase")]
 pub(crate) enum Technology {
-    #[serde(rename = "air source heat pump")]
-    AirSourceHeatPump {
+    #[serde(
+        alias = "air source heat pump",
+        alias = "water source heat pump",
+        alias = "ground source heat pump",
+        alias = "exhaust air mixed heat pump",
+        alias = "exhaust air mev heat pump",
+        alias = "exhaust air mvhr heat pump"
+    )]
+    HeatPump {
         #[serde(rename = "EnergySupply")]
         energy_supply: String,
         source_type: HeatPumpSourceType,

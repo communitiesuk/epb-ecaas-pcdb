@@ -173,7 +173,7 @@
     "hp": {
       "type": "HeatPump",
       "EnergySupply": "mains elec",
-      "product_reference": "2751",
+      "product_reference": "11125",
       "is_heat_network": false
     }
   },
