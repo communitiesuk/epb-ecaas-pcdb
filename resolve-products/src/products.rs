@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
-use crate::errors::ResolvePcdbProductsError;
 use crate::ResolveProductsResult;
-use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
+use crate::errors::ResolvePcdbProductsError;
 use aws_sdk_dynamodb::Client as DynamoDbClient;
+use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Deserializer};
 use serde_dynamo::from_item;

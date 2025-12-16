@@ -1,6 +1,6 @@
 use jsonpath_rust::parser::errors::JsonPathError as OriginalJsonPathError;
-use jsonschema::error::ValidationErrorKind;
 use jsonschema::ValidationError;
+use jsonschema::error::ValidationErrorKind;
 use serde_json::Value;
 use std::fmt::{Display, Formatter};
 use std::string::FromUtf8Error;
