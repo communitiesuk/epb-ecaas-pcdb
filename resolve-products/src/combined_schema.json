@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$schema": "http://json-schema.org/draft/2019-09/schema#",
   "type": "object",
   "unevaluatedProperties": false,
   "properties": {
@@ -329,14 +329,14 @@
               }
             },
             "then": {
+              "required": [
+                "is_export_capable"
+              ],
               "properties": {
                 "is_export_capable": {
                   "type": "boolean"
                 }
-              },
-              "required": [
-                "is_export_capable"
-              ]
+              }
             }
           }
         ]
@@ -1004,7 +1004,7 @@
                       }
                     ],
                     "default": null,
-                    "description": "Storage loss factor 1 for combi boiler efficiency calculations (dimensionless)",
+                    "description": "Storage loss factor 1 for combi boiler efficiency calculations (unit: kWh/day)",
                     "title": "Storage Loss Factor 1"
                   },
                   "storage_loss_factor_2": {
@@ -1020,36 +1020,36 @@
                     "default": null,
                     "description": "Storage loss factor 2 for combi boiler efficiency calculations (dimensionless)",
                     "title": "Storage Loss Factor 2"
-                  },
-                  "if": {
-                    "anyOf": [
-                      {
-                        "properties": {
-                          "separate_DHW_tests": {
-                            "const": "M&L"
-                          }
-                        }
-                      },
-                      {
-                        "properties": {
-                          "separate_DHW_tests": {
-                            "const": "M&S"
-                          }
+                  }
+                },
+                "if": {
+                  "anyOf": [
+                    {
+                      "properties": {
+                        "separate_DHW_tests": {
+                          "const": "M&L"
                         }
                       }
-                    ]
-                  },
-                  "then": {
-                    "required": [
-                      "storage_loss_factor_2",
-                      "rejected_factor_3"
-                    ]
-                  },
-                  "else": {
-                    "required": [
-                      "storage_loss_factor_1"
-                    ]
-                  }
+                    },
+                    {
+                      "properties": {
+                        "separate_DHW_tests": {
+                          "const": "M&S"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "then": {
+                  "required": [
+                    "storage_loss_factor_2",
+                    "rejected_factor_3"
+                  ]
+                },
+                "else": {
+                  "required": [
+                    "storage_loss_factor_1"
+                  ]
                 }
               }
             },
@@ -1103,7 +1103,8 @@
             ]
           },
           "is_heat_network": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Is this HeatSourceWet a heat network? Put false if it is a HeatPump that is supplied by a HeatNetwork. In that case you will instead describe the heat network source under EnergySupply_heat_network not the EnergySupply of the pump"
           }
         },
         "if": {
@@ -1130,6 +1131,7 @@
                 },
                 {
                   "type": "object",
+                  "unevaluatedProperties": false,
                   "required": [
                     "name",
                     "factor",
@@ -1225,6 +1227,7 @@
                     "power_standby",
                     "power_crankcase_heater",
                     "power_off",
+                    "power_max_backup",
                     "time_delay_backup",
                     "test_data_EN14825",
                     "time_constant_onoff_operation"
@@ -1238,13 +1241,15 @@
                         "ExhaustAirMVHR",
                         "ExhaustAirMixed",
                         "WaterGround",
-                        "WaterSurface"
+                        "WaterSurface",
+                        "HeatNetwork"
                       ]
                     },
                     "sink_type": {
                       "enum": [
                         "Air",
-                        "Water"
+                        "Water",
+                        "Glycol25"
                       ]
                     },
                     "backup_ctrl_type": {
@@ -1315,7 +1320,6 @@
                         }
                       ],
                       "default": null,
-                      "description": "Maximum backup power (unit: kW)",
                       "title": "Power Max Backup"
                     },
                     "BufferTank": {
@@ -1343,7 +1347,7 @@
                       ]
                     },
                     "boiler": {
-                      "additionalProperties": false,
+                      "unevaluatedProperties": false,
                       "description": "Boiler used as backup for heat pump systems",
                       "properties": {
                         "EnergySupply": {
@@ -1456,55 +1460,209 @@
                     },
                     "time_constant_onoff_operation": {
                       "type": "number"
-                    },
-                    "test_data_EN14825": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "unevaluatedProperties": false,
+                    }
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "source_type": {
+                            "const": "HeatNetwork"
+                          }
+                        }
+                      },
+                      "then": {
                         "required": [
-                          "test_letter",
-                          "capacity",
-                          "cop",
-                          "design_flow_temp",
-                          "temp_outlet",
-                          "temp_source",
-                          "temp_test"
+                          "temp_distribution_heat_network",
+                          "EnergySupply_heat_network"
                         ],
                         "properties": {
-                          "test_letter": {
-                            "enum": [
-                              "A",
-                              "B",
-                              "C",
-                              "D",
-                              "F"
+                          "temp_distribution_heat_network": {
+                            "type": "number",
+                            "minimum": -273.15
+                          },
+                          "EnergySupply_heat_network": {
+                            "oneOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "object",
+                                "unevaluatedProperties": false,
+                                "required": [
+                                  "name",
+                                  "factor",
+                                  "is_export_capable"
+                                ],
+                                "properties": {
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "is_export_capable": {
+                                    "type": "boolean"
+                                  },
+                                  "factor": {
+                                    "type": "object",
+                                    "unevaluatedProperties": false,
+                                    "required": [
+                                      "Emissions Factor kgCO2e/kWh",
+                                      "Emissions Factor kgCO2e/kWh including out-of-scope emissions",
+                                      "Primary Energy Factor kWh/kWh delivered"
+                                    ],
+                                    "properties": {
+                                      "Emissions Factor kgCO2e/kWh": {
+                                        "type": "number"
+                                      },
+                                      "Emissions Factor kgCO2e/kWh including out-of-scope emissions": {
+                                        "type": "number"
+                                      },
+                                      "Primary Energy Factor kWh/kWh delivered": {
+                                        "type": "number"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
                             ]
-                          },
-                          "capacity": {
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "source_type": {
+                            "const": "ExhaustAirMixed"
+                          }
+                        }
+                      },
+                      "then": {
+                        "required": [
+                          "eahp_mixed_max_temp",
+                          "eahp_mixed_min_temp"
+                        ],
+                        "properties": {
+                          "eahp_mixed_max_temp": {
                             "type": "number",
-                            "minimum": 0
+                            "minimum": -273.15
                           },
-                          "cop": {
+                          "eahp_mixed_min_temp": {
                             "type": "number",
-                            "minimum": 0
+                            "minimum": -273.15
                           },
-                          "design_flow_temp": {
-                            "type": "number"
-                          },
-                          "temp_outlet": {
-                            "type": "number"
-                          },
-                          "temp_source": {
-                            "type": "number"
-                          },
-                          "temp_test": {
-                            "type": "number"
+                          "test_data_EN14825": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "unevaluatedProperties": false,
+                              "required": [
+                                "test_letter",
+                                "capacity",
+                                "cop",
+                                "design_flow_temp",
+                                "temp_outlet",
+                                "temp_source",
+                                "temp_test",
+                                "air_flow_rate",
+                                "eahp_mixed_ext_air_ratio"
+                              ],
+                              "properties": {
+                                "test_letter": {
+                                  "enum": [
+                                    "A",
+                                    "B",
+                                    "C",
+                                    "D",
+                                    "F"
+                                  ]
+                                },
+                                "capacity": {
+                                  "type": "number",
+                                  "minimum": 0
+                                },
+                                "cop": {
+                                  "type": "number",
+                                  "minimum": 0
+                                },
+                                "design_flow_temp": {
+                                  "type": "number"
+                                },
+                                "temp_outlet": {
+                                  "type": "number"
+                                },
+                                "temp_source": {
+                                  "type": "number"
+                                },
+                                "temp_test": {
+                                  "type": "number"
+                                },
+                                "air_flow_rate": {
+                                  "type": "number",
+                                  "minimum": 0
+                                },
+                                "eahp_mixed_ext_air_ratio": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 1
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "else": {
+                        "properties": {
+                          "test_data_EN14825": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "unevaluatedProperties": false,
+                              "required": [
+                                "test_letter",
+                                "capacity",
+                                "cop",
+                                "design_flow_temp",
+                                "temp_outlet",
+                                "temp_source",
+                                "temp_test"
+                              ],
+                              "properties": {
+                                "test_letter": {
+                                  "enum": [
+                                    "A",
+                                    "B",
+                                    "C",
+                                    "D",
+                                    "F"
+                                  ]
+                                },
+                                "capacity": {
+                                  "type": "number",
+                                  "minimum": 0
+                                },
+                                "cop": {
+                                  "type": "number",
+                                  "minimum": 0
+                                },
+                                "design_flow_temp": {
+                                  "type": "number"
+                                },
+                                "temp_outlet": {
+                                  "type": "number"
+                                },
+                                "temp_source": {
+                                  "type": "number"
+                                },
+                                "temp_test": {
+                                  "type": "number"
+                                }
+                              }
+                            }
                           }
                         }
                       }
                     }
-                  }
+                  ]
                 }
               ]
             }
@@ -3209,6 +3367,7 @@
                     "BuildingElementAdjacentUnconditionedSpace_Simple",
                     "BuildingElementGround",
                     "BuildingElementOpaque",
+                    "BuildingElementPartyWall",
                     "BuildingElementTransparent"
                   ]
                 },
@@ -3287,9 +3446,6 @@
                         "type": "number",
                         "minimum": 0.01,
                         "maximum": 10000
-                      },
-                      "is_party_wall": {
-                        "type": "boolean"
                       }
                     }
                   }
@@ -3617,9 +3773,6 @@
                         "type": "number",
                         "minimum": 0.01,
                         "maximum": 10000
-                      },
-                      "is_party_wall": {
-                        "type": "boolean"
                       }
                     },
                     "allOf": [
@@ -3687,6 +3840,118 @@
                               "minimum": 0,
                               "maximum": 360,
                               "description": "Degrees from north. Recommend choosing 180 in cases of flat elements i.e. where pitch = 0 or 180"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "type": {
+                        "const": "BuildingElementPartyWall"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "area",
+                      "areal_heat_capacity",
+                      "mass_distribution_class",
+                      "pitch",
+                      "type",
+                      "party_wall_cavity_type"
+                    ],
+                    "properties": {
+                      "area": {
+                        "description": "Area of the building element (m\u00b2), must be positive",
+                        "exclusiveMinimum": 0,
+                        "title": "Area",
+                        "type": "number"
+                      },
+                      "areal_heat_capacity": {
+                        "enum": [
+                          "Very light",
+                          "Light",
+                          "Medium",
+                          "Heavy",
+                          "Very heavy"
+                        ]
+                      },
+                      "mass_distribution_class": {
+                        "$ref": "#/$defs/MassDistributionClass"
+                      },
+                      "pitch": {
+                        "description": "Tilt angle of the surface from horizontal, between 60 and 120 degrees (wall range), where 90 means vertical (unit: \u00b0)",
+                        "maximum": 120.0,
+                        "minimum": 60.0,
+                        "title": "Pitch",
+                        "type": "number"
+                      },
+                      "party_wall_cavity_type": {
+                        "$ref": "#/$defs/PartyWallCavityType",
+                        "description": "Type of party wall cavity construction affecting heat loss through air movement"
+                      }
+                    },
+                    "allOf": [
+                      {
+                        "if": {
+                          "anyOf": [
+                            {
+                              "properties": {
+                                "party_wall_cavity_type": {
+                                  "const": "unfilled_unsealed"
+                                }
+                              }
+                            },
+                            {
+                              "properties": {
+                                "party_wall_cavity_type": {
+                                  "const": "unfilled_sealed"
+                                }
+                              }
+                            },
+                            {
+                              "properties": {
+                                "party_wall_cavity_type": {
+                                  "const": "filled_unsealed"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "then": {
+                          "required": [
+                            "party_wall_lining_type"
+                          ],
+                          "properties": {
+                            "party_wall_lining_type": {
+                              "$ref": "#/$defs/PartyWallLiningType",
+                              "description": "Type of party wall lining. Required only when party_wall_cavity_type is unfilled_unsealed, unfilled_sealed, or filled_unsealed"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "party_wall_cavity_type": {
+                              "const": "defined_resistance"
+                            }
+                          }
+                        },
+                        "then": {
+                          "required": [
+                            "thermal_resistance_cavity"
+                          ],
+                          "properties": {
+                            "thermal_resistance_cavity": {
+                              "type": "number",
+                              "exclusiveMinimum": 0,
+                              "description": "Effective thermal resistance of the party wall cavity (unit: m\u00b2.K/W). Required only when party_wall_cavity_type is 'defined_resistance'. For other cavity types, this is calculated automatically.",
+                              "title": "Thermal Resistance Cavity"
                             }
                           }
                         }
@@ -4213,6 +4478,28 @@
         }
       ],
       "title": "ScheduleRepeaterEntryForDouble"
+    },
+    "PartyWallCavityType": {
+      "description": "Types of party wall cavity configurations",
+      "enum": [
+        "solid",
+        "unfilled_unsealed",
+        "unfilled_sealed",
+        "filled_sealed",
+        "filled_unsealed",
+        "defined_resistance"
+      ],
+      "title": "PartyWallCavityType",
+      "type": "string"
+    },
+    "PartyWallLiningType": {
+      "description": "Types of party wall lining",
+      "enum": [
+        "wet_plaster",
+        "dry_lined"
+      ],
+      "title": "PartyWallLiningType",
+      "type": "string"
     }
   }
 }
