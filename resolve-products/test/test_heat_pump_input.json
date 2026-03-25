@@ -1,0 +1,10 @@
+{
+  "HeatSourceWet": {
+    "hp": {
+      "type": "HeatPump",
+      "EnergySupply": "mains elec",
+      "product_reference": "123",
+      "is_heat_network": false
+    }
+  }
+}

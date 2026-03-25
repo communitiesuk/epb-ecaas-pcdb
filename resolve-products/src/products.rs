@@ -82,7 +82,7 @@ pub(crate) struct Product {
     brand_name: String,
     model_name: String,
     model_qualifier: Option<String>,
-    first_year_of_manufacture: u16,
+    first_year_of_manufacture: String,
     final_year_of_manufacture: Option<YearOfManufacture>,
     #[serde(flatten)]
     pub(crate) technology: Technology,
@@ -135,23 +135,28 @@ impl<'de> Deserialize<'de> for YearOfManufacture {
 #[serde(tag = "technologyType", rename_all = "camelCase")]
 pub(crate) enum Technology {
     #[serde(
-        alias = "air source heat pump",
-        alias = "water source heat pump",
-        alias = "ground source heat pump",
-        alias = "exhaust air mixed heat pump",
-        alias = "exhaust air mev heat pump",
-        alias = "exhaust air mvhr heat pump"
+        alias = "AirSourceHeatPump",
+        alias = "WaterSourceHeatPump",
+        alias = "BoosterHeatPump",
+        alias = "GroundSourceHeatPump",
+        alias = "ExhaustAirMixedHeatPump",
+        alias = "ExhaustAirMevHeatPump",
+        alias = "ExhaustAirMvhrHeatPump",
+        alias = "HybridHeatPump"
     )]
     HeatPump {
-        #[serde(rename = "EnergySupply")]
-        energy_supply: String,
         source_type: HeatPumpSourceType,
         sink_type: HeatPumpSinkType,
         #[serde(rename = "backup_ctrl_type")]
         backup_control_type: HeatPumpBackupControlType,
-        #[serde(deserialize_with = "deserialize_numeric_bool")]
         modulating_control: bool,
+        #[serde(
+            rename = "min_modulation_rate_35"
+        )]
         minimum_modulation_rate_35: Decimal,
+        #[serde(
+            rename = "min_modulation_rate_55"
+        )]
         minimum_modulation_rate_55: Decimal,
         #[serde(rename = "time_constant_onoff_operation")]
         time_constant_on_off_operation: i32,
@@ -159,8 +164,7 @@ pub(crate) enum Technology {
         temp_lower_operating_limit: Decimal,
         min_temp_diff_flow_return_for_hp_to_operate: i32,
         #[serde(
-            rename = "var_flow_temp_ctrl_during_test",
-            deserialize_with = "deserialize_numeric_bool"
+            rename = "var_flow_temp_ctrl_during_test"
         )]
         variable_temp_control: bool,
         power_heating_circ_pump: Option<Decimal>,
