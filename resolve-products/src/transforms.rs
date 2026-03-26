@@ -212,19 +212,31 @@ pub type ResolveProductsResult<T> = Result<T, ResolvePcdbProductsError>;
 
 #[cfg(test)]
 mod tests {
+    use rstest::{fixture, rstest};
     use super::*;
 
-    #[test]
-    fn test_transform_heat_pumps() {
-        let pcdb_heat_pumps: &HashMap<String, Product> = &HashMap::from([(
-            "123".into(),
-            serde_json::from_str(include_str!("../test/test_heat_pump_pcdb.json")).unwrap(),
-        )]);
-        let mut heat_pump_input: JsonValue =
-            serde_json::from_str(include_str!("../test/test_heat_pump_input.json")).unwrap();
+    #[fixture]
+    fn pcdb_heat_pumps() -> HashMap<String, Product> {
+        serde_json::from_str(include_str!("../test/test_heat_pump_pcdb.json")).unwrap()
+    }
 
-        let result = transform_heat_pumps(&mut heat_pump_input, pcdb_heat_pumps);
+    fn heat_pump_input(product_reference: &str) -> JsonValue {
+        json!({
+            "HeatSourceWet": {
+            "hp": {
+                "type": "HeatPump",
+                "EnergySupply": "mains elec",
+                "product_reference": product_reference,
+                "is_heat_network": false
+            }
+        }
+        })
+    }
 
+    #[rstest]
+    fn test_transform_heat_pumps(pcdb_heat_pumps: HashMap<String, Product>) {
+        let mut heat_pump_input= heat_pump_input("123");
+        let result = transform_heat_pumps(&mut heat_pump_input, &pcdb_heat_pumps);
         assert!(result.is_ok());
 
         let actual_hp = heat_pump_input
