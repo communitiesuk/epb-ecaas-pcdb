@@ -82,53 +82,8 @@ pub(crate) struct Product {
     brand_name: String,
     model_name: String,
     model_qualifier: Option<String>,
-    first_year_of_manufacture: String,
-    final_year_of_manufacture: Option<YearOfManufacture>,
     #[serde(flatten)]
     pub(crate) technology: Technology,
-}
-
-#[derive(Debug, Clone)]
-enum YearOfManufacture {
-    Current,
-    Year(u16),
-}
-
-impl YearOfManufacture {
-    pub fn is_current(&self) -> bool {
-        matches!(self, YearOfManufacture::Current)
-    }
-
-    pub fn as_year(&self) -> Option<u16> {
-        match self {
-            YearOfManufacture::Year(year) => Some(*year),
-            YearOfManufacture::Current => None,
-        }
-    }
-}
-
-// Custom deserialization to handle the string "current"
-impl<'de> Deserialize<'de> for YearOfManufacture {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        #[derive(Deserialize)]
-        #[serde(untagged)]
-        enum YearHelper {
-            String(String),
-            Number(u16),
-        }
-
-        match YearHelper::deserialize(deserializer)? {
-            YearHelper::String(s) if s == "current" => Ok(YearOfManufacture::Current),
-            YearHelper::Number(year) => Ok(YearOfManufacture::Year(year)),
-            YearHelper::String(other) => Err(serde::de::Error::custom(format!(
-                "expected 'current' or an integer, found '{}'",
-                other
-            ))),
-        }
-    }
 }
 
 #[derive(Debug, Deserialize)]
