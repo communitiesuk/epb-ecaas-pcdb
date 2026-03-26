@@ -130,7 +130,7 @@ pub(crate) enum Technology {
         power_off: Decimal,
         #[serde(rename = "power_max_backup")]
         power_maximum_backup: Option<Decimal>,
-        #[serde(rename = "testData")]
+        #[serde(rename = "test_data_EN14825")]
         test_data: Vec<HeatPumpTestDatum>,
     },
 }

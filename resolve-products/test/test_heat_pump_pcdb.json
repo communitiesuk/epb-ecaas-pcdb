@@ -5,6 +5,7 @@
   "productID": 123,
   "id": 123,
   "technologyType": "AirSourceHeatPump",
+  "technologyGroup": "heatPump",
   "temp_return_feed_max": 70,
   "daily_losses_declared": 1.59,
   "fuel": "electricity",

@@ -214,10 +214,9 @@ mod tests {
     use super::*;
 
     #[test]
-    #[ignore]
     fn test_transform_heat_pumps() {
         let pcdb_heat_pump: Product = serde_json::from_str(include_str!("../test/test_heat_pump_pcdb.json")).unwrap();
-        let pcdb_heat_pumps: &HashMap<String, Product> = &HashMap::from([("test heat pump".into(), pcdb_heat_pump)]);
+        let pcdb_heat_pumps: &HashMap<String, Product> = &HashMap::from([("123".into(), pcdb_heat_pump)]);
         let mut input: JsonValue = serde_json::from_str(include_str!("../test/test_heat_pump_input.json")).unwrap();
 
         let result = transform_heat_pumps(&mut input, pcdb_heat_pumps);
