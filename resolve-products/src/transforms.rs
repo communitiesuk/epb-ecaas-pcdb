@@ -1,8 +1,6 @@
 use crate::errors::ResolvePcdbProductsError;
-use crate::products::{
-    find_products_for_references, HeatPumpTestDatum, HeatPumpTestLetter, Product, Technology,
-};
-use crate::{extract_product_references, PRODUCT_REFERENCE_FIELD};
+use crate::products::{HeatPumpTestDatum, HeatPumpTestLetter, Product, Technology, find_products_for_references, HeatPumpBackupControlType};
+use crate::{PRODUCT_REFERENCE_FIELD, extract_product_references};
 use aws_sdk_dynamodb::client::Client as DynamoDbClient;
 use itertools::Itertools;
 use rust_decimal::prelude::ToPrimitive;
@@ -130,10 +128,14 @@ fn transform_heat_pump(
                 power_heating_warm_air_fan.to_f64().into(),
             );
         }
-        heat_pump.insert(
-            "power_max_backup".into(),
-            power_maximum_backup.map(|x| x.to_f64()).into(),
-        );
+        if !matches!(backup_control_type, HeatPumpBackupControlType::None) {
+            heat_pump.insert(
+                "power_max_backup".into(),
+                power_maximum_backup.map(|x| x.to_f64()).into(),
+            );
+            // TODO: add logic for inserting a boiler field
+        }
+
         heat_pump.insert("power_off".into(), power_off.to_f64().into());
         heat_pump.insert(
             "power_source_circ_pump".into(),
@@ -184,7 +186,6 @@ fn transform_heat_pump(
             "time_constant_onoff_operation".into(),
             time_constant_on_off_operation.into(),
         );
-        heat_pump.insert("time_delay_backup".into(), 2.into()); // canned value for now using one of the values from demo files
         heat_pump.insert(
             "var_flow_temp_ctrl_during_test".into(),
             variable_temp_control.into(),
@@ -215,12 +216,38 @@ mod tests {
 
     #[test]
     fn test_transform_heat_pumps() {
-        let pcdb_heat_pump: Product = serde_json::from_str(include_str!("../test/test_heat_pump_pcdb.json")).unwrap();
-        let pcdb_heat_pumps: &HashMap<String, Product> = &HashMap::from([("123".into(), pcdb_heat_pump)]);
-        let mut input: JsonValue = serde_json::from_str(include_str!("../test/test_heat_pump_input.json")).unwrap();
+        let pcdb_heat_pumps: &HashMap<String, Product> = &HashMap::from([(
+            "123".into(),
+            serde_json::from_str(include_str!("../test/test_heat_pump_pcdb.json")).unwrap(),
+        )]);
+        let mut heat_pump_input: JsonValue =
+            serde_json::from_str(include_str!("../test/test_heat_pump_input.json")).unwrap();
 
-        let result = transform_heat_pumps(&mut input, pcdb_heat_pumps);
+        let result = transform_heat_pumps(&mut heat_pump_input, pcdb_heat_pumps);
 
         assert!(result.is_ok());
+
+        let actual_hp = heat_pump_input
+            .pointer("/HeatSourceWet/hp")
+            .unwrap()
+            .as_object()
+            .unwrap();
+        let expected_transformed_input: JsonValue = serde_json::from_str(include_str!(
+            "../test/test_heat_pump_input_transformed.json"
+        )).unwrap();
+        let expected_hp = expected_transformed_input
+            .pointer("/HeatSourceWet/hp")
+            .unwrap()
+            .as_object()
+            .unwrap();
+        let mut actual_keys = actual_hp.keys().collect_vec();
+        let mut expected_keys = expected_hp.keys().collect_vec();
+        actual_keys.sort();
+        expected_keys.sort();
+        assert_eq!(actual_keys, expected_keys);
+
+        for key in expected_hp.keys() {
+            assert_eq!(actual_hp[key], expected_hp[key], "{:?}", key);
+        }
     }
 }

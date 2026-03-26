@@ -1,0 +1,117 @@
+{
+  "HeatSourceWet": {
+    "hp": {
+      "type": "HeatPump",
+      "EnergySupply": "mains elec",
+      "source_type": "OutsideAir",
+      "sink_type": "Water",
+      "backup_ctrl_type": "None",
+      "modulating_control": true,
+      "min_modulation_rate_35": 0.5,
+      "min_modulation_rate_55": 0.5,
+      "time_constant_onoff_operation": 140,
+      "temp_return_feed_max": 70.0,
+      "temp_lower_operating_limit": -10.0,
+      "min_temp_diff_flow_return_for_hp_to_operate": 0,
+      "var_flow_temp_ctrl_during_test": true,
+      "power_heating_circ_pump": 0.0,
+      "power_source_circ_pump": 0.0,
+      "power_standby": 0.022,
+      "power_crankcase_heater": 0.0,
+      "power_off": 0.022,
+      "is_heat_network": false,
+      "test_data_EN14825": [
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "A"
+        },
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "B"
+        },
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "C"
+        },
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "D"
+        },
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "F"
+        },
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "A"
+        },
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "B"
+        },
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "C"
+        },
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "D"
+        },
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "F"
+        }
+      ]
+    }
+  }
+}
