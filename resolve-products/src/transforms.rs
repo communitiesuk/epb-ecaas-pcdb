@@ -1,5 +1,8 @@
 use crate::errors::ResolvePcdbProductsError;
-use crate::products::{HeatPumpTestDatum, HeatPumpTestLetter, Product, Technology, find_products_for_references, HeatPumpBackupControlType};
+use crate::products::{
+    HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product, Technology,
+    find_products_for_references,
+};
 use crate::{PRODUCT_REFERENCE_FIELD, extract_product_references};
 use aws_sdk_dynamodb::client::Client as DynamoDbClient;
 use itertools::Itertools;
@@ -104,11 +107,17 @@ fn transform_heat_pump(
             // write in the rate for the different temperatures for now
             heat_pump.insert(
                 "min_modulation_rate_35".into(),
-                minimum_modulation_rate_35.to_f64().into(),
+                minimum_modulation_rate_35
+                    .expect("TODO: handle this more gracefully")
+                    .to_f64()
+                    .into(),
             );
             heat_pump.insert(
                 "min_modulation_rate_55".into(),
-                minimum_modulation_rate_55.to_f64().into(),
+                minimum_modulation_rate_55
+                    .expect("TODO: handle this more gracefully")
+                    .to_f64()
+                    .into(),
             );
         }
         heat_pump.insert("modulating_control".into(), modulating_control.into());
@@ -212,8 +221,9 @@ pub type ResolveProductsResult<T> = Result<T, ResolvePcdbProductsError>;
 
 #[cfg(test)]
 mod tests {
-    use rstest::{fixture, rstest};
     use super::*;
+    use rstest::{fixture, rstest};
+    use serde_json::Value;
 
     #[fixture]
     fn pcdb_heat_pumps() -> HashMap<String, Product> {
@@ -233,25 +243,40 @@ mod tests {
         })
     }
 
+    fn actual_heat_pump(input: &mut Value) -> Map<std::string::String, JsonValue> {
+        input
+            .pointer("/HeatSourceWet/hp")
+            .unwrap()
+            .as_object()
+            .unwrap()
+            .to_owned()
+    }
+
+    fn expected_heat_pump(product_reference: &str) -> Map<std::string::String, Value> {
+        let hp_input: JsonValue = serde_json::from_str(include_str!(
+            "../test/test_heat_pump_input_transformed.json"
+        ))
+            .unwrap();
+
+        hp_input
+            .pointer(format!("/HeatSourceWet/{}", product_reference).as_str())
+            .unwrap()
+            .as_object()
+            .unwrap()
+            .to_owned()
+    }
+
     #[rstest]
-    fn test_transform_heat_pumps(pcdb_heat_pumps: HashMap<String, Product>) {
-        let mut heat_pump_input= heat_pump_input("123");
+    fn test_transform_heat_pumps(
+        pcdb_heat_pumps: HashMap<String, Product>,
+    ) {
+        let mut heat_pump_input = heat_pump_input("hp");
         let result = transform_heat_pumps(&mut heat_pump_input, &pcdb_heat_pumps);
         assert!(result.is_ok());
 
-        let actual_hp = heat_pump_input
-            .pointer("/HeatSourceWet/hp")
-            .unwrap()
-            .as_object()
-            .unwrap();
-        let expected_transformed_input: JsonValue = serde_json::from_str(include_str!(
-            "../test/test_heat_pump_input_transformed.json"
-        )).unwrap();
-        let expected_hp = expected_transformed_input
-            .pointer("/HeatSourceWet/hp")
-            .unwrap()
-            .as_object()
-            .unwrap();
+        let actual_hp = actual_heat_pump(&mut heat_pump_input);
+        let expected_hp = expected_heat_pump("hp");
+        
         let mut actual_keys = actual_hp.keys().collect_vec();
         let mut expected_keys = expected_hp.keys().collect_vec();
         actual_keys.sort();
@@ -259,7 +284,37 @@ mod tests {
         assert_eq!(actual_keys, expected_keys);
 
         for key in expected_hp.keys() {
-            assert_eq!(actual_hp[key], expected_hp[key], "{:?}", key);
+            assert_eq!(
+                actual_hp[key], expected_hp[key],
+                "{:?}",
+                key
+            );
+        }
+    }
+
+    #[rstest]
+    fn test_transform_heat_pumps_without_modulating_control(
+        pcdb_heat_pumps: HashMap<String, Product>,
+    ) {
+        let mut heat_pump_input = heat_pump_input("hp_without_modulating_control");
+        let result = transform_heat_pumps(&mut heat_pump_input, &pcdb_heat_pumps);
+        assert!(result.is_ok());
+
+        let actual_hp = actual_heat_pump(&mut heat_pump_input);
+        let expected_hp = expected_heat_pump("hp_without_modulating_control");
+        
+        let mut actual_keys = actual_hp.keys().collect_vec();
+        let mut expected_keys = expected_hp.keys().collect_vec();
+        actual_keys.sort();
+        expected_keys.sort();
+        assert_eq!(actual_keys, expected_keys);
+
+        for key in expected_hp.keys() {
+            assert_eq!(
+                actual_hp[key], expected_hp[key],
+                "{:?}",
+                key
+            );
         }
     }
 }

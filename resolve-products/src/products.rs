@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
-use crate::errors::ResolvePcdbProductsError;
 use crate::ResolveProductsResult;
-use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
+use crate::errors::ResolvePcdbProductsError;
 use aws_sdk_dynamodb::Client as DynamoDbClient;
+use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Deserializer};
 use serde_dynamo::from_item;
@@ -105,22 +105,16 @@ pub(crate) enum Technology {
         #[serde(rename = "backup_ctrl_type")]
         backup_control_type: HeatPumpBackupControlType,
         modulating_control: bool,
-        #[serde(
-            rename = "min_modulation_rate_35"
-        )]
-        minimum_modulation_rate_35: Decimal,
-        #[serde(
-            rename = "min_modulation_rate_55"
-        )]
-        minimum_modulation_rate_55: Decimal,
+        #[serde(rename = "min_modulation_rate_35")]
+        minimum_modulation_rate_35: Option<Decimal>,
+        #[serde(rename = "min_modulation_rate_55")]
+        minimum_modulation_rate_55: Option<Decimal>,
         #[serde(rename = "time_constant_onoff_operation")]
         time_constant_on_off_operation: i32,
         temp_return_feed_max: Decimal,
         temp_lower_operating_limit: Decimal,
         min_temp_diff_flow_return_for_hp_to_operate: i32,
-        #[serde(
-            rename = "var_flow_temp_ctrl_during_test"
-        )]
+        #[serde(rename = "var_flow_temp_ctrl_during_test")]
         variable_temp_control: bool,
         power_heating_circ_pump: Option<Decimal>,
         power_heating_warm_air_fan: Option<Decimal>,
