@@ -446,6 +446,153 @@
           "test_letter": "F"
         }
       ]
+    },
+    "hp_with_boiler": {
+      "type": "HeatPump",
+      "EnergySupply": "mains elec",
+      "source_type": "HybridHeatPump",
+      "sink_type": "Air",
+      "backup_ctrl_type": "TopUp",
+      "modulating_control": true,
+      "time_constant_onoff_operation": 140,
+      "temp_return_feed_max": 70.0,
+      "temp_lower_operating_limit": -10.0,
+      "min_temp_diff_flow_return_for_hp_to_operate": 0,
+      "var_flow_temp_ctrl_during_test": false,
+      "power_heating_circ_pump": 0.0,
+      "power_source_circ_pump": 0.0,
+      "power_standby": 0.022,
+      "power_crankcase_heater": 0.0,
+      "power_off": 0.022,
+      "is_heat_network": false,
+      "test_data_EN14825": [
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "A"
+        },
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "B"
+        },
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "C"
+        },
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "D"
+        },
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "F"
+        },
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "A"
+        },
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "B"
+        },
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "C"
+        },
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "D"
+        },
+        {
+          "capacity": 0.0,
+          "cop": 0.0,
+          "design_flow_temp": 0.0,
+          "temp_outlet": 0.0,
+          "temp_source": 0.0,
+          "temp_test": 0.0,
+          "test_letter": "F"
+        }
+      ],
+      "boiler": {
+        "EnergySupply": "mains gas",
+        "EnergySupply_aux": "mains elec",
+        "rated_power": 24.0,
+        "efficiency_full_load": 0.891,
+        "efficiency_part_load": 0.991,
+        "boiler_location": "internal",
+        "modulation_load": 0.3,
+        "electricity_circ_pump": 0.06,
+        "electricity_part_load": 0.0131,
+        "electricity_full_load": 0.0388,
+        "electricity_standby": 0.0244,
+        "cost_schedule_hybrid": {
+          "cost_schedule_start_day": 0,
+          "cost_schedule_time_series_step": 1,
+          "cost_schedule_hp": {
+            "main": [
+              16,
+              20,
+              24,
+              {
+                "value": 16,
+                "repeat": 17517
+              }
+            ]
+          },
+          "cost_schedule_boiler": {
+            "main": [
+              {
+                "value": 4,
+                "repeat": 17517
+              }
+            ]
+          }
+        }
+      }
     }
   }
 }
