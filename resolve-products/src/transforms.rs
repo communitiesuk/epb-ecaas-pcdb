@@ -105,20 +105,18 @@ fn transform_heat_pump(
         );
         if modulating_control {
             // write in the rate for the different temperatures for now
-            heat_pump.insert(
-                "min_modulation_rate_35".into(),
-                minimum_modulation_rate_35
-                    .expect("TODO: handle this more gracefully")
-                    .to_f64()
-                    .into(),
-            );
-            heat_pump.insert(
-                "min_modulation_rate_55".into(),
-                minimum_modulation_rate_55
-                    .expect("TODO: handle this more gracefully")
-                    .to_f64()
-                    .into(),
-            );
+            if let Some(minimum_modulation_rate_35) = minimum_modulation_rate_35 {
+                heat_pump.insert(
+                    "min_modulation_rate_35".into(),
+                    minimum_modulation_rate_35.to_f64().into(),
+                );
+            }
+            if let Some(minimum_modulation_rate_55) = minimum_modulation_rate_55 {
+                heat_pump.insert(
+                    "min_modulation_rate_55".into(),
+                    minimum_modulation_rate_55.to_f64().into(),
+                );
+            }
         }
         heat_pump.insert("modulating_control".into(), modulating_control.into());
         heat_pump.insert(
