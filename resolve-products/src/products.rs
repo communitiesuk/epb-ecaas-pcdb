@@ -8,6 +8,7 @@ use rust_decimal::Decimal;
 use serde::{Deserialize, Deserializer};
 use serde_dynamo::from_item;
 use serde_enum_str::{Deserialize_enum_str, Serialize_enum_str};
+use serde_json::{Number, Value};
 use serde_valid::Validate;
 use smartstring::alias::String;
 use std::collections::HashMap;
@@ -104,6 +105,7 @@ pub(crate) enum Technology {
         sink_type: HeatPumpSinkType,
         #[serde(rename = "backup_ctrl_type")]
         backup_control_type: HeatPumpBackupControlType,
+        #[serde(deserialize_with = "deserialize_numeric_bool_or_bool")]
         modulating_control: bool,
         #[serde(rename = "min_modulation_rate_35")]
         minimum_modulation_rate_35: Option<Decimal>,
@@ -130,12 +132,16 @@ pub(crate) enum Technology {
 }
 
 // special deserialization logic so that booleans that are indicated by 0 or 1 are deserialized as true or false
-pub(crate) fn deserialize_numeric_bool<'de, D>(deserializer: D) -> Result<bool, D::Error>
+pub(crate) fn deserialize_numeric_bool_or_bool<'de, D>(deserializer: D) -> Result<bool, D::Error>
 where
     D: Deserializer<'de>,
 {
-    let bool_int: u8 = Deserialize::deserialize(deserializer)?;
-    Ok(bool_int == 1)
+    let value = Value::deserialize(deserializer)?;
+    match value {
+        Value::Bool(b) => Ok(b),
+        Value::Number(bool_int) => Ok(bool_int == Number::from(1)),
+        _ => Err(serde::de::Error::custom("expected boolean or integer")),
+    }
 }
 
 #[derive(Copy, Clone, Debug, Deserialize_enum_str, PartialEq, Serialize_enum_str)]
