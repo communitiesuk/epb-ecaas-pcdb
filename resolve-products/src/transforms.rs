@@ -243,16 +243,18 @@ mod tests {
         })
     }
 
-    fn actual_heat_pump(input: &mut Value) -> Map<std::string::String, JsonValue> {
+    fn actual_heat_pump(input: &mut Value) -> HashMap<String, JsonValue> {
         input
             .pointer("/HeatSourceWet/hp")
             .unwrap()
             .as_object()
             .unwrap()
-            .to_owned()
+            .iter()
+            .map(|(k, v)| (String::from(k), v.clone()))
+            .collect()
     }
 
-    fn expected_heat_pump(product_reference: &str) -> Map<std::string::String, Value> {
+    fn expected_heat_pump(product_reference: &str) -> HashMap<String, Value> {
         let hp_input: JsonValue = serde_json::from_str(include_str!(
             "../test/test_heat_pump_input_transformed.json"
         ))
@@ -263,23 +265,36 @@ mod tests {
             .unwrap()
             .as_object()
             .unwrap()
-            .to_owned()
+            .iter()
+            .map(|(k, v)| (String::from(k), v.clone()))
+            .collect()
+    }
+
+    fn heat_pump_keys_sorted(
+        actual_hp: &HashMap<String, Value>,
+        expected_hp: &HashMap<String, Value>,
+    ) -> (Vec<String>, Vec<String>) {
+        let mut actual_keys = actual_hp.keys().cloned().collect_vec();
+        let mut expected_keys = expected_hp.keys().cloned().collect_vec();
+        actual_keys.sort();
+        expected_keys.sort();
+
+        (actual_keys, expected_keys)
     }
 
     #[rstest]
     fn test_transform_heat_pumps(pcdb_heat_pumps: HashMap<String, Product>) {
         let mut heat_pump_input = heat_pump_input("hp");
         let result = transform_heat_pumps(&mut heat_pump_input, &pcdb_heat_pumps);
+
         assert!(result.is_ok());
 
         let actual_hp = actual_heat_pump(&mut heat_pump_input);
         let expected_hp = expected_heat_pump("hp");
+        let (actual_keys_sorted, expected_keys_sorted) =
+            heat_pump_keys_sorted(&actual_hp, &expected_hp);
 
-        let mut actual_keys = actual_hp.keys().collect_vec();
-        let mut expected_keys = expected_hp.keys().collect_vec();
-        actual_keys.sort();
-        expected_keys.sort();
-        assert_eq!(actual_keys, expected_keys);
+        assert_eq!(actual_keys_sorted, expected_keys_sorted);
 
         for key in expected_hp.keys() {
             assert_eq!(actual_hp[key], expected_hp[key], "{:?}", key);
@@ -292,16 +307,15 @@ mod tests {
     ) {
         let mut heat_pump_input = heat_pump_input("hp_without_modulating_control");
         let result = transform_heat_pumps(&mut heat_pump_input, &pcdb_heat_pumps);
+
         assert!(result.is_ok());
 
         let actual_hp = actual_heat_pump(&mut heat_pump_input);
         let expected_hp = expected_heat_pump("hp_without_modulating_control");
+        let (actual_keys_sorted, expected_keys_sorted) =
+            heat_pump_keys_sorted(&actual_hp, &expected_hp);
 
-        let mut actual_keys = actual_hp.keys().collect_vec();
-        let mut expected_keys = expected_hp.keys().collect_vec();
-        actual_keys.sort();
-        expected_keys.sort();
-        assert_eq!(actual_keys, expected_keys);
+        assert_eq!(actual_keys_sorted, expected_keys_sorted);
 
         for key in expected_hp.keys() {
             assert_eq!(actual_hp[key], expected_hp[key], "{:?}", key);
