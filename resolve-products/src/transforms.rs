@@ -256,7 +256,7 @@ mod tests {
         let hp_input: JsonValue = serde_json::from_str(include_str!(
             "../test/test_heat_pump_input_transformed.json"
         ))
-            .unwrap();
+        .unwrap();
 
         hp_input
             .pointer(format!("/HeatSourceWet/{}", product_reference).as_str())
@@ -267,16 +267,14 @@ mod tests {
     }
 
     #[rstest]
-    fn test_transform_heat_pumps(
-        pcdb_heat_pumps: HashMap<String, Product>,
-    ) {
+    fn test_transform_heat_pumps(pcdb_heat_pumps: HashMap<String, Product>) {
         let mut heat_pump_input = heat_pump_input("hp");
         let result = transform_heat_pumps(&mut heat_pump_input, &pcdb_heat_pumps);
         assert!(result.is_ok());
 
         let actual_hp = actual_heat_pump(&mut heat_pump_input);
         let expected_hp = expected_heat_pump("hp");
-        
+
         let mut actual_keys = actual_hp.keys().collect_vec();
         let mut expected_keys = expected_hp.keys().collect_vec();
         actual_keys.sort();
@@ -284,11 +282,7 @@ mod tests {
         assert_eq!(actual_keys, expected_keys);
 
         for key in expected_hp.keys() {
-            assert_eq!(
-                actual_hp[key], expected_hp[key],
-                "{:?}",
-                key
-            );
+            assert_eq!(actual_hp[key], expected_hp[key], "{:?}", key);
         }
     }
 
@@ -302,7 +296,7 @@ mod tests {
 
         let actual_hp = actual_heat_pump(&mut heat_pump_input);
         let expected_hp = expected_heat_pump("hp_without_modulating_control");
-        
+
         let mut actual_keys = actual_hp.keys().collect_vec();
         let mut expected_keys = expected_hp.keys().collect_vec();
         actual_keys.sort();
@@ -310,11 +304,7 @@ mod tests {
         assert_eq!(actual_keys, expected_keys);
 
         for key in expected_hp.keys() {
-            assert_eq!(
-                actual_hp[key], expected_hp[key],
-                "{:?}",
-                key
-            );
+            assert_eq!(actual_hp[key], expected_hp[key], "{:?}", key);
         }
     }
 }
