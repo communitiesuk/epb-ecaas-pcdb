@@ -12,7 +12,7 @@ use serde_valid::Validate;
 use smartstring::alias::String;
 use std::collections::HashMap;
 
-pub(crate) async fn find_products_for_references<'a>(
+pub(crate) async fn find_products_for_references(
     product_references: &[String],
     dynamo_db_client: &DynamoDbClient,
 ) -> ResolveProductsResult<HashMap<String, Product>> {
@@ -72,7 +72,7 @@ pub(crate) async fn find_products_for_references<'a>(
         })
         .collect::<Result<HashMap<_, _>, _>>();
 
-    products.map_err(|e| ResolvePcdbProductsError::DeserializeError(e.into()))
+    products.map_err(ResolvePcdbProductsError::DeserializeError)
 }
 
 #[derive(Debug, Deserialize, Validate)]

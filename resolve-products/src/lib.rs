@@ -39,7 +39,7 @@ pub async fn resolve_products(
     Ok(Cursor::new(input.to_string()))
 }
 
-pub(crate) const PRODUCT_REFERENCE_FIELD: &'static str = "product_reference";
+pub(crate) const PRODUCT_REFERENCE_FIELD: &str = "product_reference";
 
 fn extract_product_references(json: &JsonValue) -> ResolveProductsResult<Vec<String>> {
     let instances = match json.query_with_path(&format!("$..{PRODUCT_REFERENCE_FIELD}")) {
