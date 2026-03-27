@@ -281,7 +281,7 @@ mod tests {
     }
 
     #[rstest]
-    fn test_transform_heat_pumps(pcdb_heat_pumps: HashMap<String, Product>) {
+    fn test_transforms_hp(pcdb_heat_pumps: HashMap<String, Product>) {
         let mut heat_pump_input = heat_pump_input("hp");
         let result = transform_heat_pumps(&mut heat_pump_input, &pcdb_heat_pumps);
 
@@ -300,9 +300,7 @@ mod tests {
     }
 
     #[rstest]
-    fn test_transform_heat_pumps_without_modulating_control(
-        pcdb_heat_pumps: HashMap<String, Product>,
-    ) {
+    fn test_transforms_hp_without_modulating_control(pcdb_heat_pumps: HashMap<String, Product>) {
         let mut heat_pump_input = heat_pump_input("hp_without_modulating_control");
         let result = transform_heat_pumps(&mut heat_pump_input, &pcdb_heat_pumps);
 
@@ -310,6 +308,27 @@ mod tests {
 
         let actual_hp = actual_heat_pump(&mut heat_pump_input);
         let expected_hp = expected_heat_pump("hp_without_modulating_control");
+        let (actual_keys_sorted, expected_keys_sorted) =
+            heat_pump_keys_sorted(&actual_hp, &expected_hp);
+
+        assert_eq!(actual_keys_sorted, expected_keys_sorted);
+
+        for key in expected_hp.keys() {
+            assert_eq!(actual_hp[key], expected_hp[key], "{:?}", key);
+        }
+    }
+
+    #[rstest]
+    fn test_transforms_hp_with_backup_ctrl_type_not_none(
+        pcdb_heat_pumps: HashMap<String, Product>,
+    ) {
+        let mut heat_pump_input = heat_pump_input("hp_with_backup_ctrl_type_substitute");
+        let result = transform_heat_pumps(&mut heat_pump_input, &pcdb_heat_pumps);
+
+        assert!(result.is_ok());
+
+        let actual_hp = actual_heat_pump(&mut heat_pump_input);
+        let expected_hp = expected_heat_pump("hp_with_backup_ctrl_type_substitute");
         let (actual_keys_sorted, expected_keys_sorted) =
             heat_pump_keys_sorted(&actual_hp, &expected_hp);
 
