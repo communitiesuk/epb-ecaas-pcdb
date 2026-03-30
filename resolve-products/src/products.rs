@@ -143,6 +143,31 @@ pub(crate) enum Technology {
         electricity_full_load: Decimal,
         electricity_standby: Decimal,
     },
+    #[serde(rename = "HeatBatteryPCM")]
+    HeatBatteryPcm {
+        #[serde(rename = "A")]
+        a: Decimal,
+        #[serde(rename = "B")]
+        b: Decimal,
+        inlet_diameter_mm: Decimal,
+        electricity_circ_pump: Decimal,
+        electricity_standby: Decimal,
+        flow_rate_l_per_min: Decimal,
+        #[serde(rename = "heat_storage_kJ_per_K_above_Phase_transition")]
+        heat_storage_kj_per_k_above_phase_transition: Decimal,
+        #[serde(rename = "heat_storage_kJ_per_K_below_Phase_transition")]
+        heat_storage_kj_per_k_below_phase_transition: Decimal,
+        #[serde(rename = "heat_storage_kJ_per_K_during_Phase_transition")]
+        heat_storage_kj_per_k_during_phase_transition: Decimal,
+        max_rated_losses: Decimal,
+        max_temperature: Decimal,
+        phase_transition_temperature_upper: Decimal,
+        phase_transition_temperature_lower: Decimal,
+        rated_charge_power: Decimal,
+        simultaneous_charging_and_discharging: bool,
+        #[serde(rename = "velocity_in_HEX_tube_at_1_l_per_min_m_per_s")]
+        velocity_in_hex_tube_at_1_l_per_min_m_per_s: Decimal,
+    },
 }
 
 // special deserialization logic so that booleans that are indicated by 0 or 1 are deserialized as true or false
