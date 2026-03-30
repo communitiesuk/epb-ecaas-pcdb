@@ -17,7 +17,7 @@ serde_dynamo = { version = "4", features = ["aws-sdk-dynamodb+1"] }
 serde_json = "1.0.143"
 serde_valid = "2.0.1"
 tokio = { version = "1", features = ["full"] }
-thiserror = "2.0.17"
+thiserror = "2.0.18"
 smartstring = { version = "1.0.1", features = ["serde"] }
 
 [features]
