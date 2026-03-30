@@ -188,16 +188,15 @@ pub(crate) enum Technology {
     Hiu {
         // TODO: complete fields
     },
-}
-
-#[derive(Debug, Deserialize)]
-pub(crate) struct HeatBatteryPcmTestDatum {
-    /// Charge level (e.g., percentage or step index)
-    charge_level: Decimal,
-    /// Minimum output (kW)
-    dry_core_min_output: Decimal,
-    /// Maximum output (kW)
-    dry_core_max_output: Decimal,
+    #[serde(rename = "InstantaneousWwhrSystem")]
+    Wwhrs {
+        number_of_flow_rates: usize,
+        /// Utilisation factor for system (fraction between 0 and 1)
+        // this field can appear in a field from the PCDB with this typo ("utililsation_factor"), until we are told otherwise
+        #[serde(alias = "utililsation_factor")]
+        utilisation_factor: Decimal,
+        test_data: Vec<WwhrsTestDatum>,
+    },
 }
 
 // special deserialization logic so that booleans that are indicated by 0 or 1 are deserialized as true or false
@@ -282,12 +281,37 @@ pub(crate) enum FuelType {
     HeatingOil,
 }
 
-#[derive(Debug, Deserialize_enum_str)]
+#[derive(Clone, Copy, Debug, Deserialize_enum_str)]
 #[serde(rename_all = "lowercase")]
 pub(crate) enum BoilerLocation {
     Internal,
     External,
     Unknown,
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct HeatBatteryPcmTestDatum {
+    /// Charge level (e.g., percentage or step index)
+    charge_level: Decimal,
+    /// Minimum output (kW)
+    dry_core_min_output: Decimal,
+    /// Maximum output (kW)
+    dry_core_max_output: Decimal,
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct WwhrsTestDatum {
+    flow_rate: Decimal,
+    /// Heat recovery efficiency of Instantaneous WWHR system (%).
+    efficiency: Decimal,
+    system_type: WwhrsSystemType,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize_enum_str)]
+pub(crate) enum WwhrsSystemType {
+    A,
+    B,
+    C,
 }
 
 // #[cfg(test)]
