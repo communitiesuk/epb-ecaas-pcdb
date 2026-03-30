@@ -129,6 +129,20 @@ pub(crate) enum Technology {
         #[serde(rename = "test_data_EN14825")]
         test_data: Vec<HeatPumpTestDatum>,
     },
+    #[serde(alias = "RegularBoiler", alias = "CombiBoiler")]
+    Boiler {
+        fuel: FuelType,
+        fuel_aux: FuelType, // maps to energy_supply_aux
+        rated_power: Decimal,
+        efficiency_full_load: Decimal,
+        efficiency_part_load: Decimal,
+        boiler_location: BoilerLocation, // maps to specified_location if unknown
+        modulation_load: Decimal,
+        electricity_circ_pump: Decimal,
+        electricity_part_load: Decimal,
+        electricity_full_load: Decimal,
+        electricity_standby: Decimal,
+    },
 }
 
 // special deserialization logic so that booleans that are indicated by 0 or 1 are deserialized as true or false
@@ -197,6 +211,28 @@ pub(crate) enum HeatPumpTestLetter {
     D,
     E,
     F,
+}
+
+#[derive(Debug, Deserialize_enum_str)]
+#[serde(rename_all = "snake_case")]
+pub(crate) enum FuelType {
+    Electricity,
+    MainsGas,
+    #[serde(rename = "LPG_bulk")]
+    LpgBulk,
+    #[serde(rename = "LPG_bottled")]
+    LpgBottled,
+    #[serde(rename = "LPG_condition_11F")]
+    LpgCondition11F,
+    HeatingOil,
+}
+
+#[derive(Debug, Deserialize_enum_str)]
+#[serde(rename_all = "lowercase")]
+pub(crate) enum BoilerLocation {
+    Internal,
+    External,
+    Unknown,
 }
 
 // #[cfg(test)]
