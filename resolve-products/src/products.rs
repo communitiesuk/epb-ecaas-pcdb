@@ -184,6 +184,10 @@ pub(crate) enum Technology {
         test_data: Vec<HeatBatteryPcmTestDatum>,
         // TODO: state_of_charge_init needs to come from somewhere = account for this
     },
+    #[serde(rename = "HeatInterfaceUnit")]
+    Hiu {
+        // TODO: complete fields
+    },
 }
 
 #[derive(Debug, Deserialize)]
