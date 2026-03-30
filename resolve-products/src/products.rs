@@ -197,6 +197,22 @@ pub(crate) enum Technology {
         utilisation_factor: Decimal,
         test_data: Vec<WwhrsTestDatum>,
     },
+    #[serde(rename = "StorageHeater")]
+    ElectricStorageHeater {
+        /// Maximum heat storage capacity in kWh
+        storage_capacity: Decimal,
+        fuel: FuelType,
+        pwr_in: Decimal,
+        /// Output power from in-built boost heater in kW
+        rated_power_instant: Decimal,
+        air_flow_type: StorageHeaterAirFlowType,
+        /// Rated power of fan in W. 0 if no fan
+        fan_pwr: Decimal,
+        /// Proportion of heat output that is convective (0 to 1)
+        frac_convective: Decimal,
+        #[serde(rename = "testData")]
+        test_data: Vec<ElectricStorageHeaterTestDatum>,
+    },
 }
 
 // special deserialization logic so that booleans that are indicated by 0 or 1 are deserialized as true or false
@@ -312,6 +328,23 @@ pub(crate) enum WwhrsSystemType {
     A,
     B,
     C,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize_enum_str)]
+#[serde(rename_all = "kebab-case")]
+pub(crate) enum StorageHeaterAirFlowType {
+    DamperOnly,
+    FanAssisted,
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct ElectricStorageHeaterTestDatum {
+    /// Test point number (0 to 100 (TODO: ??? maybe to 1) during heat discharge test)
+    test_point: Decimal,
+    /// Minimum heat output at test points (0 to 100) during heat discharge test, in kW
+    dry_core_min_output: Decimal,
+    /// Maximum heat output at test points (0 to 100) during heat discharge test, in kW
+    dry_core_max_output: Decimal,
 }
 
 // #[cfg(test)]
