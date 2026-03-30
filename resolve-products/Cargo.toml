@@ -10,7 +10,7 @@ clap = { version = "4.5.60", features = ["derive"], optional = true }
 indexmap = "2.13.0"
 itertools = "0.14.0"
 jsonpath-rust = "1.0.4"
-jsonschema = { version = "0.37.1", features = ["resolve-async"] }
+jsonschema = { version = "0.45.0", features = ["resolve-async"] }
 rust_decimal = "1.37.2"
 serde = { version = "1.0.228", features = ["derive"] }
 serde-enum-str = "0.4.0"
