@@ -2268,7 +2268,6 @@ dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
  "clap",
- "indexmap",
  "itertools",
  "jsonpath-rust",
  "jsonschema",
