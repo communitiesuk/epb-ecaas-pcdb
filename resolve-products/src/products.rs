@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
-use crate::ResolveProductsResult;
 use crate::errors::ResolvePcdbProductsError;
-use aws_sdk_dynamodb::Client as DynamoDbClient;
+use crate::ResolveProductsResult;
 use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
+use aws_sdk_dynamodb::Client as DynamoDbClient;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Deserializer};
 use serde_dynamo::from_item;
@@ -168,6 +168,32 @@ pub(crate) enum Technology {
         #[serde(rename = "velocity_in_HEX_tube_at_1_l_per_min_m_per_s")]
         velocity_in_hex_tube_at_1_l_per_min_m_per_s: Decimal,
     },
+    HeatBatteryDryCore {
+        fuel: FuelType,
+        electricity_circ_pump: Decimal,
+        electricity_standby: Decimal,
+        /// Charging power (kW)
+        pwr_in: Decimal,
+        /// Rated instantaneous power output (kW)
+        rated_power_instant: Decimal,
+        /// Heat storage capacity (kWh)
+        heat_storage_capacity: Decimal,
+        /// Fan power (W)
+        fan_pwr: Decimal,
+        #[serde(rename = "testData")]
+        test_data: Vec<HeatBatteryPcmTestDatum>,
+        // TODO: state_of_charge_init needs to come from somewhere = account for this
+    },
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct HeatBatteryPcmTestDatum {
+    /// Charge level (e.g., percentage or step index)
+    charge_level: Decimal,
+    /// Minimum output (kW)
+    dry_core_min_output: Decimal,
+    /// Maximum output (kW)
+    dry_core_max_output: Decimal,
 }
 
 // special deserialization logic so that booleans that are indicated by 0 or 1 are deserialized as true or false
