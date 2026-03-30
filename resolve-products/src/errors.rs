@@ -1,6 +1,6 @@
 use jsonpath_rust::parser::errors::JsonPathError as OriginalJsonPathError;
-use jsonschema::ValidationError;
 use jsonschema::error::ValidationErrorKind;
+use jsonschema::ValidationError;
 use serde_json::Value;
 use std::fmt::{Display, Formatter};
 use std::string::FromUtf8Error;
@@ -49,9 +49,14 @@ impl Display for JsonValidationError {
 
 impl From<ValidationError<'_>> for JsonValidationError {
     fn from(value: ValidationError) -> Self {
-        let (instance, kind, instance_path, schema_path) = value.into_parts();
+        let (instance, kind, instance_path, schema_path) = (
+            value.instance(),
+            value.kind(),
+            value.instance_path(),
+            value.schema_path(),
+        );
         Self {
-            value: instance.into_owned(),
+            value: instance.clone().into_owned(),
             instance_path: instance_path.to_string(),
             schema_path: schema_path.to_string(),
             kind: kind.into(),
@@ -134,55 +139,89 @@ pub enum JsonValidationErrorKind {
     Referencing(String),
 }
 
-impl From<ValidationErrorKind> for JsonValidationErrorKind {
-    fn from(value: ValidationErrorKind) -> Self {
+impl From<&ValidationErrorKind> for JsonValidationErrorKind {
+    fn from(value: &ValidationErrorKind) -> Self {
         match value {
-            ValidationErrorKind::AdditionalItems { limit } => Self::AdditionalItems { limit },
+            ValidationErrorKind::AdditionalItems { limit } => {
+                Self::AdditionalItems { limit: *limit }
+            }
             ValidationErrorKind::AdditionalProperties { unexpected } => {
-                Self::AdditionalProperties { unexpected }
+                Self::AdditionalProperties {
+                    unexpected: unexpected.clone(),
+                }
             }
             ValidationErrorKind::AnyOf { context: _ } => Self::AnyOf,
             ValidationErrorKind::BacktrackLimitExceeded { .. } => Self::BacktrackLimitExceeded,
-            ValidationErrorKind::Constant { expected_value } => Self::Constant { expected_value },
+            ValidationErrorKind::Constant { expected_value } => Self::Constant {
+                expected_value: expected_value.clone(),
+            },
             ValidationErrorKind::Contains => Self::Contains,
-            ValidationErrorKind::ContentEncoding { content_encoding } => {
-                Self::ContentEncoding { content_encoding }
-            }
+            ValidationErrorKind::ContentEncoding { content_encoding } => Self::ContentEncoding {
+                content_encoding: content_encoding.clone(),
+            },
             ValidationErrorKind::ContentMediaType { content_media_type } => {
-                Self::ContentMediaType { content_media_type }
+                Self::ContentMediaType {
+                    content_media_type: content_media_type.clone(),
+                }
             }
-            ValidationErrorKind::Custom { message } => Self::Custom { message },
-            ValidationErrorKind::Enum { options } => Self::Enum { options },
-            ValidationErrorKind::ExclusiveMaximum { limit } => Self::ExclusiveMaximum { limit },
-            ValidationErrorKind::ExclusiveMinimum { limit } => Self::ExclusiveMinimum { limit },
+            ValidationErrorKind::Custom { message, .. } => Self::Custom {
+                message: message.clone(),
+            },
+            ValidationErrorKind::Enum { options } => Self::Enum {
+                options: options.clone(),
+            },
+            ValidationErrorKind::ExclusiveMaximum { limit } => Self::ExclusiveMaximum {
+                limit: limit.clone(),
+            },
+            ValidationErrorKind::ExclusiveMinimum { limit } => Self::ExclusiveMinimum {
+                limit: limit.clone(),
+            },
             ValidationErrorKind::FalseSchema => Self::FalseSchema,
-            ValidationErrorKind::Format { format } => Self::Format { format },
-            ValidationErrorKind::FromUtf8 { error } => Self::FromUtf8 { error },
-            ValidationErrorKind::MaxItems { limit } => Self::MaxItems { limit },
-            ValidationErrorKind::Maximum { limit } => Self::Maximum { limit },
-            ValidationErrorKind::MaxLength { limit } => Self::MaxLength { limit },
-            ValidationErrorKind::MaxProperties { limit } => Self::MaxProperties { limit },
-            ValidationErrorKind::MinItems { limit } => Self::MinItems { limit },
-            ValidationErrorKind::Minimum { limit } => Self::Minimum { limit },
-            ValidationErrorKind::MinLength { limit } => Self::MinLength { limit },
-            ValidationErrorKind::MinProperties { limit } => Self::MinProperties { limit },
-            ValidationErrorKind::MultipleOf { multiple_of } => Self::MultipleOf { multiple_of },
-            ValidationErrorKind::Not { schema } => Self::Not { schema },
+            ValidationErrorKind::Format { format } => Self::Format {
+                format: format.clone(),
+            },
+            ValidationErrorKind::FromUtf8 { error } => Self::FromUtf8 {
+                error: error.clone(),
+            },
+            ValidationErrorKind::MaxItems { limit } => Self::MaxItems { limit: *limit },
+            ValidationErrorKind::Maximum { limit } => Self::Maximum {
+                limit: limit.clone(),
+            },
+            ValidationErrorKind::MaxLength { limit } => Self::MaxLength { limit: *limit },
+            ValidationErrorKind::MaxProperties { limit } => Self::MaxProperties { limit: *limit },
+            ValidationErrorKind::MinItems { limit } => Self::MinItems { limit: *limit },
+            ValidationErrorKind::Minimum { limit } => Self::Minimum {
+                limit: limit.clone(),
+            },
+            ValidationErrorKind::MinLength { limit } => Self::MinLength { limit: *limit },
+            ValidationErrorKind::MinProperties { limit } => Self::MinProperties { limit: *limit },
+            ValidationErrorKind::MultipleOf { multiple_of } => Self::MultipleOf {
+                multiple_of: *multiple_of,
+            },
+            ValidationErrorKind::Not { schema } => Self::Not {
+                schema: schema.clone(),
+            },
             ValidationErrorKind::OneOfMultipleValid { context: _ } => Self::OneOfMultipleValid,
             ValidationErrorKind::OneOfNotValid { context: _ } => Self::OneOfNotValid,
-            ValidationErrorKind::Pattern { pattern } => Self::Pattern { pattern },
+            ValidationErrorKind::Pattern { pattern } => Self::Pattern {
+                pattern: pattern.clone(),
+            },
             ValidationErrorKind::PropertyNames { error } => Self::PropertyNames {
                 error: format!("associated error: {error:?}"),
             },
-            ValidationErrorKind::Required { property } => Self::Required { property },
+            ValidationErrorKind::Required { property } => Self::Required {
+                property: property.clone(),
+            },
             ValidationErrorKind::Type { kind } => Self::Type {
                 kind: format!("kind of type: {kind:?}"),
             },
-            ValidationErrorKind::UnevaluatedItems { unexpected } => {
-                Self::UnevaluatedItems { unexpected }
-            }
+            ValidationErrorKind::UnevaluatedItems { unexpected } => Self::UnevaluatedItems {
+                unexpected: unexpected.clone(),
+            },
             ValidationErrorKind::UnevaluatedProperties { unexpected } => {
-                Self::UnevaluatedProperties { unexpected }
+                Self::UnevaluatedProperties {
+                    unexpected: unexpected.clone(),
+                }
             }
             ValidationErrorKind::UniqueItems => Self::UniqueItems,
             ValidationErrorKind::Referencing(referencing) => {
