@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
-use crate::ResolveProductsResult;
 use crate::errors::ResolvePcdbProductsError;
-use aws_sdk_dynamodb::Client as DynamoDbClient;
+use crate::ResolveProductsResult;
 use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
+use aws_sdk_dynamodb::Client as DynamoDbClient;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Deserializer};
 use serde_dynamo::from_item;
@@ -535,20 +535,3 @@ pub(crate) struct SubHeatNetwork {
     #[serde(rename = "PrimaryEnergyFactorkWhkWhDelivered")]
     primary_energy_factor: Decimal,
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use rstest::*;
-//
-//     #[rstest]
-//     fn test_find_product_by_reference() {
-//         assert_eq!(
-//             find_product_by_reference("HEATPUMP-SMALL")
-//                 .unwrap()
-//                 .model_name,
-//             "Small Heat Pump"
-//         );
-//         assert!(find_product_by_reference("HEATPUMP-UNKNOWN").is_none());
-//     }
-// }
