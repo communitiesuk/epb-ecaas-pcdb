@@ -9,6 +9,7 @@ use serde::{Deserialize, Deserializer};
 use serde_dynamo::from_item;
 use serde_enum_str::{Deserialize_enum_str, Serialize_enum_str};
 use serde_json::{Number, Value};
+use serde_repr::{Deserialize_repr, Serialize_repr};
 use serde_valid::Validate;
 use smartstring::alias::String;
 use std::collections::HashMap;
@@ -248,6 +249,18 @@ pub(crate) enum Technology {
         #[serde(rename = "testData")]
         test_data: Vec<FanCoilTestDatum>,
     },
+    CentralisedMev {
+        #[serde(rename = "testData")]
+        test_data: Vec<CentralisedMevTestDatum>,
+    },
+    CentralisedMvhr {
+        #[serde(rename = "testData")]
+        test_data: Vec<CentralisedMvhrTestDatum>,
+    },
+    DecentralisedMev {
+        #[serde(rename = "testData")]
+        test_data: Vec<DecentralisedMevTestDatum>,
+    },
 }
 
 // special deserialization logic so that booleans that are indicated by 0 or 1 are deserialized as true or false
@@ -395,6 +408,55 @@ pub(crate) struct FanCoilTestDatum {
     /// Electrical power consumed by fan at fan different speeds in W., up to 5 chs, e.g. xxx.x
     #[serde(rename = "fan_power_W")]
     fan_power_w: Decimal,
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct CentralisedMevTestDatum {
+    /// Whether tested using flexible, rigid ducting or semi-rigid, coded as 1,2 and 3 respectively. Semi-rigid have the same in use factors as rigid.
+    duct_type: MechanicalVentilationDuctType,
+    /// Number of additional wet rooms (i.e. in addition to the kitchen)
+    configuration: usize,
+    /// Specific fan power in watts per (litre per second)
+    #[serde(rename = "SFP")]
+    sfp: Decimal,
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct CentralisedMvhrTestDatum {
+    /// Whether tested using flexible, rigid ducting or semi-rigid, coded as 1,2 and 3 respectively. Semi-rigid have the same in use factors as rigid.
+    duct_type: MechanicalVentilationDuctType,
+    /// Number of additional wet rooms (i.e. in addition to the kitchen)
+    configuration: usize,
+    /// Specific fan power in watts per (litre per second)
+    #[serde(rename = "SFP")]
+    sfp: Decimal,
+    /// Heat exchanger efficiency
+    mvhr_eff: Decimal,
+}
+
+#[derive(Debug, Deserialize_repr, PartialEq, Serialize_repr)]
+#[repr(u8)]
+pub(crate) enum MechanicalVentilationDuctType {
+    Flexible = 1,
+    RigidDucting = 2,
+    SemiRigid = 3,
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct DecentralisedMevTestDatum {
+    configuration: DecentralisedMevInstallationType,
+    /// Specific fan power in watts per (litre per second) in minimum flow rate test
+    sfp: Decimal,
+    /// Specific fan power in watts per (litre per second) in minimum flow rate test (second option)
+    sfp2: Decimal,
+}
+
+#[derive(Debug, Deserialize_repr, PartialEq, Serialize_repr)]
+#[repr(u8)]
+pub(crate) enum DecentralisedMevInstallationType {
+    InCeiling = 1,
+    InDuct = 2,
+    ThroughWall = 3,
 }
 
 // #[cfg(test)]
