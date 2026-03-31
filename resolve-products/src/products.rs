@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
-use crate::errors::ResolvePcdbProductsError;
 use crate::ResolveProductsResult;
-use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
+use crate::errors::ResolvePcdbProductsError;
 use aws_sdk_dynamodb::Client as DynamoDbClient;
+use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Deserializer};
 use serde_dynamo::from_item;
@@ -129,14 +129,18 @@ pub(crate) enum Technology {
         #[serde(rename = "test_data_EN14825")]
         test_data: Vec<HeatPumpTestDatum>,
     },
-    #[serde(alias = "RegularBoiler", alias = "CombiBoiler")]
+    #[serde(
+        alias = "RegularBoiler",
+        alias = "CombiBoiler",
+        rename_all = "camelCase"
+    )]
     Boiler {
         fuel: FuelType,
-        fuel_aux: FuelType, // maps to energy_supply_aux
+        fuel_aux: FuelType,
         rated_power: Decimal,
         efficiency_full_load: Decimal,
         efficiency_part_load: Decimal,
-        boiler_location: BoilerLocation, // maps to specified_location if unknown
+        boiler_location: BoilerLocation,
         modulation_load: Decimal,
         electricity_circ_pump: Decimal,
         electricity_part_load: Decimal,
@@ -314,10 +318,12 @@ pub(crate) enum HeatPumpTestLetter {
     F,
 }
 
-#[derive(Debug, Deserialize_enum_str)]
+#[derive(Debug, Deserialize_enum_str, Serialize_enum_str)]
 #[serde(rename_all = "snake_case")]
 pub(crate) enum FuelType {
+    #[serde(rename(serialize = "mains elec"))]
     Electricity,
+    #[serde(rename(serialize = "mains gas"))]
     MainsGas,
     #[serde(rename = "LPG_bulk")]
     LpgBulk,
@@ -328,7 +334,7 @@ pub(crate) enum FuelType {
     HeatingOil,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize_enum_str)]
+#[derive(Clone, Copy, Debug, Deserialize_enum_str, Serialize_enum_str)]
 #[serde(rename_all = "lowercase")]
 pub(crate) enum BoilerLocation {
     Internal,

@@ -1,7 +1,7 @@
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{
-    HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product, Technology,
-    find_products_for_references,
+    BoilerLocation, HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product,
+    Technology, find_products_for_references,
 };
 use crate::{PRODUCT_REFERENCE_FIELD, extract_product_references};
 use aws_sdk_dynamodb::client::Client as DynamoDbClient;
@@ -20,7 +20,8 @@ pub async fn transform_json(
     let product_references = extract_product_references(json)?;
     let products = find_products_for_references(&product_references, dynamo_client).await?;
 
-    transform_heat_pumps(json, &products)
+    transform_heat_pumps(json, &products)?;
+    transform_boilers(json, &products)
 }
 
 fn transform_heat_pumps(
@@ -63,6 +64,48 @@ fn transform_heat_pumps(
     Ok(())
 }
 
+fn transform_boilers(
+    json: &mut JsonValue,
+    products: &HashMap<String, Product>,
+) -> ResolveProductsResult<()> {
+    let heat_source_wets = match json.pointer_mut("/HeatSourceWet") {
+        Some(node) => {
+            if node.is_object() {
+                node.as_object_mut().unwrap()
+            } else {
+                return Ok(());
+            }
+        }
+        _ => return Ok(()),
+    };
+    for value in heat_source_wets.values_mut() {
+        if let JsonValue::Object(heat_source_wet) = value {
+            if heat_source_wet
+                .get("type")
+                .is_some_and(|v| matches!(v, JsonValue::String(s) if s == "Boiler"))
+                && heat_source_wet.contains_key(PRODUCT_REFERENCE_FIELD)
+            {
+                let product_reference = std::string::String::from(
+                    heat_source_wet[PRODUCT_REFERENCE_FIELD]
+                        .as_str()
+                        .ok_or_else(|| {
+                            ResolvePcdbProductsError::InvalidProductCategoryReference(
+                                heat_source_wet[PRODUCT_REFERENCE_FIELD].clone(),
+                            )
+                        })?,
+                );
+                transform_boiler(
+                    heat_source_wet,
+                    &products[product_reference.as_str()],
+                    &product_reference,
+                )?;
+            }
+        }
+    }
+
+    Ok(())
+}
+
 fn transform_heat_pump(
     heat_pump: &mut Map<std::string::String, JsonValue>,
     product: &Product,
@@ -70,8 +113,6 @@ fn transform_heat_pump(
 ) -> ResolveProductsResult<()> {
     let mut category_mismatches = vec![];
 
-    // can remove following "allow" when there is more than one technology variant modelled
-    #[allow(irrefutable_let_patterns)]
     if let Technology::HeatPump {
         source_type,
         sink_type,
@@ -215,6 +256,84 @@ fn transform_heat_pump(
     Ok(())
 }
 
+fn transform_boiler(
+    boiler: &mut Map<std::string::String, JsonValue>,
+    product: &Product,
+    product_reference: &str,
+) -> ResolveProductsResult<()> {
+    let mut category_mismatches = vec![];
+
+    if let Technology::Boiler {
+        fuel,
+        fuel_aux,
+        rated_power,
+        efficiency_full_load,
+        efficiency_part_load,
+        boiler_location,
+        modulation_load,
+        electricity_circ_pump,
+        electricity_part_load,
+        electricity_full_load,
+        electricity_standby,
+        ..
+    } = &product.technology
+    {
+        boiler.insert("EnergySupply".into(), fuel.to_string().into());
+        boiler.insert("EnergySupply_aux".into(), fuel_aux.to_string().into());
+        boiler.insert("rated_power".into(), rated_power.to_f64().into());
+        boiler.insert(
+            "efficiency_full_load".into(),
+            efficiency_full_load.to_f64().into(),
+        );
+        boiler.insert(
+            "efficiency_part_load".into(),
+            efficiency_part_load.to_f64().into(),
+        );
+        boiler.insert("modulation_load".into(), modulation_load.to_f64().into());
+        boiler.insert(
+            "electricity_circ_pump".into(),
+            electricity_circ_pump.to_f64().into(),
+        );
+        boiler.insert(
+            "electricity_part_load".into(),
+            electricity_part_load.to_f64().into(),
+        );
+        boiler.insert(
+            "electricity_full_load".into(),
+            electricity_full_load.to_f64().into(),
+        );
+        boiler.insert(
+            "electricity_standby".into(),
+            electricity_standby.to_f64().into(),
+        );
+
+        match boiler_location {
+            BoilerLocation::Unknown => {
+                let boiler_location = boiler.get("specified_location").expect("boiler location");
+                boiler.insert("boiler_location".into(), boiler_location.clone());
+            }
+            _ => {
+                boiler.insert("boiler_location".into(), boiler_location.to_string().into());
+            }
+        }
+
+        boiler.remove("specified_location");
+        boiler.remove(PRODUCT_REFERENCE_FIELD);
+    } else {
+        category_mismatches.push(format!(
+            "Product reference '{product_reference}' does not relate to a boiler."
+        ));
+    }
+
+    if category_mismatches.len() > 0 {
+        return Err(ResolvePcdbProductsError::ProductCategoryMismatches(
+            category_mismatches,
+        ));
+    }
+
+    Ok(())
+}
+
 pub type ResolveProductsResult<T> = Result<T, ResolvePcdbProductsError>;
 
 #[cfg(test)]
@@ -268,12 +387,12 @@ mod tests {
             .collect()
     }
 
-    fn heat_pump_keys_sorted(
-        actual_hp: &HashMap<String, Value>,
-        expected_hp: &HashMap<String, Value>,
+    fn product_keys_sorted(
+        actual_product: &HashMap<String, Value>,
+        expected_product: &HashMap<String, Value>,
     ) -> (Vec<String>, Vec<String>) {
-        let mut actual_keys = actual_hp.keys().cloned().collect_vec();
-        let mut expected_keys = expected_hp.keys().cloned().collect_vec();
+        let mut actual_keys = actual_product.keys().cloned().collect_vec();
+        let mut expected_keys = expected_product.keys().cloned().collect_vec();
         actual_keys.sort();
         expected_keys.sort();
 
@@ -299,12 +418,72 @@ mod tests {
         let actual_hp = actual_heat_pump(&mut heat_pump_input);
         let expected_hp = expected_heat_pump(example_name);
         let (actual_keys_sorted, expected_keys_sorted) =
-            heat_pump_keys_sorted(&actual_hp, &expected_hp);
+            product_keys_sorted(&actual_hp, &expected_hp);
 
         assert_eq!(actual_keys_sorted, expected_keys_sorted);
 
         for key in expected_hp.keys() {
             assert_eq!(actual_hp[key], expected_hp[key], "{:?}", key);
+        }
+    }
+
+    #[fixture]
+    fn pcdb_boilers() -> HashMap<String, Product> {
+        serde_json::from_str(include_str!("../test/test_boilers_pcdb.json")).unwrap()
+    }
+
+    fn actual_boiler(input: &mut Value) -> HashMap<String, JsonValue> {
+        input
+            .pointer("/HeatSourceWet/boiler")
+            .unwrap()
+            .as_object()
+            .unwrap()
+            .iter()
+            .map(|(k, v)| (String::from(k), v.clone()))
+            .collect()
+    }
+
+    fn expected_boiler(product_reference: &str) -> HashMap<String, Value> {
+        let boiler_input: JsonValue =
+            serde_json::from_str(include_str!("../test/test_boiler_input_transformed.json"))
+                .unwrap();
+
+        boiler_input
+            .pointer(format!("/HeatSourceWet/{}", product_reference).as_str())
+            .unwrap()
+            .as_object()
+            .unwrap()
+            .iter()
+            .map(|(k, v)| (String::from(k), v.clone()))
+            .collect()
+    }
+
+    #[rstest]
+    fn test_transform_boilers(pcdb_boilers: HashMap<String, Product>) {
+        let mut boiler_input = json!({
+            "HeatSourceWet": {
+            "boiler": {
+                "type": "Boiler",
+                "EnergySupply": "mains gas",
+                "product_reference": "boiler",
+                // "specified_location": "internal",
+                "is_heat_network": false
+            }
+        }
+        });
+
+        let result = transform_boilers(&mut boiler_input, &pcdb_boilers);
+        assert!(result.is_ok());
+
+        let actual_boiler = actual_boiler(&mut boiler_input);
+        let expected_boiler = expected_boiler("boiler");
+        let (actual_keys_sorted, expected_keys_sorted) =
+            product_keys_sorted(&actual_boiler, &expected_boiler);
+
+        assert_eq!(actual_keys_sorted, expected_keys_sorted);
+
+        for key in expected_boiler.keys() {
+            assert_eq!(actual_boiler[key], expected_boiler[key], "{:?}", key);
         }
     }
 }
