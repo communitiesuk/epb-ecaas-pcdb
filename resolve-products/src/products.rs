@@ -5,7 +5,7 @@ use crate::ResolveProductsResult;
 use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
 use aws_sdk_dynamodb::Client as DynamoDbClient;
 use rust_decimal::Decimal;
-use serde::{Deserialize, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize};
 use serde_dynamo::from_item;
 use serde_enum_str::{Deserialize_enum_str, Serialize_enum_str};
 use serde_json::{Number, Value};
@@ -270,6 +270,25 @@ pub(crate) enum Technology {
         #[serde(rename = "power_pump_kW")]
         power_pump_kw: Decimal,
     },
+    #[serde(rename = "HotWaterOnlyHeatPump")]
+    HeatPumpHotWaterOnly {
+        fuel: FuelType,
+        /// Description of the type of hot water storage vessel
+        #[serde(rename = "vesselType")]
+        vessel_type: HeatPumpVesselType,
+        /// Hot water storage vessel volume in litres. If vessel is not integral, this is the minimum volume of the separate vessel to which the declared performance data relates
+        tank_volume_declared: Decimal,
+        /// Declared vessel heat loss rate in kWh/day at 45K rise above ambient. If vessel is not integral, this is the maximum heat loss rate of the separate vessel to which the declared performance data relates
+        daily_losses_declared: Decimal,
+        /// Minimum vessel heat exchanger area in m2 of the separate vessel to which the performance data relates. Blank (None) if not applicable
+        heat_exchanger_surface_area_declared: Option<Decimal>,
+        /// Maximum power in kW
+        power_max: Decimal,
+        /// Daily hot water vessel heat loss (kWh/day) for a 45 K temperature difference between vessel and surroundings,tested in accordance with BS 1566 or EN 12897 or any other equivalent standard. Vessel standing heat loss of the cylinder used during EN 16147 test
+        hw_vessel_loss_daily: Decimal,
+        #[serde(rename = "testData")]
+        test_data: Vec<HeatPumpHotWaterOnlyTestDatum>,
+    },
 }
 
 // special deserialization logic so that booleans that are indicated by 0 or 1 are deserialized as true or false
@@ -466,6 +485,34 @@ pub(crate) enum DecentralisedMevInstallationType {
     InCeiling = 1,
     InDuct = 2,
     ThroughWall = 3,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq)]
+pub(crate) enum HeatPumpVesselType {
+    Integral,
+    #[serde(rename = "Separate limiting characteristics")]
+    SeparateLimitingCharacteristics,
+    #[serde(rename = "Separate fixed characteristics")]
+    SeparateFixedCharacteristics,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize_enum_str, PartialEq)]
+pub(crate) enum TappingProfile {
+    L,
+    M,
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct HeatPumpHotWaterOnlyTestDatum {
+    tapping_profile: TappingProfile,
+    /// Coefficienct of Performance (CoP) measured during EN 16147 test
+    cop_dhw: Decimal,
+    /// Daily energy requirement (kWh/day) for tapping profile used for test
+    hw_tapping_prof_daily_total: Decimal,
+    /// Electrical input energy measured during EN 16147 test over 24 hours
+    energy_input_measured: Decimal,
+    /// Standby power (kW) measured in EN 16147 test
+    power_standby: Decimal,
 }
 
 // #[cfg(test)]
