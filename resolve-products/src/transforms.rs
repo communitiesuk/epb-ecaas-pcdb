@@ -286,10 +286,12 @@ fn transform_boiler(
 
         match boiler_location {
             BoilerLocation::Unknown => {
-                boiler.insert(
-                    "boiler_location".into(),
-                    boiler.get("specified_location").map(|x| x.as_str()).into(),
-                );
+                let specified_location = boiler
+                    .get("specified_location")
+                    .ok_or(Err("Expected location for boiler to be specified as boiler location from PCDB is unknown"))
+                    .map_err(|_: Result<(), &_>| ResolvePcdbProductsError::InvalidCombination)?;
+
+                boiler.insert("boiler_location".into(), specified_location.as_str().into());
             }
             _ => {
                 boiler.insert("boiler_location".into(), boiler_location.to_string().into());
@@ -501,27 +503,11 @@ mod tests {
     }
 
     #[rstest]
-    fn test_transform_boiler_with_specified_location(
-        pcdb_boilers: HashMap<String, Product>,
-        expected_boilers: JsonValue,
-    ) {
+    fn test_transform_boiler_without_locations(pcdb_boilers: HashMap<String, Product>) {
         let product_reference = "boiler_unknown_location";
-        let mut boiler_input = boiler_input(product_reference, Some("internal"));
+        let mut boiler_input = boiler_input(product_reference, None);
 
         let result = transform_heat_source_wets(&mut boiler_input, &pcdb_boilers);
-        assert!(result.is_ok());
-
-        let pointer = format!("/HeatSourceWet/{}", product_reference);
-        let actual_boiler = product_from_pointer(&boiler_input, pointer.as_str());
-        let expected_boiler = product_from_pointer(&expected_boilers, pointer.as_str());
-
-        let (actual_keys_sorted, expected_keys_sorted) =
-            product_keys_sorted(&actual_boiler, &expected_boiler);
-
-        assert_eq!(actual_keys_sorted, expected_keys_sorted);
-
-        for key in expected_boiler.keys() {
-            assert_eq!(actual_boiler[key], expected_boiler[key], "{:?}", key);
-        }
+        assert!(result.is_err());
     }
 }

@@ -12,6 +12,8 @@ pub enum ResolvePcdbProductsError {
     InvalidJson,
     #[error("Request was considered invalid due to error: {0}")]
     InvalidRequest(#[from] JsonValidationError),
+    #[error("Request was considered invalid due to combination of input and PCDB data")]
+    InvalidCombination,
     #[error("Could not extract product references: {0:?}")]
     CouldNotExtractProductReferences(#[from] JsonPathError),
     #[error(
