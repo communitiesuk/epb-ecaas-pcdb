@@ -345,7 +345,7 @@ mod tests {
         .unwrap()
     }
 
-    fn product_from_pointer(input: Value, pointer: &str) -> HashMap<String, JsonValue> {
+    fn product_from_pointer(input: &Value, pointer: &str) -> HashMap<String, JsonValue> {
         input
             .pointer(pointer)
             .unwrap()
@@ -375,7 +375,7 @@ mod tests {
     #[case("hp_with_backup_ctrl_type_substitute")]
     #[ignore = "todo: implement test case once boiler mapping has been added"]
     #[case("hp_with_boiler")]
-    fn test_transform_heat_pumps(
+    fn test_transform_single_heat_pump(
         pcdb_heat_pumps: HashMap<String, Product>,
         expected_heat_pumps: JsonValue,
         #[case] example_name: &str,
@@ -386,8 +386,8 @@ mod tests {
         assert!(result.is_ok());
 
         let pointer = format!("/HeatSourceWet/{}", example_name);
-        let actual_hp = product_from_pointer(heat_pump_input, pointer.as_str());
-        let expected_hp = product_from_pointer(expected_heat_pumps, pointer.as_str());
+        let actual_hp = product_from_pointer(&heat_pump_input, pointer.as_str());
+        let expected_hp = product_from_pointer(&expected_heat_pumps, pointer.as_str());
 
         let (actual_keys_sorted, expected_keys_sorted) =
             product_keys_sorted(&actual_hp, &expected_hp);
@@ -396,6 +396,50 @@ mod tests {
 
         for key in expected_hp.keys() {
             assert_eq!(actual_hp[key], expected_hp[key], "{:?}", key);
+        }
+    }
+
+    #[rstest]
+    fn test_transform_multiple_heat_pumps(
+        pcdb_heat_pumps: HashMap<String, Product>,
+        expected_heat_pumps: JsonValue,
+    ) {
+        let mut heat_pump_input = heat_pump_input("hp");
+
+        heat_pump_input["HeatSourceWet"]
+            .as_object_mut()
+            .unwrap()
+            .insert(
+                "hp_without_modulating_control".into(),
+                json!({
+                    "type": "HeatPump",
+                    "EnergySupply": "mains elec",
+                    "product_reference": "hp_without_modulating_control",
+                    "is_heat_network": false
+                }),
+            );
+
+        let result = transform_heat_source_wets(&mut heat_pump_input, &pcdb_heat_pumps);
+
+        assert!(result.is_ok());
+
+        let pointers = [
+            "/HeatSourceWet/hp",
+            "/HeatSourceWet/hp_without_modulating_control",
+        ];
+
+        for pointer in pointers {
+            let actual_hp = product_from_pointer(&heat_pump_input, pointer);
+            let expected_hp = product_from_pointer(&expected_heat_pumps, pointer);
+
+            let (actual_keys_sorted, expected_keys_sorted) =
+                product_keys_sorted(&actual_hp, &expected_hp);
+
+            assert_eq!(actual_keys_sorted, expected_keys_sorted);
+
+            for key in expected_hp.keys() {
+                assert_eq!(actual_hp[key], expected_hp[key], "{:?}", key);
+            }
         }
     }
 
@@ -430,8 +474,8 @@ mod tests {
 
         assert!(result.is_ok());
 
-        let actual_boiler = product_from_pointer(boiler_input, "/HeatSourceWet/boiler");
-        let expected_boiler = product_from_pointer(expected_boilers, "/HeatSourceWet/boiler");
+        let actual_boiler = product_from_pointer(&boiler_input, "/HeatSourceWet/boiler");
+        let expected_boiler = product_from_pointer(&expected_boilers, "/HeatSourceWet/boiler");
 
         let (actual_keys_sorted, expected_keys_sorted) =
             product_keys_sorted(&actual_boiler, &expected_boiler);
