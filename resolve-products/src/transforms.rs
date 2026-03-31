@@ -350,7 +350,7 @@ mod tests {
     fn heat_pump_input(product_reference: &str) -> JsonValue {
         json!({
             "HeatSourceWet": {
-            "hp": {
+            product_reference: {
                 "type": "HeatPump",
                 "EnergySupply": "mains elec",
                 "product_reference": product_reference,
@@ -360,25 +360,17 @@ mod tests {
         })
     }
 
-    fn actual_heat_pump(input: &mut Value) -> HashMap<String, JsonValue> {
-        input
-            .pointer("/HeatSourceWet/hp")
-            .unwrap()
-            .as_object()
-            .unwrap()
-            .iter()
-            .map(|(k, v)| (String::from(k), v.clone()))
-            .collect()
-    }
-
-    fn expected_heat_pump(product_reference: &str) -> HashMap<String, Value> {
-        let hp_input: JsonValue = serde_json::from_str(include_str!(
+    #[fixture]
+    fn expected_heat_pumps() -> JsonValue {
+        serde_json::from_str(include_str!(
             "../test/test_heat_pump_input_transformed.json"
         ))
-        .unwrap();
+        .unwrap()
+    }
 
-        hp_input
-            .pointer(format!("/HeatSourceWet/{}", product_reference).as_str())
+    fn product_from_pointer(input: Value, pointer: &str) -> HashMap<String, JsonValue> {
+        input
+            .pointer(pointer)
             .unwrap()
             .as_object()
             .unwrap()
@@ -408,6 +400,7 @@ mod tests {
     #[case("hp_with_boiler")]
     fn test_transform_heat_pumps(
         pcdb_heat_pumps: HashMap<String, Product>,
+        expected_heat_pumps: JsonValue,
         #[case] example_name: &str,
     ) {
         let mut heat_pump_input = heat_pump_input(example_name);
@@ -415,8 +408,10 @@ mod tests {
 
         assert!(result.is_ok());
 
-        let actual_hp = actual_heat_pump(&mut heat_pump_input);
-        let expected_hp = expected_heat_pump(example_name);
+        let pointer = format!("/HeatSourceWet/{}", example_name);
+        let actual_hp = product_from_pointer(heat_pump_input, pointer.as_str());
+        let expected_hp = product_from_pointer(expected_heat_pumps, pointer.as_str());
+
         let (actual_keys_sorted, expected_keys_sorted) =
             product_keys_sorted(&actual_hp, &expected_hp);
 
@@ -432,51 +427,35 @@ mod tests {
         serde_json::from_str(include_str!("../test/test_boilers_pcdb.json")).unwrap()
     }
 
-    fn actual_boiler(input: &mut Value) -> HashMap<String, JsonValue> {
-        input
-            .pointer("/HeatSourceWet/boiler")
-            .unwrap()
-            .as_object()
-            .unwrap()
-            .iter()
-            .map(|(k, v)| (String::from(k), v.clone()))
-            .collect()
-    }
-
-    fn expected_boiler(product_reference: &str) -> HashMap<String, Value> {
-        let boiler_input: JsonValue =
-            serde_json::from_str(include_str!("../test/test_boiler_input_transformed.json"))
-                .unwrap();
-
-        boiler_input
-            .pointer(format!("/HeatSourceWet/{}", product_reference).as_str())
-            .unwrap()
-            .as_object()
-            .unwrap()
-            .iter()
-            .map(|(k, v)| (String::from(k), v.clone()))
-            .collect()
-    }
-
-    #[rstest]
-    fn test_transform_boilers(pcdb_boilers: HashMap<String, Product>) {
-        let mut boiler_input = json!({
+    fn boiler_input(product_reference: &str) -> JsonValue {
+        json!({
             "HeatSourceWet": {
-            "boiler": {
+            product_reference: {
                 "type": "Boiler",
                 "EnergySupply": "mains gas",
-                "product_reference": "boiler",
+                "product_reference": product_reference,
                 // "specified_location": "internal",
                 "is_heat_network": false
             }
         }
-        });
+        })
+    }
 
+    #[fixture]
+    fn expected_boilers() -> JsonValue {
+        serde_json::from_str(include_str!("../test/test_boiler_input_transformed.json")).unwrap()
+    }
+
+    #[rstest]
+    fn test_transform_boilers(pcdb_boilers: HashMap<String, Product>, expected_boilers: JsonValue) {
+        let mut boiler_input = boiler_input("boiler");
         let result = transform_boilers(&mut boiler_input, &pcdb_boilers);
+
         assert!(result.is_ok());
 
-        let actual_boiler = actual_boiler(&mut boiler_input);
-        let expected_boiler = expected_boiler("boiler");
+        let actual_boiler = product_from_pointer(boiler_input, "/HeatSourceWet/boiler");
+        let expected_boiler = product_from_pointer(expected_boilers, "/HeatSourceWet/boiler");
+
         let (actual_keys_sorted, expected_keys_sorted) =
             product_keys_sorted(&actual_boiler, &expected_boiler);
 
