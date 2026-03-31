@@ -213,6 +213,37 @@ pub(crate) enum Technology {
         #[serde(rename = "testData")]
         test_data: Vec<ElectricStorageHeaterTestDatum>,
     },
+    #[serde(rename = "ConvectorRadiator")]
+    Radiator {
+        /// Exponent used in heat output calculation formula
+        n: Decimal,
+        /// Convective heat output fraction (unitless)
+        frac_convective: Decimal,
+        /// Thermal mass of the radiator, measured in kilowatt hours per kelvin per meter length (kWh/K)/m
+        thermal_mass_per_m: Decimal,
+        /// C-value for the radiator in Watt per meter (W/m)
+        c: Decimal,
+    },
+    #[serde(rename = "UnderFloorHeating")]
+    UnderfloorHeating {
+        /// System performance factor determined according to BEAMA guidance in W/m²K (up to 6 chs; eg xx.xxx)
+        system_performance_factor: Decimal,
+        /// Equivalent specific thermal mass of system determined according to BEAMA guidance in Kj/m²K (up to 6 chs; eg xxx.xx)
+        equivalent_specific_thermal_mass: Decimal,
+        /// Convective heat output fraction (unitless)
+        frac_convective: Decimal,
+    },
+    #[serde(rename = "FanCoils")]
+    FanCoil {
+        /// The number of fan speeds (n) for which data are provided in the record (maximum 5)
+        number_of_fan_speeds: usize,
+        #[serde(rename = "number_of_test_point_deltaT")]
+        number_of_test_point_delta_t: usize,
+        /// fraction of heat that comes from convective
+        frac_convective: Decimal,
+        #[serde(rename = "testData")]
+        test_data: Vec<FanCoilTestDatum>,
+    },
 }
 
 // special deserialization logic so that booleans that are indicated by 0 or 1 are deserialized as true or false
@@ -345,6 +376,19 @@ pub(crate) struct ElectricStorageHeaterTestDatum {
     dry_core_min_output: Decimal,
     /// Maximum heat output at test points (0 to 100) during heat discharge test, in kW
     dry_core_max_output: Decimal,
+}
+
+#[derive(Debug, Deserialize)]
+pub(crate) struct FanCoilTestDatum {
+    /// fan speeds (n) for which data are provided in the record
+    fan_speed: Decimal,
+    /// DeltaT (difference between mean feed water temperature and room air temperature) at test point heat output test, in K., up to 6 chs, e.g. xxxx.x
+    temperature_diff: Decimal,
+    /// power_output at deltaT and fan speed, in kW. up to 5 chs, e.g. xx.xx
+    power_output: Decimal,
+    /// Electrical power consumed by fan at fan different speeds in W., up to 5 chs, e.g. xxx.x
+    #[serde(rename = "fan_power_W")]
+    fan_power_w: Decimal,
 }
 
 // #[cfg(test)]
