@@ -20,51 +20,10 @@ pub async fn transform_json(
     let product_references = extract_product_references(json)?;
     let products = find_products_for_references(&product_references, dynamo_client).await?;
 
-    transform_heat_pumps(json, &products)?;
-    transform_boilers(json, &products)
+    transform_heat_source_wets(json, &products)
 }
 
-fn transform_heat_pumps(
-    json: &mut JsonValue,
-    products: &HashMap<String, Product>,
-) -> ResolveProductsResult<()> {
-    let heat_source_wets = match json.pointer_mut("/HeatSourceWet") {
-        Some(node) => {
-            if node.is_object() {
-                node.as_object_mut().unwrap()
-            } else {
-                return Ok(());
-            }
-        }
-        _ => return Ok(()),
-    };
-    for value in heat_source_wets.values_mut() {
-        if let JsonValue::Object(heat_pump) = value {
-            if heat_pump
-                .get("type")
-                .is_some_and(|v| matches!(v, JsonValue::String(s) if s == "HeatPump"))
-                && heat_pump.contains_key(PRODUCT_REFERENCE_FIELD)
-            {
-                let product_reference = std::string::String::from(
-                    heat_pump[PRODUCT_REFERENCE_FIELD].as_str().ok_or_else(|| {
-                        ResolvePcdbProductsError::InvalidProductCategoryReference(
-                            heat_pump[PRODUCT_REFERENCE_FIELD].clone(),
-                        )
-                    })?,
-                );
-                transform_heat_pump(
-                    heat_pump,
-                    &products[product_reference.as_str()],
-                    &product_reference,
-                )?;
-            }
-        }
-    }
-
-    Ok(())
-}
-
-fn transform_boilers(
+fn transform_heat_source_wets(
     json: &mut JsonValue,
     products: &HashMap<String, Product>,
 ) -> ResolveProductsResult<()> {
@@ -80,12 +39,8 @@ fn transform_boilers(
     };
     for value in heat_source_wets.values_mut() {
         if let JsonValue::Object(heat_source_wet) = value {
-            if heat_source_wet
-                .get("type")
-                .is_some_and(|v| matches!(v, JsonValue::String(s) if s == "Boiler"))
-                && heat_source_wet.contains_key(PRODUCT_REFERENCE_FIELD)
-            {
-                let product_reference = std::string::String::from(
+            let product_reference = if heat_source_wet.contains_key(PRODUCT_REFERENCE_FIELD) {
+                std::string::String::from(
                     heat_source_wet[PRODUCT_REFERENCE_FIELD]
                         .as_str()
                         .ok_or_else(|| {
@@ -93,12 +48,34 @@ fn transform_boilers(
                                 heat_source_wet[PRODUCT_REFERENCE_FIELD].clone(),
                             )
                         })?,
-                );
-                transform_boiler(
-                    heat_source_wet,
-                    &products[product_reference.as_str()],
-                    &product_reference,
-                )?;
+                )
+                .into()
+            } else {
+                None
+            };
+
+            if let Some(product_reference) = product_reference {
+                if heat_source_wet
+                    .get("type")
+                    .is_some_and(|v| matches!(v, JsonValue::String(s) if s == "HeatPump"))
+                {
+                    transform_heat_pump(
+                        heat_source_wet,
+                        &products[product_reference.as_str()],
+                        &product_reference,
+                    )?;
+                }
+
+                if heat_source_wet
+                    .get("type")
+                    .is_some_and(|v| matches!(v, JsonValue::String(s) if s == "Boiler"))
+                {
+                    transform_boiler(
+                        heat_source_wet,
+                        &products[product_reference.as_str()],
+                        &product_reference,
+                    )?;
+                }
             }
         }
     }
@@ -247,7 +224,7 @@ fn transform_heat_pump(
         ));
     }
 
-    if category_mismatches.len() > 0 {
+    if !category_mismatches.is_empty() {
         return Err(ResolvePcdbProductsError::ProductCategoryMismatches(
             category_mismatches,
         ));
@@ -325,7 +302,7 @@ fn transform_boiler(
         ));
     }
 
-    if category_mismatches.len() > 0 {
+    if !category_mismatches.is_empty() {
         return Err(ResolvePcdbProductsError::ProductCategoryMismatches(
             category_mismatches,
         ));
@@ -404,7 +381,7 @@ mod tests {
         #[case] example_name: &str,
     ) {
         let mut heat_pump_input = heat_pump_input(example_name);
-        let result = transform_heat_pumps(&mut heat_pump_input, &pcdb_heat_pumps);
+        let result = transform_heat_source_wets(&mut heat_pump_input, &pcdb_heat_pumps);
 
         assert!(result.is_ok());
 
@@ -449,7 +426,7 @@ mod tests {
     #[rstest]
     fn test_transform_boilers(pcdb_boilers: HashMap<String, Product>, expected_boilers: JsonValue) {
         let mut boiler_input = boiler_input("boiler");
-        let result = transform_boilers(&mut boiler_input, &pcdb_boilers);
+        let result = transform_heat_source_wets(&mut boiler_input, &pcdb_boilers);
 
         assert!(result.is_ok());
 
