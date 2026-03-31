@@ -1,15 +1,15 @@
 #![allow(dead_code)]
 
-use crate::ResolveProductsResult;
 use crate::errors::ResolvePcdbProductsError;
-use aws_sdk_dynamodb::Client as DynamoDbClient;
+use crate::ResolveProductsResult;
 use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
+use aws_sdk_dynamodb::Client as DynamoDbClient;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Deserializer};
 use serde_dynamo::from_item;
 use serde_enum_str::{Deserialize_enum_str, Serialize_enum_str};
 use serde_json::{Number, Value};
-use serde_repr::{Deserialize_repr, Serialize_repr};
+use serde_repr::Deserialize_repr;
 use serde_valid::Validate;
 use smartstring::alias::String;
 use std::collections::HashMap;
@@ -434,7 +434,7 @@ pub(crate) struct CentralisedMvhrTestDatum {
     mvhr_eff: Decimal,
 }
 
-#[derive(Debug, Deserialize_repr, PartialEq, Serialize_repr)]
+#[derive(Debug, Deserialize_repr, PartialEq)]
 #[repr(u8)]
 pub(crate) enum MechanicalVentilationDuctType {
     Flexible = 1,
@@ -451,7 +451,7 @@ pub(crate) struct DecentralisedMevTestDatum {
     sfp2: Decimal,
 }
 
-#[derive(Debug, Deserialize_repr, PartialEq, Serialize_repr)]
+#[derive(Debug, Deserialize_repr, PartialEq)]
 #[repr(u8)]
 pub(crate) enum DecentralisedMevInstallationType {
     InCeiling = 1,
