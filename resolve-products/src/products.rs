@@ -261,6 +261,15 @@ pub(crate) enum Technology {
         #[serde(rename = "testData")]
         test_data: Vec<DecentralisedMevTestDatum>,
     },
+    SmartHotWaterTank {
+        /// Usable temperature (unit: degree Celsius)
+        temp_usable: Decimal,
+        /// Maximum flow rate of the pump (unit: litre/minute)
+        max_flow_rate_pump_l_per_min: Decimal,
+        /// Pump power (unit: kW)
+        #[serde(rename = "power_pump_kW")]
+        power_pump_kw: Decimal,
+    },
 }
 
 // special deserialization logic so that booleans that are indicated by 0 or 1 are deserialized as true or false
