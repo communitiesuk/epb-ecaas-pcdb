@@ -197,8 +197,6 @@ pub(crate) enum Technology {
     Wwhrs {
         number_of_flow_rates: usize,
         /// Utilisation factor for system (fraction between 0 and 1)
-        // this field can appear in a field from the PCDB with this typo ("utililsation_factor"), until we are told otherwise
-        #[serde(alias = "utililsation_factor")]
         utilisation_factor: Decimal,
         test_data: Vec<WwhrsTestDatum>,
     },
