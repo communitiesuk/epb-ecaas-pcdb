@@ -2,6 +2,7 @@
 name = "resolve-products"
 version = "0.1.0"
 edition = "2024"
+rust-version = "1.85.0"
 
 [dependencies]
 aws-config = { version = "1.8.14", features = ["behavior-version-latest"], optional = true }
