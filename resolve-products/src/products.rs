@@ -55,8 +55,9 @@ pub(crate) async fn find_products_for_references(
 
     if products.len() != product_references.len() {
         return Err(ResolvePcdbProductsError::UnknownProductReference(format!(
-            "At least one product reference from the list ({}) could not be found within the PCDB store.",
+            "At least one product reference from the list ({}) could not be found within the PCDB store. {} products were successfully retrieved.",
             product_references.join(", "),
+            products.len(),
         )));
     }
 
