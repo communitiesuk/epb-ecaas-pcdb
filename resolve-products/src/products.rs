@@ -33,7 +33,7 @@ pub(crate) async fn find_products_for_references(
                         .map(|product_ref| {
                             (
                                 std::string::String::from("id"),
-                                AttributeValue::N(product_ref.to_string()),
+                                AttributeValue::S(product_ref.to_string()),
                             )
                         })
                         .collect(),
