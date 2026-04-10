@@ -296,6 +296,12 @@ pub(crate) enum Technology {
         #[serde(rename = "testData")] // (sic)
         sub_heat_networks: Vec<SubHeatNetwork>,
     },
+    #[serde(rename = "AirPoweredShowers")]
+    AirPoweredShower {
+        allow_low_flowrate: bool,
+        #[serde(rename = "flowrate")]
+        flow_rate: f64,
+    },
 }
 
 // special deserialization logic so that booleans that are indicated by 0 or 1 are deserialized as true or false
