@@ -1,6 +1,6 @@
 use jsonpath_rust::parser::errors::JsonPathError as OriginalJsonPathError;
-use jsonschema::ValidationError;
 use jsonschema::error::ValidationErrorKind;
+use jsonschema::ValidationError;
 use serde_json::Value;
 use std::fmt::{Display, Formatter};
 use std::string::FromUtf8Error;
@@ -24,7 +24,7 @@ pub enum ResolvePcdbProductsError {
     InvalidProductCategoryReference(Value),
     #[error("Product reference {0} was not found within the PCDB")]
     UnknownProductReference(String),
-    #[error("Error encountered while accessing PCDB store: {0}")]
+    #[error("Error encountered while accessing PCDB store: {0:?}")]
     AccessError(#[from] aws_sdk_dynamodb::Error),
     #[error("Error encountered while deserializing PCDB products: {0:?}")]
     DeserializeError(serde_dynamo::Error),
