@@ -100,25 +100,26 @@ pub(crate) enum Technology {
         alias = "ExhaustAirMixedHeatPump",
         alias = "ExhaustAirMevHeatPump",
         alias = "ExhaustAirMvhrHeatPump",
-        alias = "HybridHeatPump"
+        alias = "HybridHeatPump",
+        rename_all = "camelCase"
     )]
     HeatPump {
         source_type: HeatPumpSourceType,
         sink_type: HeatPumpSinkType,
-        #[serde(rename = "backup_ctrl_type")]
+        #[serde(rename = "backupCtrlType")]
         backup_control_type: HeatPumpBackupControlType,
         #[serde(deserialize_with = "deserialize_numeric_bool_or_bool")]
         modulating_control: bool,
-        #[serde(rename = "min_modulation_rate_35")]
+        #[serde(rename = "minModulationRate35")]
         minimum_modulation_rate_35: Option<Decimal>,
-        #[serde(rename = "min_modulation_rate_55")]
+        #[serde(rename = "minModulationRate55")]
         minimum_modulation_rate_55: Option<Decimal>,
-        #[serde(rename = "time_constant_onoff_operation")]
+        #[serde(rename = "timeConstantOnoffOperation")]
         time_constant_on_off_operation: i32,
         temp_return_feed_max: Decimal,
         temp_lower_operating_limit: Decimal,
         min_temp_diff_flow_return_for_hp_to_operate: i32,
-        #[serde(rename = "var_flow_temp_ctrl_during_test")]
+        #[serde(rename = "varFlowTempCtrl_during_test")]
         variable_temp_control: bool,
         power_heating_circ_pump: Option<Decimal>,
         power_heating_warm_air_fan: Option<Decimal>,
@@ -126,9 +127,9 @@ pub(crate) enum Technology {
         power_standby: Decimal,
         power_crankcase_heater: Decimal,
         power_off: Decimal,
-        #[serde(rename = "power_max_backup")]
+        #[serde(rename = "powerMaxBackup")]
         power_maximum_backup: Option<Decimal>,
-        #[serde(rename = "test_data_EN14825")]
+        #[serde(rename = "testDataEN14825")]
         test_data: Vec<HeatPumpTestDatum>,
     },
     #[serde(
