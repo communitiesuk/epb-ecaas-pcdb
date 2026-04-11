@@ -119,7 +119,7 @@ pub(crate) enum Technology {
         temp_return_feed_max: Decimal,
         temp_lower_operating_limit: Decimal,
         min_temp_diff_flow_return_for_hp_to_operate: i32,
-        #[serde(rename = "varFlowTempCtrl_during_test")]
+        #[serde(rename = "varFlowTempCtrlDuringTest")]
         variable_temp_control: bool,
         power_heating_circ_pump: Option<Decimal>,
         power_heating_warm_air_fan: Option<Decimal>,
