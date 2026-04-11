@@ -1,13 +1,13 @@
 {
   "boiler": {
-    "id": 111,
+    "id": "111",
     "technologyType": "CombiBoiler",
     "brandName": "Test brand name",
     "finalYearOfManufacture": "current",
     "firstYearOfManufacture": "2021",
     "fuel": "mains_gas",
     "modelName": "Test model name",
-    "productID": 111,
+    "productID": "111",
     "testData": [],
     "boilerLocation": "internal",
     "boilerType": "Combi",
@@ -39,14 +39,14 @@
     "storeType": 0
   },
   "boiler_unknown_location": {
-    "id": 222,
+    "id": "222",
     "technologyType": "CombiBoiler",
     "brandName": "Test brand name",
     "finalYearOfManufacture": "current",
     "firstYearOfManufacture": "2021",
     "fuel": "mains_gas",
     "modelName": "Test model name",
-    "productID": 222,
+    "productID": "222",
     "testData": [],
     "boilerLocation": "unknown",
     "boilerType": "Combi",
