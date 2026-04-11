@@ -81,7 +81,7 @@ pub(crate) async fn find_products_for_references(
 #[derive(Debug, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct Product {
-    id: u32,
+    id: String,
     brand_name: String,
     model_name: String,
     model_qualifier: Option<String>,
