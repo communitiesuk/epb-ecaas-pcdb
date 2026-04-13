@@ -22,7 +22,7 @@ pub enum ResolvePcdbProductsError {
     ProductCategoryMismatches(Vec<String>),
     #[error("Invalid product category reference - expected as string of correct format: {0:?}")]
     InvalidProductCategoryReference(Value),
-    #[error("Product reference {0} was not found within the PCDB")]
+    #[error("{0:?}")]
     UnknownProductReference(String),
     #[error("Error encountered while accessing PCDB store: {0:?}")]
     AccessError(#[from] aws_sdk_dynamodb::Error),
