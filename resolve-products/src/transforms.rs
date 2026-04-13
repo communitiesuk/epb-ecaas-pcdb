@@ -1,9 +1,9 @@
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{
-    find_products_for_references, BoilerLocation, HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter,
-    Product, Technology,
+    BoilerLocation, HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product,
+    Technology, find_products_for_references,
 };
-use crate::{extract_product_references, PRODUCT_REFERENCE_FIELD};
+use crate::{PRODUCT_REFERENCE_FIELD, extract_product_references};
 use aws_sdk_dynamodb::client::Client as DynamoDbClient;
 use itertools::Itertools;
 use rust_decimal::prelude::ToPrimitive;
