@@ -238,15 +238,13 @@ pub(crate) enum Technology {
         /// Convective heat output fraction (unitless)
         frac_convective: Decimal,
     },
-    #[serde(rename = "FanCoils")]
+    #[serde(alias = "FanCoils", rename_all = "camelCase")]
     FanCoil {
         /// The number of fan speeds (n) for which data are provided in the record (maximum 5)
         number_of_fan_speeds: usize,
-        #[serde(rename = "number_of_test_point_deltaT")]
         number_of_test_point_delta_t: usize,
         /// fraction of heat that comes from convective
         frac_convective: Decimal,
-        #[serde(rename = "testData")]
         test_data: Vec<FanCoilTestDatum>,
     },
     CentralisedMev {
@@ -441,6 +439,7 @@ pub(crate) struct ElectricStorageHeaterTestDatum {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct FanCoilTestDatum {
     /// fan speeds (n) for which data are provided in the record
     fan_speed: Decimal,
@@ -449,7 +448,6 @@ pub(crate) struct FanCoilTestDatum {
     /// power_output at deltaT and fan speed, in kW. up to 5 chs, e.g. xx.xx
     power_output: Decimal,
     /// Electrical power consumed by fan at fan different speeds in W., up to 5 chs, e.g. xxx.x
-    #[serde(rename = "fan_power_W")]
     fan_power_w: Decimal,
 }
 
