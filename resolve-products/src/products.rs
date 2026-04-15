@@ -22,22 +22,19 @@ pub(crate) async fn find_products_for_references(
         return Ok(HashMap::new());
     }
 
+    let keys: Vec<HashMap<::std::string::String, AttributeValue>> = product_references
+        .iter()
+        .map(|product_ref| {
+            HashMap::from([("id".to_string(), AttributeValue::S(product_ref.to_string()))])
+        })
+        .collect();
+
     let results = dynamo_db_client
         .batch_get_item()
         .request_items(
             "products",
             KeysAndAttributes::builder()
-                .keys(
-                    product_references
-                        .iter()
-                        .map(|product_ref| {
-                            (
-                                std::string::String::from("id"),
-                                AttributeValue::S(product_ref.to_string()),
-                            )
-                        })
-                        .collect(),
-                )
+                .set_keys(Some(keys))
                 .build()
                 .unwrap(),
         )
@@ -52,10 +49,10 @@ pub(crate) async fn find_products_for_references(
     };
 
     let products = results.responses().unwrap().get("products").unwrap();
-
+    // let unprocessed = results.unprocessed_keys(); TODO: consider if it will be possible to exceed the size limit (if yes we need to retry getting items for any unprocessed keys
     if products.len() != product_references.len() {
         return Err(ResolvePcdbProductsError::UnknownProductReference(format!(
-            "At least one product reference from the list ({}) could not be found within the PCDB store. {} products were successfully retrieved.",
+            "At least one product reference from the list ({}) could not be found within the PCDB store. {} product(s) successfully retrieved.",
             product_references.join(", "),
             products.len(),
         )));
