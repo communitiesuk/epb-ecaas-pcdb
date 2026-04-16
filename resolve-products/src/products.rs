@@ -71,7 +71,7 @@ pub(crate) async fn find_products_for_references(
         })
         .collect::<Result<HashMap<_, _>, _>>();
 
-    products.map_err(ResolvePcdbProductsError::UnsupportedProduct)
+    products.map_err(ResolvePcdbProductsError::UnsupportedProductAtDeserialization)
 }
 
 #[derive(Debug, Deserialize, Validate)]

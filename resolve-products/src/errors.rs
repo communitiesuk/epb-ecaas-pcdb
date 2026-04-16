@@ -31,7 +31,11 @@ pub enum ResolvePcdbProductsError {
     #[error(
         "Received a product type that is not yet supported. Currently supported products: Heat pump, Boiler"
     )]
-    UnsupportedProduct(serde_dynamo::Error),
+    UnsupportedProductAtDeserialization(serde_dynamo::Error),
+    #[error(
+        "Received a product type that is not yet supported. Currently supported products: Heat pump, Boiler"
+    )]
+    UnsupportedProductAtMapping,
 }
 
 #[derive(Debug, Error)]
