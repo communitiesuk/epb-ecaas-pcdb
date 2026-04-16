@@ -49,7 +49,6 @@ pub(crate) async fn find_products_for_references(
     };
 
     let products = results.responses().unwrap().get("products").unwrap();
-    // let unprocessed = results.unprocessed_keys(); TODO: consider if it will be possible to exceed the size limit (if yes we need to retry getting items for any unprocessed keys
     if products.len() != product_references.len() {
         return Err(ResolvePcdbProductsError::UnknownProductReference(format!(
             "At least one product reference from the list ({}) could not be found within the PCDB store. {} product(s) successfully retrieved.",
@@ -72,7 +71,7 @@ pub(crate) async fn find_products_for_references(
         })
         .collect::<Result<HashMap<_, _>, _>>();
 
-    products.map_err(ResolvePcdbProductsError::DeserializeError)
+    products.map_err(ResolvePcdbProductsError::UnsupportedProduct)
 }
 
 #[derive(Debug, Deserialize, Validate)]
@@ -597,5 +596,15 @@ pub(crate) struct SubHeatNetwork {
 //         let local_dynamo = local_dynamo_client().await;
 //         let result = find_products_for_references(&product_references, &local_dynamo).await;
 //         assert!(result.is_ok());
+//     }
+//
+//     #[tokio::test]
+//     async fn test_find_unsupported_product_by_reference() {
+//         let product_references = ["10378".into()];
+//         let local_dynamo = local_dynamo_client().await;
+//         let result = find_products_for_references(&product_references, &local_dynamo).await;
+//         assert!(result.is_err());
+//         let err = result.err().unwrap();
+//         assert!(err.to_string().contains("Received a product type that is not yet supported"));
 //     }
 // }

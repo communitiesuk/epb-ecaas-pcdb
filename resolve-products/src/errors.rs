@@ -28,6 +28,10 @@ pub enum ResolvePcdbProductsError {
     AccessError(#[from] aws_sdk_dynamodb::Error),
     #[error("Error encountered while deserializing PCDB products: {0:?}")]
     DeserializeError(serde_dynamo::Error),
+    #[error(
+        "Received a product type that is not yet supported. Currently supported products: Heat pump, Boiler"
+    )]
+    UnsupportedProduct(serde_dynamo::Error),
 }
 
 #[derive(Debug, Error)]
