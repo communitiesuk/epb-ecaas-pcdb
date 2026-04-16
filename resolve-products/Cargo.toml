@@ -28,6 +28,7 @@ cli = ["dep:clap"]
 
 [dev-dependencies]
 rstest = "0.26.1"
+#aws-config = { version = "1.8.14", features = ["behavior-version-latest"] }
 
 [[bin]]
 name = "resolve-products"

@@ -537,3 +537,65 @@ pub(crate) struct SubHeatNetwork {
     #[serde(rename = "PrimaryEnergyFactorkWhkWhDelivered")]
     primary_energy_factor: Decimal,
 }
+
+// TODO: use DynamoDB test double or simulator in docker for below tests
+// #[cfg(test)]
+// mod tests {
+//     use crate::products::*;
+//     use aws_config::BehaviorVersion;
+//     use aws_sdk_dynamodb::Client;
+//
+//     async fn local_dynamo_client() -> Client {
+//         let config = aws_config::defaults(BehaviorVersion::latest())
+//             .endpoint_url("http://localhost:8000")
+//             .load()
+//             .await;
+//
+//         Client::new(&config)
+//     }
+//
+//     #[tokio::test]
+//     async fn test_find_heat_pump_by_reference() {
+//         let product_references = ["10870".into()];
+//         let local_dynamo = local_dynamo_client().await;
+//         let result = find_products_for_references(&product_references, &local_dynamo).await;
+//         assert!(result.is_ok())
+//     }
+//
+//     #[tokio::test]
+//     async fn test_find_boiler_by_reference() {
+//         let product_references = ["6605".into()];
+//         let local_dynamo = local_dynamo_client().await;
+//         let result = find_products_for_references(&product_references, &local_dynamo).await;
+//         assert!(result.is_ok());
+//     }
+//
+//     #[tokio::test]
+//     async fn test_find_fancoil_by_reference() {
+//         let product_references = ["300002".into()];
+//         let local_dynamo = local_dynamo_client().await;
+//         let result = find_products_for_references(&product_references, &local_dynamo).await;
+//         assert!(result.is_ok())
+//     }
+//
+//     #[tokio::test]
+//     async fn test_find_mech_vent_by_reference() {
+//         let product_references = ["2746".into()];
+//         let local_dynamo = local_dynamo_client().await;
+//         let result = find_products_for_references(&product_references, &local_dynamo).await;
+//         assert!(result.is_ok());
+//     }
+//
+//     #[tokio::test]
+//     async fn test_find_four_products_by_references() {
+//         let product_references = [
+//             "2746".into(),
+//             "10870".into(),
+//             "6605".into(),
+//             "300002".into(),
+//         ];
+//         let local_dynamo = local_dynamo_client().await;
+//         let result = find_products_for_references(&product_references, &local_dynamo).await;
+//         assert!(result.is_ok());
+//     }
+// }
