@@ -19,14 +19,10 @@ pub async fn transform_json(
 ) -> ResolveProductsResult<()> {
     let product_references = extract_product_references(json)?;
     let products = find_products_for_references(&product_references, dynamo_client).await?;
-    for (_, product) in &products {
+    for product in products.values() {
         match product {
             Product {
-                r#technology: Technology::HeatPump { .. },
-                ..
-            } => continue,
-            Product {
-                r#technology: Technology::Boiler { .. },
+                technology: Technology::HeatPump { .. } | Technology::Boiler { .. },
                 ..
             } => continue,
             _ => return Err(ResolvePcdbProductsError::UnsupportedProductAtMapping),
