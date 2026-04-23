@@ -7,7 +7,7 @@ use smartstring::alias::String;
 use crate::errors::ResolvePcdbProductsError;
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::products::Product;
-use crate::transform::transform_json::ResolveProductsResult;
+use crate::transform::ResolveProductsResult;
 
 pub fn transform_heat_source_wet(
     json: &mut JsonValue,

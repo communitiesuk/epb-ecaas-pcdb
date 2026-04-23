@@ -1,9 +1,10 @@
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{BoilerLocation, Product, Technology};
-use crate::transform::transform_json::ResolveProductsResult;
+use crate::transform::ResolveProductsResult;
 use rust_decimal::prelude::ToPrimitive;
 use serde_json::{Map, Value as JsonValue};
+
 
 pub fn transform_boiler(
     boiler: &mut Map<String, JsonValue>,
