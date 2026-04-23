@@ -27,13 +27,9 @@ This library package exposes a function `resolve_products` that takes a paramete
 must be a conforming JSON document) and returns another value that implements `std::io::Read` with any
 `product_reference` fields resolved into the data necessary for a HEM input.
 
-At the current time the PCDB data backend is a flat file, products.json, that contains three fake air-source heat pump
-products. However, it is expected that this package will extended to work with e.g. a database instance.
-
 ### Temporary binary for resolving JSON
 
-There is also, while PCDB is represented as a flat file, a binary entry point for this package that can be used to
-resolve input JSON.
+There is also a binary entry point for this package that can be used to resolve input JSON from a file (`products.json`).
 
 To convert a JSON document from a local file:
 
