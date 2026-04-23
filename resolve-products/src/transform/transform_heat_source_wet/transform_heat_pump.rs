@@ -1,13 +1,15 @@
-use serde_json::{json, Map, Value as JsonValue};
-use rust_decimal::prelude::ToPrimitive;
-use itertools::Itertools;
-use crate::errors::ResolvePcdbProductsError;
 use crate::PRODUCT_REFERENCE_FIELD;
-use crate::products::{HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product, Technology};
+use crate::errors::ResolvePcdbProductsError;
+use crate::products::{
+    HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product, Technology,
+};
 use crate::transform::transform_json::ResolveProductsResult;
+use itertools::Itertools;
+use rust_decimal::prelude::ToPrimitive;
+use serde_json::{Map, Value as JsonValue, json};
 
 pub fn transform_heat_pump(
-    heat_pump: &mut Map<std::string::String, JsonValue>,
+    heat_pump: &mut Map<String, JsonValue>,
     product: &Product,
     product_reference: &str,
 ) -> ResolveProductsResult<()> {
