@@ -86,3 +86,57 @@ pub fn transform_boiler(
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+    use super::*;
+    use smartstring::alias::String as SmartString;
+    use rstest::{fixture, rstest};
+    use serde_json::{Value, json};
+
+    #[fixture]
+    fn pcdb_boilers() -> HashMap<SmartString, Product> {
+        serde_json::from_str(include_str!("../../../test/test_boilers_pcdb.json")).unwrap()
+    }
+
+    fn input_with_boiler_reference(product_reference: &str, specified_location: Option<&str>) -> Map<String,Value> {
+        let mut boiler_input = json!({
+                "type": "Boiler",
+                "EnergySupply": "mains gas",
+                "product_reference": product_reference,
+                "is_heat_network": false // TODO: add one with heat_network
+        });
+        if let Some(location) = specified_location {
+            boiler_input["specified_location"] = json!(location);
+        }
+        boiler_input.as_object().unwrap().clone()
+    }
+
+    #[fixture]
+    fn expected_boilers() -> JsonValue {
+        serde_json::from_str(include_str!(
+            "../../../test/test_boiler_input_transformed.json"
+        ))
+            .unwrap()
+    }
+
+    #[rstest]
+    fn test_transform_boiler_with_specified_location(pcdb_boilers: HashMap<SmartString, Product>) {
+        let product_reference = "boiler_unknown_location";
+        let mut input_with_boiler_ref = input_with_boiler_reference(product_reference, Some("internal"));
+        let pcdb_boiler = pcdb_boilers.get(&SmartString::from(product_reference)).unwrap();
+        let result = transform_boiler(&mut input_with_boiler_ref, &pcdb_boiler, product_reference);
+        assert!(result.is_ok());
+    }
+
+    #[rstest]
+    fn test_transform_boiler_with_neither_pcdb_nor_specified_location(pcdb_boilers: HashMap<SmartString, Product>) {
+        let product_reference = "boiler_unknown_location";
+        let mut input_with_boiler_ref = input_with_boiler_reference(product_reference, None);
+        let pcdb_boiler = pcdb_boilers.get(&SmartString::from(product_reference)).unwrap();
+
+        let result = transform_boiler(&mut input_with_boiler_ref, &pcdb_boiler, product_reference);
+        assert!(result.is_err());
+    }
+}
