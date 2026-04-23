@@ -1,37 +1,14 @@
-use crate::errors::ResolvePcdbProductsError;
-use crate::products::{
-    BoilerLocation, HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product,
-    Technology, find_products_for_references,
-};
-use crate::{PRODUCT_REFERENCE_FIELD, extract_product_references};
-use aws_sdk_dynamodb::client::Client as DynamoDbClient;
-use itertools::Itertools;
-use rust_decimal::prelude::ToPrimitive;
-use serde_json::json;
-use serde_json::map::Map;
-use serde_json::value::Value as JsonValue;
-use smartstring::alias::String;
 use std::collections::HashMap;
+use serde_json::{json, Map, Value as JsonValue};
+use smartstring::alias::String;
+use rust_decimal::prelude::ToPrimitive;
+use itertools::Itertools;
+use crate::errors::ResolvePcdbProductsError;
+use crate::PRODUCT_REFERENCE_FIELD;
+use crate::products::{BoilerLocation, HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product, Technology};
+use crate::transform::transform_json::ResolveProductsResult;
 
-pub async fn transform_json(
-    json: &mut JsonValue,
-    dynamo_client: &DynamoDbClient,
-) -> ResolveProductsResult<()> {
-    let product_references = extract_product_references(json)?;
-    let products = find_products_for_references(&product_references, dynamo_client).await?;
-    for product in products.values() {
-        match product {
-            Product {
-                technology: Technology::HeatPump { .. } | Technology::Boiler { .. },
-                ..
-            } => continue,
-            _ => return Err(ResolvePcdbProductsError::UnsupportedProductAtMapping),
-        }
-    }
-    transform_heat_source_wets(json, &products)
-}
-
-fn transform_heat_source_wets(
+pub fn transform_heat_source_wet(
     json: &mut JsonValue,
     products: &HashMap<String, Product>,
 ) -> ResolveProductsResult<()> {
@@ -323,13 +300,12 @@ fn transform_boiler(
     Ok(())
 }
 
-pub type ResolveProductsResult<T> = Result<T, ResolvePcdbProductsError>;
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use rstest::{fixture, rstest};
     use serde_json::Value;
+    use crate::transform::transform_heat_source_wet::transform_heat_source_wet;
 
     #[fixture]
     fn pcdb_heat_pumps() -> HashMap<String, Product> {
@@ -393,7 +369,7 @@ mod tests {
         #[case] example_name: &str,
     ) {
         let mut heat_pump_input = heat_pump_input(example_name);
-        let result = transform_heat_source_wets(&mut heat_pump_input, &pcdb_heat_pumps);
+        let result = transform_heat_source_wet(&mut heat_pump_input, &pcdb_heat_pumps);
 
         assert!(result.is_ok());
 
@@ -431,7 +407,7 @@ mod tests {
                 }),
             );
 
-        let result = transform_heat_source_wets(&mut heat_pump_input, &pcdb_heat_pumps);
+        let result = transform_heat_source_wet(&mut heat_pump_input, &pcdb_heat_pumps);
 
         assert!(result.is_ok());
 
@@ -492,7 +468,7 @@ mod tests {
         #[case] specified_location: Option<&str>,
     ) {
         let mut boiler_input = boiler_input(product_reference, specified_location);
-        let result = transform_heat_source_wets(&mut boiler_input, &pcdb_boilers);
+        let result = transform_heat_source_wet(&mut boiler_input, &pcdb_boilers);
 
         assert!(result.is_ok());
 
@@ -515,7 +491,7 @@ mod tests {
         let product_reference = "boiler_unknown_location";
         let mut boiler_input = boiler_input(product_reference, None);
 
-        let result = transform_heat_source_wets(&mut boiler_input, &pcdb_boilers);
+        let result = transform_heat_source_wet(&mut boiler_input, &pcdb_boilers);
         assert!(result.is_err());
     }
 }
