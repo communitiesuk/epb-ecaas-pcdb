@@ -1,11 +1,12 @@
+mod transform_boiler;
+mod transform_heat_pump;
+
 use std::collections::HashMap;
-use serde_json::{json, Map, Value as JsonValue};
+use serde_json::{Value as JsonValue};
 use smartstring::alias::String;
-use rust_decimal::prelude::ToPrimitive;
-use itertools::Itertools;
 use crate::errors::ResolvePcdbProductsError;
 use crate::PRODUCT_REFERENCE_FIELD;
-use crate::products::{BoilerLocation, HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product, Technology};
+use crate::products::Product;
 use crate::transform::transform_json::ResolveProductsResult;
 
 pub fn transform_heat_source_wet(
@@ -44,7 +45,7 @@ pub fn transform_heat_source_wet(
                     .get("type")
                     .is_some_and(|v| matches!(v, JsonValue::String(s) if s == "HeatPump"))
                 {
-                    transform_heat_pump(
+                    transform_heat_pump::transform_heat_pump(
                         heat_source_wet,
                         &products[product_reference.as_str()],
                         &product_reference,
@@ -55,7 +56,7 @@ pub fn transform_heat_source_wet(
                     .get("type")
                     .is_some_and(|v| matches!(v, JsonValue::String(s) if s == "Boiler"))
                 {
-                    transform_boiler(
+                    transform_boiler::transform_boiler(
                         heat_source_wet,
                         &products[product_reference.as_str()],
                         &product_reference,
@@ -68,243 +69,12 @@ pub fn transform_heat_source_wet(
     Ok(())
 }
 
-fn transform_heat_pump(
-    heat_pump: &mut Map<std::string::String, JsonValue>,
-    product: &Product,
-    product_reference: &str,
-) -> ResolveProductsResult<()> {
-    let mut category_mismatches = vec![];
-
-    if let Technology::HeatPump {
-        source_type,
-        sink_type,
-        backup_control_type,
-        min_temp_diff_flow_return_for_hp_to_operate,
-        modulating_control,
-        minimum_modulation_rate_35,
-        minimum_modulation_rate_55,
-        time_constant_on_off_operation,
-        temp_lower_operating_limit,
-        temp_return_feed_max,
-        power_heating_circ_pump,
-        power_heating_warm_air_fan,
-        power_maximum_backup,
-        power_source_circ_pump,
-        power_crankcase_heater,
-        power_off,
-        power_standby,
-        ref test_data,
-        variable_temp_control,
-        ..
-    } = product.technology
-    {
-        heat_pump.insert(
-            "backup_ctrl_type".into(),
-            backup_control_type.to_string().into(),
-        );
-        heat_pump.insert(
-            "min_temp_diff_flow_return_for_hp_to_operate".into(),
-            min_temp_diff_flow_return_for_hp_to_operate.into(),
-        );
-        if modulating_control {
-            // write in the rate for the different temperatures for now
-            if let Some(minimum_modulation_rate_35) = minimum_modulation_rate_35 {
-                heat_pump.insert(
-                    "min_modulation_rate_35".into(),
-                    minimum_modulation_rate_35.to_f64().into(),
-                );
-            }
-            if let Some(minimum_modulation_rate_55) = minimum_modulation_rate_55 {
-                heat_pump.insert(
-                    "min_modulation_rate_55".into(),
-                    minimum_modulation_rate_55.to_f64().into(),
-                );
-            }
-        }
-        heat_pump.insert("modulating_control".into(), modulating_control.into());
-        heat_pump.insert(
-            "power_crankcase_heater".into(),
-            power_crankcase_heater.to_f64().into(),
-        );
-        if let Some(power_heating_circ_pump) = power_heating_circ_pump {
-            heat_pump.insert(
-                "power_heating_circ_pump".into(),
-                power_heating_circ_pump.to_f64().into(),
-            );
-        }
-        if let Some(power_heating_warm_air_fan) = power_heating_warm_air_fan {
-            heat_pump.insert(
-                "power_heating_warm_air_fan".into(),
-                power_heating_warm_air_fan.to_f64().into(),
-            );
-        }
-        if !matches!(backup_control_type, HeatPumpBackupControlType::None) {
-            heat_pump.insert(
-                "power_max_backup".into(),
-                power_maximum_backup.map(|x| x.to_f64()).into(),
-            );
-            // TODO: add logic for inserting a boiler field
-        }
-
-        heat_pump.insert("power_off".into(), power_off.to_f64().into());
-        heat_pump.insert(
-            "power_source_circ_pump".into(),
-            power_source_circ_pump.to_f64().into(),
-        );
-        heat_pump.insert("power_standby".into(), power_standby.to_f64().into());
-        heat_pump.insert("sink_type".into(), sink_type.to_string().into());
-        heat_pump.insert("source_type".into(), source_type.to_string().into());
-        heat_pump.insert(
-            "temp_lower_operating_limit".into(),
-            temp_lower_operating_limit.to_f64().into(),
-        );
-        heat_pump.insert(
-            "temp_return_feed_max".into(),
-            temp_return_feed_max.to_f64().into(),
-        );
-        heat_pump.insert(
-            "test_data_EN14825".into(),
-            JsonValue::from(
-                test_data
-                    .iter()
-                    .filter_map(|datum| {
-                        let HeatPumpTestDatum {
-                            capacity,
-                            coefficient_of_performance,
-                            design_flow_temperature,
-                            temperature_outlet,
-                            temperature_source,
-                            temperature_test,
-                            test_letter,
-                            ..
-                        } = datum;
-                        // 'E' is not accepted in HEM, so filter this out
-                        (*test_letter != HeatPumpTestLetter::E).then_some(json!({
-                            "capacity": capacity.to_f64(),
-                            "cop": coefficient_of_performance.to_f64(),
-                            "design_flow_temp": design_flow_temperature.to_f64(),
-                            "temp_outlet": temperature_outlet.to_f64(),
-                            "temp_source": temperature_source.to_f64(),
-                            "temp_test": temperature_test.to_f64(),
-                            "test_letter": test_letter,
-                        }))
-                    })
-                    .collect_vec(),
-            ),
-        );
-        heat_pump.insert(
-            "time_constant_onoff_operation".into(),
-            time_constant_on_off_operation.into(),
-        );
-        heat_pump.insert(
-            "var_flow_temp_ctrl_during_test".into(),
-            variable_temp_control.into(),
-        );
-
-        // now remove product reference
-        heat_pump.remove(PRODUCT_REFERENCE_FIELD);
-    } else {
-        category_mismatches.push(format!(
-            "Product reference '{product_reference}' does not relate to an air source heat pump."
-        ));
-    }
-
-    if !category_mismatches.is_empty() {
-        return Err(ResolvePcdbProductsError::ProductCategoryMismatches(
-            category_mismatches,
-        ));
-    }
-
-    Ok(())
-}
-
-fn transform_boiler(
-    boiler: &mut Map<std::string::String, JsonValue>,
-    product: &Product,
-    product_reference: &str,
-) -> ResolveProductsResult<()> {
-    let mut category_mismatches = vec![];
-
-    if let Technology::Boiler {
-        fuel,
-        fuel_aux,
-        rated_power,
-        efficiency_full_load,
-        efficiency_part_load,
-        boiler_location,
-        modulation_load,
-        electricity_circ_pump,
-        electricity_part_load,
-        electricity_full_load,
-        electricity_standby,
-        ..
-    } = &product.technology
-    {
-        boiler.insert("EnergySupply".into(), fuel.to_string().into());
-        boiler.insert("EnergySupply_aux".into(), fuel_aux.to_string().into());
-        boiler.insert("rated_power".into(), rated_power.to_f64().into());
-        boiler.insert(
-            "efficiency_full_load".into(),
-            efficiency_full_load.to_f64().into(),
-        );
-        boiler.insert(
-            "efficiency_part_load".into(),
-            efficiency_part_load.to_f64().into(),
-        );
-        boiler.insert("modulation_load".into(), modulation_load.to_f64().into());
-        boiler.insert(
-            "electricity_circ_pump".into(),
-            electricity_circ_pump.to_f64().into(),
-        );
-        boiler.insert(
-            "electricity_part_load".into(),
-            electricity_part_load.to_f64().into(),
-        );
-        boiler.insert(
-            "electricity_full_load".into(),
-            electricity_full_load.to_f64().into(),
-        );
-        boiler.insert(
-            "electricity_standby".into(),
-            electricity_standby.to_f64().into(),
-        );
-
-        match boiler_location {
-            BoilerLocation::Unknown => {
-                let specified_location = boiler
-                    .get("specified_location")
-                    .ok_or(Err("Expected location for boiler to be specified as boiler location from PCDB is unknown"))
-                    .map_err(|_: Result<(), &_>| ResolvePcdbProductsError::InvalidCombination)?;
-
-                boiler.insert("boiler_location".into(), specified_location.as_str().into());
-            }
-            _ => {
-                boiler.insert("boiler_location".into(), boiler_location.to_string().into());
-            }
-        }
-
-        boiler.remove("specified_location");
-        boiler.remove(PRODUCT_REFERENCE_FIELD);
-    } else {
-        category_mismatches.push(format!(
-            "Product reference '{product_reference}' does not relate to a boiler."
-        ));
-    }
-
-    if !category_mismatches.is_empty() {
-        return Err(ResolvePcdbProductsError::ProductCategoryMismatches(
-            category_mismatches,
-        ));
-    }
-
-    Ok(())
-}
-
 #[cfg(test)]
 mod tests {
+    use itertools::Itertools;
     use super::*;
     use rstest::{fixture, rstest};
-    use serde_json::Value;
+    use serde_json::{json, Value};
     use crate::transform::transform_heat_source_wet::transform_heat_source_wet;
 
     #[fixture]
