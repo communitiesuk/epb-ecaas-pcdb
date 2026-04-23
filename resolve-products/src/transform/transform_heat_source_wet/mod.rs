@@ -309,7 +309,7 @@ mod tests {
 
     #[fixture]
     fn pcdb_heat_pumps() -> HashMap<String, Product> {
-        serde_json::from_str(include_str!("../../test/test_heat_pump_pcdb.json")).unwrap()
+        serde_json::from_str(include_str!("../../../test/test_heat_pump_pcdb.json")).unwrap()
     }
 
     fn heat_pump_input(product_reference: &str) -> JsonValue {
@@ -328,7 +328,7 @@ mod tests {
     #[fixture]
     fn expected_heat_pumps() -> JsonValue {
         serde_json::from_str(include_str!(
-            "../../test/test_heat_pump_input_transformed.json"
+            "../../../test/test_heat_pump_input_transformed.json"
         ))
             .unwrap()
     }
@@ -433,7 +433,7 @@ mod tests {
 
     #[fixture]
     fn pcdb_boilers() -> HashMap<String, Product> {
-        serde_json::from_str(include_str!("../../test/test_boilers_pcdb.json")).unwrap()
+        serde_json::from_str(include_str!("../../../test/test_boilers_pcdb.json")).unwrap()
     }
 
     fn boiler_input(product_reference: &str, specified_location: Option<&str>) -> JsonValue {
@@ -455,7 +455,7 @@ mod tests {
 
     #[fixture]
     fn expected_boilers() -> JsonValue {
-        serde_json::from_str(include_str!("../../test/test_boiler_input_transformed.json")).unwrap()
+        serde_json::from_str(include_str!("../../../test/test_boiler_input_transformed.json")).unwrap()
     }
 
     #[rstest]
