@@ -1,9 +1,9 @@
 pub mod errors;
 mod products;
-mod transforms;
+mod transform;
 
 use crate::errors::{JsonPathError, JsonValidationError, ResolvePcdbProductsError};
-use crate::transforms::{ResolveProductsResult, transform_json};
+use crate::transform::transform::{ResolveProductsResult, transform_json};
 use aws_sdk_dynamodb::Client as DynamoDbClient;
 use itertools::Itertools;
 use jsonpath_rust::JsonPath;
