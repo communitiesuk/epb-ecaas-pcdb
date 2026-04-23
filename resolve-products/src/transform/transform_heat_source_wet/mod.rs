@@ -1,13 +1,13 @@
 mod transform_boiler;
 mod transform_heat_pump;
 
-use std::collections::HashMap;
-use serde_json::{Value as JsonValue};
-use smartstring::alias::String;
-use crate::errors::ResolvePcdbProductsError;
 use crate::PRODUCT_REFERENCE_FIELD;
+use crate::errors::ResolvePcdbProductsError;
 use crate::products::Product;
 use crate::transform::ResolveProductsResult;
+use serde_json::Value as JsonValue;
+use smartstring::alias::String;
+use std::collections::HashMap;
 
 pub fn transform_heat_source_wet(
     json: &mut JsonValue,
@@ -35,7 +35,7 @@ pub fn transform_heat_source_wet(
                             )
                         })?,
                 )
-                    .into()
+                .into()
             } else {
                 None
             };
@@ -71,11 +71,11 @@ pub fn transform_heat_source_wet(
 
 #[cfg(test)]
 mod tests {
-    use itertools::Itertools;
     use super::*;
-    use rstest::{fixture, rstest};
-    use serde_json::{json, Value};
     use crate::transform::transform_heat_source_wet::transform_heat_source_wet;
+    use itertools::Itertools;
+    use rstest::{fixture, rstest};
+    use serde_json::{Value, json};
 
     #[fixture]
     fn pcdb_heat_pumps() -> HashMap<String, Product> {
@@ -100,7 +100,7 @@ mod tests {
         serde_json::from_str(include_str!(
             "../../../test/test_heat_pump_input_transformed.json"
         ))
-            .unwrap()
+        .unwrap()
     }
 
     fn product_from_pointer(input: &Value, pointer: &str) -> HashMap<String, JsonValue> {
@@ -225,7 +225,10 @@ mod tests {
 
     #[fixture]
     fn expected_boilers() -> JsonValue {
-        serde_json::from_str(include_str!("../../../test/test_boiler_input_transformed.json")).unwrap()
+        serde_json::from_str(include_str!(
+            "../../../test/test_boiler_input_transformed.json"
+        ))
+        .unwrap()
     }
 
     #[rstest]

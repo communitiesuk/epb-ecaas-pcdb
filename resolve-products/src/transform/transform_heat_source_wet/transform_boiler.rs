@@ -5,7 +5,6 @@ use crate::transform::ResolveProductsResult;
 use rust_decimal::prelude::ToPrimitive;
 use serde_json::{Map, Value as JsonValue};
 
-
 pub fn transform_boiler(
     boiler: &mut Map<String, JsonValue>,
     product: &Product,
