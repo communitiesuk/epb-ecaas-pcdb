@@ -1,4 +1,5 @@
 pub mod transform_heat_source_wet;
+mod transform_space_heating;
 
 use crate::errors::ResolvePcdbProductsError;
 use crate::extract_product_references;

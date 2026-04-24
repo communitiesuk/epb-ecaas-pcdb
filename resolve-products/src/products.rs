@@ -418,7 +418,7 @@ pub(crate) enum WwhrsSystemType {
     C,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize_enum_str)]
+#[derive(Clone, Copy, Debug, Deserialize_enum_str, Serialize_enum_str)]
 #[serde(rename_all = "kebab-case")]
 pub(crate) enum StorageHeaterAirFlowType {
     DamperOnly,
@@ -428,11 +428,11 @@ pub(crate) enum StorageHeaterAirFlowType {
 #[derive(Debug, Deserialize)]
 pub(crate) struct ElectricStorageHeaterTestDatum {
     /// Test point number (0 to 100 (TODO: ??? maybe to 1) during heat discharge test)
-    test_point: Decimal,
+    pub(crate) test_point: Decimal,
     /// Minimum heat output at test points (0 to 100) during heat discharge test, in kW
-    dry_core_min_output: Decimal,
+    pub(crate) dry_core_min_output: Decimal,
     /// Maximum heat output at test points (0 to 100) during heat discharge test, in kW
-    dry_core_max_output: Decimal,
+    pub(crate) dry_core_max_output: Decimal,
 }
 
 #[derive(Debug, Deserialize)]
