@@ -69,6 +69,7 @@ pub fn transform_elec_storage_heater(
     Ok(())
 }
 
+#[cfg(test)]
 mod tests {
     use super::*;
     use itertools::Itertools;
