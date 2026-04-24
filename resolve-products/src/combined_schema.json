@@ -804,7 +804,10 @@
               }
             },
             {
-              "required": ["heat_network_reference", "sub_heat_network_name"],
+              "required": [
+                "heat_network_reference",
+                "sub_heat_network_name"
+              ],
               "properties": {
                 "heat_network_reference": {
                   "description": "A unique (product) reference to a heat network held within the HEM database (PCDB)",
@@ -1442,7 +1445,9 @@
             "then": {
               "oneOf": [
                 {
-                  "required": ["product_reference"],
+                  "required": [
+                    "product_reference"
+                  ],
                   "properties": {
                     "product_reference": {
                       "description": "A unique reference to a product held within the HEM database (PCDB)",
@@ -1912,7 +1917,9 @@
             "then": {
               "oneOf": [
                 {
-                  "required": ["product_reference"],
+                  "required": [
+                    "product_reference"
+                  ],
                   "properties": {
                     "product_reference": {
                       "description": "A unique reference to a product held within the HEM database (PCDB)",
@@ -1932,7 +1939,9 @@
                       "minimum": 8,
                       "maximum": 15
                     },
-                    "allow_low_flowrate": {"type": "boolean"},
+                    "allow_low_flowrate": {
+                      "type": "boolean"
+                    },
                     "HotWaterSource": {
                       "type": "string",
                       "description": "Reference to HotWaterSource object that provides hot water to this shower."
@@ -1954,7 +1963,9 @@
                     {
                       "if": {
                         "properties": {
-                          "allow_low_flowrate": {"const": true}
+                          "allow_low_flowrate": {
+                            "const": true
+                          }
                         }
                       },
                       "then": {
@@ -1969,7 +1980,9 @@
                     {
                       "if": {
                         "properties": {
-                          "allow_low_flowrate": {"const": false}
+                          "allow_low_flowrate": {
+                            "const": false
+                          }
                         }
                       },
                       "then": {
@@ -2246,6 +2259,10 @@
                       "minimum": 0,
                       "maximum": 100,
                       "description": "Number of units installed in the zone."
+                    },
+                    "Zone": {
+                      "type": "string",
+                      "description": "The zone where the unit(s) is/are installed. References a key in $.Zone."
                     }
                   }
                 },
@@ -2869,7 +2886,9 @@
                         "type": "array",
                         "contains": {
                           "type": "object",
-                          "required": ["n"],
+                          "required": [
+                            "n"
+                          ],
                           "properties": {
                             "n": {
                               "type": "number",
@@ -3443,7 +3462,11 @@
                                 "description": "Tilt angle of the surface from horizontal, between 0 and 180, where 0 means the external surface is facing up, 90 means the external surface is vertical and 180 means the external surface is facing down (unit: \u02da)"
                               }
                             },
-                            "required": ["mid_height_air_flow_path", "orientation360", "pitch"]
+                            "required": [
+                              "mid_height_air_flow_path",
+                              "orientation360",
+                              "pitch"
+                            ]
                           }
                         }
                       }
@@ -3796,7 +3819,9 @@
                         "SFP"
                       ],
                       "properties": {
-                        "SFP": {"$ref": "#/$defs/SFP"}
+                        "SFP": {
+                          "$ref": "#/$defs/SFP"
+                        }
                       }
                     }
                   },
@@ -3822,21 +3847,46 @@
                     "then": {
                       "oneOf": [
                         {
-                          "required": ["measured_fan_power", "measured_air_flow_rate"],
-                          "not": {"required": ["SFP"]}
+                          "required": [
+                            "measured_fan_power",
+                            "measured_air_flow_rate"
+                          ],
+                          "not": {
+                            "required": [
+                              "SFP"
+                            ]
+                          }
                         },
                         {
-                          "required": ["SFP"],
-                          "not": {"anyOf": [
-                            {"required": ["measured_fan_power"]},
-                            {"required": ["measured_air_flow_rate"]}
-                          ]}
+                          "required": [
+                            "SFP"
+                          ],
+                          "not": {
+                            "anyOf": [
+                              {
+                                "required": [
+                                  "measured_fan_power"
+                                ]
+                              },
+                              {
+                                "required": [
+                                  "measured_air_flow_rate"
+                                ]
+                              }
+                            ]
+                          }
                         }
                       ],
                       "properties": {
-                        "measured_fan_power": {"type": "number"},
-                        "measured_air_flow_rate": {"type": "number"},
-                        "SFP": {"$ref": "#/$defs/SFP"}
+                        "measured_fan_power": {
+                          "type": "number"
+                        },
+                        "measured_air_flow_rate": {
+                          "type": "number"
+                        },
+                        "SFP": {
+                          "$ref": "#/$defs/SFP"
+                        }
                       }
                     }
                   }

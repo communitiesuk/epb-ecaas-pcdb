@@ -5,6 +5,7 @@ use crate::errors::ResolvePcdbProductsError;
 use crate::products::Product;
 use crate::transform::ResolveProductsResult;
 use serde_json::Value as JsonValue;
+use smartstring::alias::String;
 use std::collections::HashMap;
 
 pub fn transform_space_heating(

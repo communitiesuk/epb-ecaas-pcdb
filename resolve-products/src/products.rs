@@ -198,7 +198,7 @@ pub(crate) enum Technology {
         utilisation_factor: Decimal,
         test_data: Vec<WwhrsTestDatum>,
     },
-    #[serde(rename = "StorageHeater")]
+    #[serde(rename = "StorageHeater", rename_all = "camelCase")]
     ElectricStorageHeater {
         /// Maximum heat storage capacity in kWh
         storage_capacity: Decimal,
@@ -426,6 +426,7 @@ pub(crate) enum StorageHeaterAirFlowType {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct ElectricStorageHeaterTestDatum {
     /// Test point number (0 to 100 (TODO: ??? maybe to 1) during heat discharge test)
     pub(crate) test_point: Decimal,

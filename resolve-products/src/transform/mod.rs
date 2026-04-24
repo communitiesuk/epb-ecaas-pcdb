@@ -19,13 +19,19 @@ pub async fn transform_json(
     for product in products.values() {
         match product {
             Product {
-                technology: Technology::HeatPump { .. } | Technology::Boiler { .. },
+                technology:
+                    Technology::HeatPump { .. }
+                    | Technology::Boiler { .. }
+                    | Technology::ElectricStorageHeater { .. },
                 ..
             } => continue,
             _ => return Err(ResolvePcdbProductsError::UnsupportedProductAtMapping),
         }
     }
-    transform_heat_source_wet::transform_heat_source_wet(json, &products)
+    transform_heat_source_wet::transform_heat_source_wet(json, &products)?;
+    transform_space_heating::transform_space_heating(json, &products)?;
+
+    Ok(())
 }
 
 pub type ResolveProductsResult<T> = Result<T, ResolvePcdbProductsError>;
