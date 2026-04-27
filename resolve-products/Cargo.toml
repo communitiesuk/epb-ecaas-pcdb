@@ -6,7 +6,7 @@ rust-version = "1.85.0"
 
 [dependencies]
 aws-config = { version = "1.8.16", features = ["behavior-version-latest"], optional = true }
-aws-sdk-dynamodb = "1.100.0"
+aws-sdk-dynamodb = "1.111.0"
 clap = { version = "4.6.1", features = ["derive"], optional = true }
 itertools = "0.14.0"
 jsonpath-rust = "1.0.4"
