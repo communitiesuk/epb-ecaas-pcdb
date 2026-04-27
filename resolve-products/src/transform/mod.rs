@@ -3,7 +3,7 @@ mod space_heating;
 
 use crate::errors::ResolvePcdbProductsError;
 use crate::extract_product_references;
-use crate::products::{find_products_for_references, Product, Technology};
+use crate::products::{Product, Technology, find_products_for_references};
 use aws_sdk_dynamodb::client::Client as DynamoDbClient;
 use serde_json::value::Value as JsonValue;
 use smartstring::alias::String;

@@ -1,10 +1,10 @@
 mod boiler;
 mod heat_pump;
 
+use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::Product;
 use crate::transform::ResolveProductsResult;
-use crate::PRODUCT_REFERENCE_FIELD;
 use serde_json::Value as JsonValue;
 use smartstring::alias::String;
 use std::collections::HashMap;
