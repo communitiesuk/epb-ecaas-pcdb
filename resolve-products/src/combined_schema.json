@@ -2246,7 +2246,8 @@
                 {
                   "required": [
                     "product_reference",
-                    "n_units"
+                    "n_units",
+                    "Zone"
                   ],
                   "properties": {
                     "product_reference": {
