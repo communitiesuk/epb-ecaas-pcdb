@@ -1,5 +1,5 @@
-pub mod transform_heat_source_wet;
-mod transform_space_heating;
+pub mod heat_source_wet;
+mod space_heating;
 
 use crate::errors::ResolvePcdbProductsError;
 use crate::extract_product_references;
@@ -28,8 +28,8 @@ pub async fn transform_json(
             _ => return Err(ResolvePcdbProductsError::UnsupportedProductAtMapping),
         }
     }
-    transform_heat_source_wet::transform_heat_source_wet(json, &products)?;
-    transform_space_heating::transform_space_heating(json, &products)?;
+    heat_source_wet::transform(json, &products)?;
+    space_heating::transform(json, &products)?;
 
     Ok(())
 }

@@ -8,7 +8,7 @@ use itertools::Itertools;
 use rust_decimal::prelude::ToPrimitive;
 use serde_json::{Map, Value as JsonValue, json};
 
-pub fn transform_heat_pump(
+pub fn transform(
     heat_pump: &mut Map<String, JsonValue>,
     product: &Product,
     product_reference: &str,

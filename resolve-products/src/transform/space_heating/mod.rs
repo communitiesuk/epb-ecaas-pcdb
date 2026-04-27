@@ -1,4 +1,4 @@
-mod transform_elec_storage_heater;
+mod elec_storage_heater;
 
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
@@ -8,7 +8,7 @@ use serde_json::Value as JsonValue;
 use smartstring::alias::String;
 use std::collections::HashMap;
 
-pub fn transform_space_heating(
+pub fn transform(
     json: &mut JsonValue,
     products: &HashMap<String, Product>,
 ) -> ResolveProductsResult<()> {
@@ -41,7 +41,7 @@ pub fn transform_space_heating(
                     .get("type")
                     .is_some_and(|v| matches!(v, JsonValue::String(s) if s == "ElecStorageHeater"))
                 {
-                    transform_elec_storage_heater::transform_elec_storage_heater(
+                    elec_storage_heater::transform(
                         system,
                         &products[product_reference.as_str()],
                         &product_reference,
@@ -57,7 +57,7 @@ pub fn transform_space_heating(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::transform::transform_space_heating::transform_space_heating;
+    use crate::transform::space_heating::transform;
     use serde_json::json;
 
     #[test]
@@ -93,7 +93,7 @@ mod tests {
             }
         });
 
-        let result = transform_space_heating(&mut input, &products);
+        let result = transform(&mut input, &products);
 
         assert!(result.is_ok());
 

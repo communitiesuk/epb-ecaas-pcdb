@@ -6,7 +6,7 @@ use rust_decimal::prelude::ToPrimitive;
 use serde_json::{Map, Value as JsonValue};
 use std::vec;
 
-pub fn transform_elec_storage_heater(
+pub fn transform(
     elec_storage_heater: &mut Map<String, JsonValue>,
     product: &Product,
     product_reference: &str,
@@ -91,7 +91,7 @@ mod tests {
         ))
         .unwrap();
 
-        let result = transform_elec_storage_heater(
+        let result = transform(
             input.as_object_mut().unwrap(),
             &pcdb_esh,
             product_reference,

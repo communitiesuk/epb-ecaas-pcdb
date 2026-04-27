@@ -1,5 +1,5 @@
-mod transform_boiler;
-mod transform_heat_pump;
+mod boiler;
+mod heat_pump;
 
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
@@ -9,7 +9,7 @@ use serde_json::Value as JsonValue;
 use smartstring::alias::String;
 use std::collections::HashMap;
 
-pub fn transform_heat_source_wet(
+pub fn transform(
     json: &mut JsonValue,
     products: &HashMap<String, Product>,
 ) -> ResolveProductsResult<()> {
@@ -45,7 +45,7 @@ pub fn transform_heat_source_wet(
                     .get("type")
                     .is_some_and(|v| matches!(v, JsonValue::String(s) if s == "HeatPump"))
                 {
-                    transform_heat_pump::transform_heat_pump(
+                    heat_pump::transform(
                         heat_source_wet,
                         &products[product_reference.as_str()],
                         &product_reference,
@@ -56,7 +56,7 @@ pub fn transform_heat_source_wet(
                     .get("type")
                     .is_some_and(|v| matches!(v, JsonValue::String(s) if s == "Boiler"))
                 {
-                    transform_boiler::transform_boiler(
+                    boiler::transform(
                         heat_source_wet,
                         &products[product_reference.as_str()],
                         &product_reference,
@@ -72,7 +72,7 @@ pub fn transform_heat_source_wet(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::transform::transform_heat_source_wet::transform_heat_source_wet;
+    use crate::transform::heat_source_wet::transform;
     use itertools::Itertools;
     use rstest::{fixture, rstest};
     use serde_json::{Value, json};
@@ -139,7 +139,7 @@ mod tests {
         #[case] example_name: &str,
     ) {
         let mut heat_pump_input = heat_pump_input(example_name);
-        let result = transform_heat_source_wet(&mut heat_pump_input, &pcdb_heat_pumps);
+        let result = transform(&mut heat_pump_input, &pcdb_heat_pumps);
 
         assert!(result.is_ok());
 
@@ -177,7 +177,7 @@ mod tests {
                 }),
             );
 
-        let result = transform_heat_source_wet(&mut heat_pump_input, &pcdb_heat_pumps);
+        let result = transform(&mut heat_pump_input, &pcdb_heat_pumps);
 
         assert!(result.is_ok());
 
@@ -241,7 +241,7 @@ mod tests {
         #[case] specified_location: Option<&str>,
     ) {
         let mut boiler_input = boiler_input(product_reference, specified_location);
-        let result = transform_heat_source_wet(&mut boiler_input, &pcdb_boilers);
+        let result = transform(&mut boiler_input, &pcdb_boilers);
 
         assert!(result.is_ok());
 
@@ -264,7 +264,7 @@ mod tests {
         let product_reference = "boiler_unknown_location";
         let mut boiler_input = boiler_input(product_reference, None);
 
-        let result = transform_heat_source_wet(&mut boiler_input, &pcdb_boilers);
+        let result = transform(&mut boiler_input, &pcdb_boilers);
         assert!(result.is_err());
     }
 }

@@ -5,7 +5,7 @@ use crate::transform::ResolveProductsResult;
 use rust_decimal::prelude::ToPrimitive;
 use serde_json::{Map, Value as JsonValue};
 
-pub fn transform_boiler(
+pub fn transform(
     boiler: &mut Map<String, JsonValue>,
     product: &Product,
     product_reference: &str,
@@ -132,7 +132,7 @@ mod tests {
         let pcdb_boiler = pcdb_boilers
             .get(&SmartString::from(product_reference))
             .unwrap();
-        let result = transform_boiler(&mut input_with_boiler_ref, pcdb_boiler, product_reference);
+        let result = transform(&mut input_with_boiler_ref, pcdb_boiler, product_reference);
         assert!(result.is_ok());
     }
 
@@ -146,7 +146,7 @@ mod tests {
             .get(&SmartString::from(product_reference))
             .unwrap();
 
-        let result = transform_boiler(&mut input_with_boiler_ref, pcdb_boiler, product_reference);
+        let result = transform(&mut input_with_boiler_ref, pcdb_boiler, product_reference);
         assert!(result.is_err());
     }
 }
