@@ -1,10 +1,10 @@
 mod boiler;
 mod heat_pump;
 
-use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::Product;
 use crate::transform::ResolveProductsResult;
+use crate::PRODUCT_REFERENCE_FIELD;
 use serde_json::Value as JsonValue;
 use smartstring::alias::String;
 use std::collections::HashMap;
@@ -66,9 +66,8 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::transform::heat_source_wet::transform;
     use rstest::{fixture, rstest};
-    use serde_json::{Value, json};
+    use serde_json::json;
 
     #[fixture]
     fn heat_source_wet_pcdb_products() -> HashMap<String, Product> {
