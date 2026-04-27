@@ -90,20 +90,12 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use itertools::Itertools;
     use rstest::{fixture, rstest};
     use serde_json::{Value, json};
-    use smartstring::alias::String as SmartString;
     use std::collections::HashMap;
 
-    #[fixture]
-    fn pcdb_boilers() -> HashMap<SmartString, Product> {
-        serde_json::from_str(include_str!("../../../test/test_boilers_pcdb.json")).unwrap()
-    }
-
-    fn input_with_boiler_reference(
-        product_reference: &str,
-        specified_location: Option<&str>,
-    ) -> Map<String, Value> {
+    fn boiler_input(product_reference: &str, specified_location: Option<&str>) -> Value {
         let mut boiler_input = json!({
                 "type": "Boiler",
                 "EnergySupply": "mains gas",
@@ -113,40 +105,82 @@ mod tests {
         if let Some(location) = specified_location {
             boiler_input["specified_location"] = json!(location);
         }
-        boiler_input.as_object().unwrap().clone()
+        boiler_input
     }
 
     #[fixture]
-    fn expected_boilers() -> JsonValue {
-        serde_json::from_str(include_str!(
+    fn pcdb_boilers() -> HashMap<String, Product> {
+        serde_json::from_str(include_str!("../../../test/test_boilers_pcdb.json")).unwrap()
+    }
+
+    fn expected_boiler_input(product_reference: &str) -> Map<String, JsonValue> {
+        let expected_boilers: JsonValue = serde_json::from_str(include_str!(
             "../../../test/test_boiler_input_transformed.json"
         ))
-        .unwrap()
+        .unwrap();
+
+        expected_boilers
+            .pointer(&format!("/HeatSourceWet/{}", product_reference))
+            .unwrap()
+            .as_object()
+            .unwrap()
+            .clone()
+    }
+
+    fn transformed_input_matches_expected(
+        transformed_input: &mut Value,
+        expected_input: Map<String, Value>,
+    ) {
+        let mut actual_keys = transformed_input.as_object().unwrap().keys().collect_vec();
+        actual_keys.sort();
+
+        let mut expected_keys = expected_input.keys().collect_vec();
+        expected_keys.sort();
+
+        assert_eq!(actual_keys, expected_keys);
+
+        for key in expected_keys {
+            assert_eq!(transformed_input[key], expected_input[key], "{:?}", key);
+        }
     }
 
     #[rstest]
-    fn test_transform_boiler_with_specified_location(pcdb_boilers: HashMap<SmartString, Product>) {
-        let product_reference = "boiler_unknown_location";
-        let mut input_with_boiler_ref =
-            input_with_boiler_reference(product_reference, Some("internal"));
-        let pcdb_boiler = pcdb_boilers
-            .get(&SmartString::from(product_reference))
-            .unwrap();
-        let result = transform(&mut input_with_boiler_ref, pcdb_boiler, product_reference);
+    #[case::boiler_with_pcdb_location("boiler", None)]
+    #[case::boiler_with_specified_location("boiler_unknown_location", Some("internal"))]
+    fn test_transform_boiler(
+        pcdb_boilers: HashMap<String, Product>,
+        #[case] product_reference: &str,
+        #[case] specified_location: Option<&str>,
+    ) {
+        let mut boiler_input = boiler_input(product_reference, specified_location);
+        let pcdb_boiler = pcdb_boilers.get(product_reference).unwrap();
+
+        let result = transform(
+            &mut boiler_input.as_object_mut().unwrap(),
+            pcdb_boiler,
+            product_reference,
+        );
         assert!(result.is_ok());
+
+        let expected_input = expected_boiler_input(product_reference);
+        transformed_input_matches_expected(&mut boiler_input, expected_input);
     }
 
     #[rstest]
-    fn test_transform_boiler_with_neither_pcdb_nor_specified_location(
-        pcdb_boilers: HashMap<SmartString, Product>,
+    fn test_transform_boiler_errors_with_neither_pcdb_nor_specified_location(
+        pcdb_boilers: HashMap<String, Product>,
     ) {
         let product_reference = "boiler_unknown_location";
-        let mut input_with_boiler_ref = input_with_boiler_reference(product_reference, None);
-        let pcdb_boiler = pcdb_boilers
-            .get(&SmartString::from(product_reference))
-            .unwrap();
+        let specified_location = None;
 
-        let result = transform(&mut input_with_boiler_ref, pcdb_boiler, product_reference);
+        let mut input = boiler_input(product_reference, specified_location);
+        let pcdb_boiler = pcdb_boilers.get(product_reference).unwrap();
+
+        let result = transform(
+            &mut input.as_object_mut().unwrap(),
+            pcdb_boiler,
+            product_reference,
+        );
         assert!(result.is_err());
     }
 }
