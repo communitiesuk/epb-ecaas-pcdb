@@ -14,13 +14,10 @@ pub fn transform(
     products: &HashMap<String, Product>,
 ) -> ResolveProductsResult<()> {
     let heat_source_wets = match json.pointer_mut("/HeatSourceWet") {
-        Some(node) => {
-            if node.is_object() {
+        Some(node)
+            if node.is_object() => {
                 node.as_object_mut().unwrap()
-            } else {
-                return Ok(());
             }
-        }
         _ => return Ok(()),
     };
     for value in heat_source_wets.values_mut() {
