@@ -91,11 +91,7 @@ mod tests {
         ))
         .unwrap();
 
-        let result = transform(
-            input.as_object_mut().unwrap(),
-            &pcdb_esh,
-            product_reference,
-        );
+        let result = transform(input.as_object_mut().unwrap(), &pcdb_esh, product_reference);
 
         assert!(result.is_ok());
 

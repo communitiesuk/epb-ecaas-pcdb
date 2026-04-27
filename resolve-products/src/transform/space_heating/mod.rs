@@ -13,10 +13,7 @@ pub fn transform(
     products: &HashMap<String, Product>,
 ) -> ResolveProductsResult<()> {
     let space_heat_systems = match json.pointer_mut("/SpaceHeatSystem") {
-        Some(node)
-            if node.is_object() => {
-                node.as_object_mut().unwrap()
-            }
+        Some(node) if node.is_object() => node.as_object_mut().unwrap(),
         _ => return Ok(()),
     };
 
