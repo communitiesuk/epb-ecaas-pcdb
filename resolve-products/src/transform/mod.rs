@@ -3,7 +3,7 @@ mod space_heating;
 
 use crate::errors::ResolvePcdbProductsError;
 use crate::extract_product_references;
-use crate::products::{Product, Technology, find_products_for_references};
+use crate::products::{find_products_for_references, Product, Technology};
 use aws_sdk_dynamodb::client::Client as DynamoDbClient;
 use serde_json::value::Value as JsonValue;
 use smartstring::alias::String;
@@ -16,17 +16,15 @@ pub async fn transform_json(
     let product_references = extract_product_references(json)?;
     let products: HashMap<String, Product> =
         find_products_for_references(&product_references, dynamo_client).await?;
-    for product in products.values() {
-        match product {
-            Product {
-                technology:
-                    Technology::HeatPump { .. }
-                    | Technology::Boiler { .. }
-                    | Technology::ElectricStorageHeater { .. },
-                ..
-            } => continue,
-            _ => return Err(ResolvePcdbProductsError::UnsupportedProductAtMapping),
-        }
+    if products.values().any(|p| {
+        !matches!(
+            p.technology,
+            Technology::HeatPump { .. }
+                | Technology::Boiler { .. }
+                | Technology::ElectricStorageHeater { .. }
+        )
+    }) {
+        return Err(ResolvePcdbProductsError::UnsupportedProductAtMapping);
     }
     heat_source_wet::transform(json, &products)?;
     space_heating::transform(json, &products)?;
