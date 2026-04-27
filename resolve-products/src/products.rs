@@ -16,62 +16,11 @@ use std::collections::HashMap;
 
 pub(crate) async fn find_products_for_references(
     product_references: &[String],
-    dynamo_db_client: &DynamoDbClient,
+    catalogue: &impl ProductCatalogue,
 ) -> ResolveProductsResult<HashMap<String, Product>> {
-    if product_references.is_empty() {
-        return Ok(HashMap::new());
-    }
-
-    let keys: Vec<HashMap<::std::string::String, AttributeValue>> = product_references
-        .iter()
-        .map(|product_ref| {
-            HashMap::from([("id".to_string(), AttributeValue::S(product_ref.to_string()))])
-        })
-        .collect();
-
-    let results = dynamo_db_client
-        .batch_get_item()
-        .request_items(
-            "products",
-            KeysAndAttributes::builder()
-                .set_keys(Some(keys))
-                .build()
-                .unwrap(),
-        )
-        .send()
-        .await;
-
-    let results = match results {
-        Ok(results) => results,
-        Err(e) => {
-            return Err(ResolvePcdbProductsError::AccessError(e.into()));
-        }
-    };
-
-    let products = results.responses().unwrap().get("products").unwrap();
-    if products.len() != product_references.len() {
-        return Err(ResolvePcdbProductsError::UnknownProductReference(format!(
-            "At least one product reference from the list ({}) could not be found within the PCDB store. {} product(s) successfully retrieved.",
-            product_references.join(", "),
-            products.len(),
-        )));
-    }
-
-    let products = products
-        .iter()
-        .cloned()
-        .map(|item| {
-            let product = from_item::<_, Product>(item);
-            let product = match product {
-                Ok(product) => product,
-                Err(e) => return Err(e),
-            };
-
-            Ok((String::from(product.id.to_string()), product))
-        })
-        .collect::<Result<HashMap<_, _>, _>>();
-
-    products.map_err(ResolvePcdbProductsError::UnsupportedProductAtDeserialization)
+    catalogue
+        .find_products_for_references(product_references)
+        .await
 }
 
 #[derive(Debug, Deserialize, Validate)]
@@ -536,6 +485,86 @@ pub(crate) struct SubHeatNetwork {
     emissions_factor_including_out_of_scope: Decimal,
     #[serde(rename = "PrimaryEnergyFactorkWhkWhDelivered")]
     primary_energy_factor: Decimal,
+}
+
+pub(crate) trait ProductCatalogue {
+    async fn find_products_for_references(
+        &self,
+        product_references: &[String],
+    ) -> ResolveProductsResult<HashMap<String, Product>>;
+}
+
+pub(crate) struct DynamoDbBackedProductCatalogue<'a> {
+    dynamo_db_client: &'a DynamoDbClient,
+}
+
+impl<'a> DynamoDbBackedProductCatalogue<'a> {
+    pub(crate) fn new(dynamo_db_client: &'a DynamoDbClient) -> Self {
+        Self { dynamo_db_client }
+    }
+}
+
+impl ProductCatalogue for DynamoDbBackedProductCatalogue<'_> {
+    async fn find_products_for_references(
+        &self,
+        product_references: &[String],
+    ) -> ResolveProductsResult<HashMap<String, Product>> {
+        if product_references.is_empty() {
+            return Ok(HashMap::new());
+        }
+
+        let keys: Vec<HashMap<::std::string::String, AttributeValue>> = product_references
+            .iter()
+            .map(|product_ref| {
+                HashMap::from([("id".to_string(), AttributeValue::S(product_ref.to_string()))])
+            })
+            .collect();
+
+        let results = self
+            .dynamo_db_client
+            .batch_get_item()
+            .request_items(
+                "products",
+                KeysAndAttributes::builder()
+                    .set_keys(Some(keys))
+                    .build()
+                    .unwrap(),
+            )
+            .send()
+            .await;
+
+        let results = match results {
+            Ok(results) => results,
+            Err(e) => {
+                return Err(ResolvePcdbProductsError::AccessError(e.into()));
+            }
+        };
+
+        let products = results.responses().unwrap().get("products").unwrap();
+        if products.len() != product_references.len() {
+            return Err(ResolvePcdbProductsError::UnknownProductReference(format!(
+                "At least one product reference from the list ({}) could not be found within the PCDB store. {} product(s) successfully retrieved.",
+                product_references.join(", "),
+                products.len(),
+            )));
+        }
+
+        let products = products
+            .iter()
+            .cloned()
+            .map(|item| {
+                let product = from_item::<_, Product>(item);
+                let product = match product {
+                    Ok(product) => product,
+                    Err(e) => return Err(e),
+                };
+
+                Ok((String::from(product.id.to_string()), product))
+            })
+            .collect::<Result<HashMap<_, _>, _>>();
+
+        products.map_err(ResolvePcdbProductsError::UnsupportedProductAtDeserialization)
+    }
 }
 
 // TODO: use DynamoDB test double or simulator in docker for below tests

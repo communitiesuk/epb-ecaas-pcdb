@@ -3,7 +3,9 @@ mod space_heating;
 
 use crate::errors::ResolvePcdbProductsError;
 use crate::extract_product_references;
-use crate::products::{Product, Technology, find_products_for_references};
+use crate::products::{
+    find_products_for_references, DynamoDbBackedProductCatalogue, Product, Technology,
+};
 use aws_sdk_dynamodb::client::Client as DynamoDbClient;
 use serde_json::value::Value as JsonValue;
 use smartstring::alias::String;
@@ -14,8 +16,9 @@ pub async fn transform_json(
     dynamo_client: &DynamoDbClient,
 ) -> ResolveProductsResult<()> {
     let product_references = extract_product_references(json)?;
+    let product_catalogue = DynamoDbBackedProductCatalogue::new(dynamo_client);
     let products: HashMap<String, Product> =
-        find_products_for_references(&product_references, dynamo_client).await?;
+        find_products_for_references(&product_references, &product_catalogue).await?;
     if products.values().any(|p| {
         !matches!(
             p.technology,
