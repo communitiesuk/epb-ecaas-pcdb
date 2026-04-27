@@ -124,37 +124,6 @@ mod tests {
     }
 
     #[rstest]
-    #[case("hp")]
-    #[case("hp_without_modulating_control")]
-    #[case("hp_with_modulating_control_numeric")]
-    #[case("hp_with_backup_ctrl_type_substitute")]
-    #[ignore = "todo: implement test case once boiler mapping has been added"]
-    #[case("hp_with_boiler")]
-    fn test_transform_single_heat_pump(
-        pcdb_heat_pumps: HashMap<String, Product>,
-        expected_heat_pumps: JsonValue,
-        #[case] example_name: &str,
-    ) {
-        let mut heat_pump_input = heat_pump_input(example_name);
-        let result = transform(&mut heat_pump_input, &pcdb_heat_pumps);
-
-        assert!(result.is_ok());
-
-        let pointer = format!("/HeatSourceWet/{}", example_name);
-        let actual_hp = product_from_pointer(&heat_pump_input, pointer.as_str());
-        let expected_hp = product_from_pointer(&expected_heat_pumps, pointer.as_str());
-
-        let (actual_keys_sorted, expected_keys_sorted) =
-            product_keys_sorted(&actual_hp, &expected_hp);
-
-        assert_eq!(actual_keys_sorted, expected_keys_sorted);
-
-        for key in expected_hp.keys() {
-            assert_eq!(actual_hp[key], expected_hp[key], "{:?}", key);
-        }
-    }
-
-    #[rstest]
     fn test_transform_multiple_heat_pumps(
         pcdb_heat_pumps: HashMap<String, Product>,
         expected_heat_pumps: JsonValue,

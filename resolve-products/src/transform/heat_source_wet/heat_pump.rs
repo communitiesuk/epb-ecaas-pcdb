@@ -157,3 +157,82 @@ pub fn transform(
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use itertools::Itertools;
+    use rstest::{fixture, rstest};
+    use serde_json::{Value, json};
+    use std::collections::HashMap;
+
+    fn heat_pump_input(product_reference: &str) -> Value {
+        json!({
+                "type": "HeatPump",
+                "EnergySupply": "mains elec",
+                "product_reference": product_reference,
+                "is_heat_network": false
+        })
+    }
+
+    #[fixture]
+    fn pcdb_heat_pumps() -> HashMap<String, Product> {
+        serde_json::from_str(include_str!("../../../test/test_heat_pump_pcdb.json")).unwrap()
+    }
+
+    fn expected_heat_pump_input(product_reference: &str) -> Map<String, JsonValue> {
+        let expected_heat_pumps: JsonValue = serde_json::from_str(include_str!(
+            "../../../test/test_heat_pump_input_transformed.json"
+        ))
+        .unwrap();
+
+        expected_heat_pumps
+            .pointer(&format!("/HeatSourceWet/{}", product_reference))
+            .unwrap()
+            .as_object()
+            .unwrap()
+            .clone()
+    }
+
+    fn transformed_input_matches_expected(
+        transformed_input: &mut Value,
+        expected_input: Map<String, Value>,
+    ) {
+        let mut actual_keys = transformed_input.as_object().unwrap().keys().collect_vec();
+        actual_keys.sort();
+
+        let mut expected_keys = expected_input.keys().collect_vec();
+        expected_keys.sort();
+
+        assert_eq!(actual_keys, expected_keys);
+
+        for key in expected_keys {
+            assert_eq!(transformed_input[key], expected_input[key], "{:?}", key);
+        }
+    }
+
+    #[rstest]
+    #[case("hp")]
+    #[case::hp_without_modulating_control("hp_without_modulating_control")]
+    #[case::hp_with_modulating_control_numeric("hp_with_modulating_control_numeric")]
+    #[case::hp_with_backup_ctrl_type_substitute("hp_with_backup_ctrl_type_substitute")]
+    #[ignore = "todo: implement test case once boiler mapping has been added"]
+    #[case::hp_with_boiler("hp_with_boiler")]
+    fn test_transform_heat_pump(
+        pcdb_heat_pumps: HashMap<String, Product>,
+        #[case] product_reference: &str,
+    ) {
+        let mut input = heat_pump_input(product_reference);
+        let pcdb_data = pcdb_heat_pumps.get(product_reference).unwrap();
+
+        let result = transform(
+            &mut input.as_object_mut().unwrap(),
+            pcdb_data,
+            product_reference,
+        );
+        assert!(result.is_ok());
+
+        let expected_input = expected_heat_pump_input(product_reference);
+        transformed_input_matches_expected(&mut input, expected_input);
+    }
+}
