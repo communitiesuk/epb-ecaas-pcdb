@@ -29,11 +29,11 @@ pub enum ResolvePcdbProductsError {
     #[error("Error encountered while deserializing PCDB products: {0:?}")]
     DeserializeError(serde_dynamo::Error),
     #[error(
-        "Received a product type that is not yet supported. Currently supported products: Heat pump, Boiler"
+        "Received a product type that is not yet supported. Currently supported products: heat pump, boiler, and electric storage heater."
     )]
     UnsupportedProductAtDeserialization(serde_dynamo::Error),
     #[error(
-        "Received a product type that is not yet supported. Currently supported products: Heat pump, Boiler"
+        "Received a product type that is not yet supported. Currently supported products: heat pump, boiler, and electric storage heater."
     )]
     UnsupportedProductAtMapping,
 }
