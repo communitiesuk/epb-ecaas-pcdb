@@ -29,10 +29,15 @@ pub enum ResolvePcdbProductsError {
     InvalidProductCategoryReference(Value),
     #[error("{0:?}")]
     UnknownProductReference(String),
+    #[error("PCDB product with reference {0} breaks an expected invariant: {1}")]
+    InvalidProduct(String, &'static str),
     #[error("Error encountered while accessing PCDB store: {0:?}")]
     AccessError(#[from] aws_sdk_dynamodb::Error),
     #[error("Error encountered while deserializing PCDB products: {0:?}")]
     DeserializeError(serde_dynamo::Error),
+    #[cfg(test)]
+    #[error("Error encountered while deserializing test product: {0:?}")]
+    BadTestProductError(serde_json::Error),
     #[error(
         "Received a product type that is not yet supported. Currently supported products: heat pump, boiler, and electric storage heater."
     )]

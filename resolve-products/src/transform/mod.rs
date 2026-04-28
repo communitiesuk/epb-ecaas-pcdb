@@ -37,7 +37,7 @@ pub async fn transform_json(
         )
     })?;
 
-    heat_source_wet::transform(json, &products, &product_catalogue, &energy_supplies)?;
+    heat_source_wet::transform(json, &products, &product_catalogue, &energy_supplies).await?;
     space_heating::transform(json, &products, &energy_supplies)?;
 
     Ok(())
@@ -100,10 +100,13 @@ mod catalogue {
                     let product: Result<Product, _> = self
                         .products
                         .get(reference.as_str())
-                        .and_then(|product_json| serde_json::from_value(product_json.clone()).ok())
                         .ok_or(ResolvePcdbProductsError::UnknownProductReference(
                             reference.to_string(),
-                        ));
+                        ))
+                        .and_then(|product_json| {
+                            serde_json::from_value(product_json.clone())
+                                .map_err(ResolvePcdbProductsError::BadTestProductError)
+                        });
                     Ok((reference.clone(), product?))
                 })
                 .collect()

@@ -76,6 +76,8 @@ pub(crate) enum Technology {
         power_maximum_backup: Option<Decimal>,
         #[serde(rename = "testDataEN14825")]
         test_data: Vec<HeatPumpTestDatum>,
+        #[serde(rename = "boilerProductID")]
+        boiler_product_id: Option<String>,
     },
     #[serde(
         alias = "RegularBoiler",

@@ -1,13 +1,15 @@
 {
   "123456": {
+    "technologyType": "CombiBoiler",
     "rejectedEnergy1": 0.0004,
-    "FlueType": "room-sealed",
+    "flueType": "room-sealed",
     "electricityCircPump": 0.06,
     "productID": "123456",
+    "id": "123456",
     "fuel": "mains_gas",
-    "Ignition": "no",
-    "BoilerType": "Combi",
-    "Condensing": "condensing",
+    "ignition": "no",
+    "boilerType": "Combi",
+    "condensing": "condensing",
     "modulationLoad": 0.3,
     "firstYearOfManufacture": "2020",
     "efficiencyFullLoad": 0.891,
@@ -17,19 +19,19 @@
     "electricityFullLoad": 0.0388,
     "brandName": "ACME INC",
     "compatibleControls": "0007",
-    "FanAssistance": "fan",
+    "fanAssistance": "fan",
     "ratedPower": 24.0,
     "modelQualifier": "MODEL B",
     "electricityStandby": 0.0244,
     "storeType": 0,
     "boilerLocation": "internal",
     "finalYearOfManufacture": "current",
-    "VolumePrimary": 0,
+    "volumePrimary": 0,
     "efficiencyPartLoad": 0.991,
     "storageLossFactor1": 1.95,
     "modelName": "EXAMPLE BOILER",
     "powerBottomRange": 19.9,
-    "BurnerControl": "variable",
-    "VolumeSecondary": 0
+    "burnerControl": "variable",
+    "volumeSecondary": 0
   }
 }

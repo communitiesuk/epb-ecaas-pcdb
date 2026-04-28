@@ -9,7 +9,7 @@ use serde_json::Value as JsonValue;
 use smartstring::alias::String;
 use std::collections::HashMap;
 
-pub fn transform(
+pub async fn transform(
     json: &mut JsonValue,
     products: &HashMap<String, Product>,
     catalogue: &impl ProductCatalogue,
@@ -46,7 +46,9 @@ pub fn transform(
                         &products[product_reference.as_str()],
                         &product_reference,
                         catalogue,
-                    )?;
+                        energy_supplies,
+                    )
+                    .await?;
                 }
 
                 if heat_source_wet
@@ -112,8 +114,9 @@ mod tests {
         mock_energy_supplies()
     }
 
+    #[tokio::test]
     #[rstest]
-    fn test_transform_multiple_heat_pumps(
+    async fn test_transform_multiple_heat_pumps(
         heat_source_wet_pcdb_products: HashMap<String, Product>,
         dummy_catalogue: impl ProductCatalogue,
         energy_supplies: EnergySupplies,
@@ -124,7 +127,8 @@ mod tests {
             &heat_source_wet_pcdb_products,
             &dummy_catalogue,
             &energy_supplies,
-        );
+        )
+        .await;
         assert!(result.is_ok());
 
         let pointers = ["/HeatSourceWet/hp", "/HeatSourceWet/boiler"];

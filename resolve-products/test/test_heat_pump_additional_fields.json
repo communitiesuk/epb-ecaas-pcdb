@@ -1,0 +1,29 @@
+{
+  "hp_with_boiler": {
+    "boiler": {
+      "cost_schedule_hybrid": {
+        "cost_schedule_start_day": 0,
+        "cost_schedule_time_series_step": 1,
+        "cost_schedule_hp": {
+          "main": [
+            16,
+            20,
+            24,
+            {
+              "value": 16,
+              "repeat": 17517
+            }
+          ]
+        },
+        "cost_schedule_boiler": {
+          "main": [
+            {
+              "value": 4,
+              "repeat": 17517
+            }
+          ]
+        }
+      }
+    }
+  }
+}

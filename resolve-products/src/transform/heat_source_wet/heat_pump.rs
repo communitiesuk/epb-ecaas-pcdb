@@ -3,17 +3,18 @@ use crate::products::{
     HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product, ProductCatalogue,
     Technology,
 };
-use crate::transform::ResolveProductsResult;
+use crate::transform::{EnergySupplies, ResolveProductsResult};
 use crate::PRODUCT_REFERENCE_FIELD;
 use itertools::Itertools;
 use rust_decimal::prelude::ToPrimitive;
 use serde_json::{json, Map, Value as JsonValue};
 
-pub fn transform(
+pub async fn transform(
     heat_pump: &mut Map<String, JsonValue>,
     product: &Product,
     product_reference: &str,
-    _catalogue: &impl ProductCatalogue,
+    catalogue: &impl ProductCatalogue,
+    energy_supplies: &EnergySupplies,
 ) -> ResolveProductsResult<()> {
     let mut category_mismatches = vec![];
 
@@ -37,6 +38,7 @@ pub fn transform(
         power_standby,
         ref test_data,
         variable_temp_control,
+        ref boiler_product_id,
         ..
     } = product.technology
     {
@@ -81,11 +83,85 @@ pub fn transform(
             );
         }
         if !matches!(backup_control_type, HeatPumpBackupControlType::None) {
-            heat_pump.insert(
-                "power_max_backup".into(),
-                power_maximum_backup.map(|x| x.to_f64()).into(),
-            );
-            // TODO: add logic for inserting a boiler field
+            if power_maximum_backup.is_none() && boiler_product_id.is_none() {
+                return Err(ResolvePcdbProductsError::InvalidProduct(
+                    product_reference.to_string(),
+                    "either power_max_backup or boilerProductID must be provided when backup_control_type is not None in a heat pump",
+                ));
+            }
+            if let Some(power_maximum_backup) = power_maximum_backup {
+                heat_pump.insert(
+                    "power_max_backup".into(),
+                    power_maximum_backup.to_f64().into(),
+                );
+            }
+            if let Some(boiler_product_id) = boiler_product_id {
+                let boiler_product_ids = vec![boiler_product_id.clone()];
+                let boilers = catalogue
+                    .find_products_for_references(&boiler_product_ids)
+                    .await?;
+                if let Some(Technology::Boiler {
+                    rated_power,
+                    efficiency_full_load,
+                    efficiency_part_load,
+                    boiler_location,
+                    modulation_load,
+                    electricity_circ_pump,
+                    electricity_part_load,
+                    electricity_full_load,
+                    electricity_standby,
+                    fuel,
+                    fuel_aux,
+                    ..
+                }) = boilers.get(boiler_product_id).map(|p| &p.technology)
+                {
+                    let boiler = heat_pump
+                        .entry("boiler")
+                        .or_insert_with(Default::default)
+                        .as_object_mut()
+                        .ok_or_else(|| {
+                            ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck(
+                                "Boiler JSON node within a heat pump was expected to be an object",
+                            )
+                        })?;
+                    boiler.insert("rated_power".into(), rated_power.as_f64().into());
+                    boiler.insert(
+                        "efficiency_full_load".into(),
+                        efficiency_full_load.as_f64().into(),
+                    );
+                    boiler.insert(
+                        "efficiency_part_load".into(),
+                        efficiency_part_load.as_f64().into(),
+                    );
+                    boiler.insert("boiler_location".into(), json!(boiler_location));
+                    boiler.insert("modulation_load".into(), modulation_load.as_f64().into());
+                    boiler.insert(
+                        "electricity_circ_pump".into(),
+                        electricity_circ_pump.as_f64().into(),
+                    );
+                    boiler.insert(
+                        "electricity_part_load".into(),
+                        electricity_part_load.as_f64().into(),
+                    );
+                    boiler.insert(
+                        "electricity_full_load".into(),
+                        electricity_full_load.as_f64().into(),
+                    );
+                    boiler.insert(
+                        "electricity_standby".into(),
+                        electricity_standby.as_f64().into(),
+                    );
+
+                    let energy_supply = energy_supplies
+                        .get(fuel)
+                        .ok_or_else(|| ResolvePcdbProductsError::from(fuel))?;
+                    let energy_supply_aux = energy_supplies
+                        .get(fuel_aux)
+                        .ok_or_else(|| ResolvePcdbProductsError::from(fuel_aux))?;
+                    boiler.insert("EnergySupply".into(), json!(energy_supply.as_ref()));
+                    boiler.insert("EnergySupply_aux".into(), json!(energy_supply_aux.as_ref()));
+                }
+            }
         }
 
         heat_pump.insert("power_off".into(), power_off.to_f64().into());
@@ -163,7 +239,7 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::transform::catalogue::FixtureBackedProductCatalogue;
+    use crate::transform::catalogue::{mock_energy_supplies, FixtureBackedProductCatalogue};
     use itertools::Itertools;
     use rstest::{fixture, rstest};
     use serde_json::{json, Value};
@@ -171,16 +247,24 @@ mod tests {
 
     fn heat_pump_input(product_reference: &str) -> Value {
         json!({
-                "type": "HeatPump",
-                "EnergySupply": "mains elec",
-                "product_reference": product_reference,
-                "is_heat_network": false
+            "type": "HeatPump",
+            "EnergySupply": "mains elec",
+            "product_reference": product_reference,
+            "is_heat_network": false
         })
     }
 
     #[fixture]
     fn pcdb_heat_pumps() -> HashMap<String, Product> {
         serde_json::from_str(include_str!("../../../test/test_heat_pump_pcdb.json")).unwrap()
+    }
+
+    #[fixture]
+    fn additional_fields() -> HashMap<String, Value> {
+        serde_json::from_str(include_str!(
+            "../../../test/test_heat_pump_additional_fields.json"
+        ))
+        .unwrap()
     }
 
     #[fixture]
@@ -219,14 +303,15 @@ mod tests {
         }
     }
 
+    #[tokio::test]
     #[rstest]
     #[case("hp")]
     #[case::hp_without_modulating_control("hp_without_modulating_control")]
     #[case::hp_with_modulating_control_numeric("hp_with_modulating_control_numeric")]
     #[case::hp_with_backup_ctrl_type_substitute("hp_with_backup_ctrl_type_substitute")]
-    #[ignore = "todo: implement test case once boiler mapping has been added"]
+    // #[ignore = "todo: implement test case once boiler mapping has been added"]
     #[case::hp_with_boiler("hp_with_boiler")]
-    fn test_transform_heat_pump(
+    async fn test_transform_heat_pump(
         pcdb_heat_pumps: HashMap<String, Product>,
         #[case] product_reference: &str,
         catalogue: impl ProductCatalogue,
@@ -234,13 +319,22 @@ mod tests {
         let mut input = heat_pump_input(product_reference);
         let pcdb_data = pcdb_heat_pumps.get(product_reference).unwrap();
 
+        if let Some(additional_fields) = additional_fields().get(product_reference) {
+            input
+                .as_object_mut()
+                .unwrap()
+                .extend(additional_fields.as_object().unwrap().to_owned());
+        }
+
         let result = transform(
             &mut input.as_object_mut().unwrap(),
             pcdb_data,
             product_reference,
             &catalogue,
-        );
-        assert!(result.is_ok());
+            &mock_energy_supplies(),
+        )
+        .await;
+        assert!(result.is_ok(), "result: {result:?}");
 
         let expected_input = expected_heat_pump_input(product_reference);
         transformed_input_matches_expected(&mut input, expected_input);

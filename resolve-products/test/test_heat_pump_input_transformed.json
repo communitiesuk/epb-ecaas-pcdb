@@ -450,7 +450,7 @@
     "hp_with_boiler": {
       "type": "HeatPump",
       "EnergySupply": "mains elec",
-      "source_type": "HybridHeatPump",
+      "source_type": "OutsideAir",
       "sink_type": "Air",
       "backup_ctrl_type": "TopUp",
       "modulating_control": true,
