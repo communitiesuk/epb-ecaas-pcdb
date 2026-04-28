@@ -1,10 +1,10 @@
 mod boiler;
 mod heat_pump;
 
-use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, ProductCatalogue};
 use crate::transform::ResolveProductsResult;
+use crate::PRODUCT_REFERENCE_FIELD;
 use serde_json::Value as JsonValue;
 use smartstring::alias::String;
 use std::collections::HashMap;
@@ -12,7 +12,7 @@ use std::collections::HashMap;
 pub fn transform(
     json: &mut JsonValue,
     products: &HashMap<String, Product>,
-    _catalogue: &impl ProductCatalogue,
+    catalogue: &impl ProductCatalogue,
 ) -> ResolveProductsResult<()> {
     let heat_source_wets = match json.pointer_mut("/HeatSourceWet") {
         Some(node) if node.is_object() => node.as_object_mut().unwrap(),
@@ -44,6 +44,7 @@ pub fn transform(
                         heat_source_wet,
                         &products[product_reference.as_str()],
                         &product_reference,
+                        catalogue,
                     )?;
                 }
 
@@ -67,6 +68,7 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::transform::catalogue::FixtureBackedProductCatalogue;
     use rstest::{fixture, rstest};
     use serde_json::json;
 
@@ -98,38 +100,15 @@ mod tests {
         })
     }
 
-    struct FakeProductCatalogue {
-        product_json: JsonValue,
-    }
-
-    impl FakeProductCatalogue {
-        pub fn new(product_json: JsonValue) -> Self {
-            Self { product_json }
-        }
-    }
-
-    impl ProductCatalogue for FakeProductCatalogue {
-        async fn find_products_for_references(
-            &self,
-            product_references: &[String],
-        ) -> ResolveProductsResult<HashMap<String, Product>> {
-            if product_references.is_empty() {
-                return Ok(HashMap::new());
-            }
-            let product: Product = serde_json::from_value(self.product_json.clone()).unwrap();
-            Ok(HashMap::from([(product_references[0].clone(), product)]))
-        }
-    }
-
     #[fixture]
-    fn dummy_catalogue() -> FakeProductCatalogue {
-        FakeProductCatalogue::new(json!(""))
+    fn dummy_catalogue() -> impl ProductCatalogue {
+        FixtureBackedProductCatalogue::new()
     }
 
     #[rstest]
     fn test_transform_multiple_heat_pumps(
         heat_source_wet_pcdb_products: HashMap<String, Product>,
-        dummy_catalogue: FakeProductCatalogue,
+        dummy_catalogue: impl ProductCatalogue,
     ) {
         let mut heat_source_wet_input = heat_source_wet_input();
         let result = transform(

@@ -1,17 +1,19 @@
-use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{
-    HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product, Technology,
+    HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product, ProductCatalogue,
+    Technology,
 };
 use crate::transform::ResolveProductsResult;
+use crate::PRODUCT_REFERENCE_FIELD;
 use itertools::Itertools;
 use rust_decimal::prelude::ToPrimitive;
-use serde_json::{Map, Value as JsonValue, json};
+use serde_json::{json, Map, Value as JsonValue};
 
 pub fn transform(
     heat_pump: &mut Map<String, JsonValue>,
     product: &Product,
     product_reference: &str,
+    _catalogue: &impl ProductCatalogue,
 ) -> ResolveProductsResult<()> {
     let mut category_mismatches = vec![];
 
@@ -161,9 +163,10 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::transform::catalogue::FixtureBackedProductCatalogue;
     use itertools::Itertools;
     use rstest::{fixture, rstest};
-    use serde_json::{Value, json};
+    use serde_json::{json, Value};
     use std::collections::HashMap;
 
     fn heat_pump_input(product_reference: &str) -> Value {
@@ -178,6 +181,11 @@ mod tests {
     #[fixture]
     fn pcdb_heat_pumps() -> HashMap<String, Product> {
         serde_json::from_str(include_str!("../../../test/test_heat_pump_pcdb.json")).unwrap()
+    }
+
+    #[fixture]
+    fn catalogue() -> impl ProductCatalogue {
+        FixtureBackedProductCatalogue::new()
     }
 
     fn expected_heat_pump_input(product_reference: &str) -> Map<String, JsonValue> {
@@ -221,6 +229,7 @@ mod tests {
     fn test_transform_heat_pump(
         pcdb_heat_pumps: HashMap<String, Product>,
         #[case] product_reference: &str,
+        catalogue: impl ProductCatalogue,
     ) {
         let mut input = heat_pump_input(product_reference);
         let pcdb_data = pcdb_heat_pumps.get(product_reference).unwrap();
@@ -229,6 +238,7 @@ mod tests {
             &mut input.as_object_mut().unwrap(),
             pcdb_data,
             product_reference,
+            &catalogue,
         );
         assert!(result.is_ok());
 
