@@ -953,7 +953,7 @@
     "sinkType": "Air",
     "sourceType": "OutsideAir",
     "hybridBoilerType": "combi",
-    "boilerProductID": 123456,
+    "boilerProductID": "123456",
     "powerSourceCircPump": 0,
     "finalYearOfManufacture": "current",
     "powerHeatingCircPump": 0,

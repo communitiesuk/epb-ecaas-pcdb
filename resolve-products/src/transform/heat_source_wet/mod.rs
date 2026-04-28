@@ -3,7 +3,7 @@ mod heat_pump;
 
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
-use crate::products::Product;
+use crate::products::{Product, ProductCatalogue};
 use crate::transform::ResolveProductsResult;
 use serde_json::Value as JsonValue;
 use smartstring::alias::String;
@@ -12,6 +12,7 @@ use std::collections::HashMap;
 pub fn transform(
     json: &mut JsonValue,
     products: &HashMap<String, Product>,
+    _catalogue: &impl ProductCatalogue,
 ) -> ResolveProductsResult<()> {
     let heat_source_wets = match json.pointer_mut("/HeatSourceWet") {
         Some(node) if node.is_object() => node.as_object_mut().unwrap(),
@@ -97,10 +98,45 @@ mod tests {
         })
     }
 
+    struct FakeProductCatalogue {
+        product_json: JsonValue,
+    }
+
+    impl FakeProductCatalogue {
+        pub fn new(product_json: JsonValue) -> Self {
+            Self { product_json }
+        }
+    }
+
+    impl ProductCatalogue for FakeProductCatalogue {
+        async fn find_products_for_references(
+            &self,
+            product_references: &[String],
+        ) -> ResolveProductsResult<HashMap<String, Product>> {
+            if product_references.is_empty() {
+                return Ok(HashMap::new());
+            }
+            let product: Product = serde_json::from_value(self.product_json.clone()).unwrap();
+            Ok(HashMap::from([(product_references[0].clone(), product)]))
+        }
+    }
+
+    #[fixture]
+    fn dummy_catalogue() -> FakeProductCatalogue {
+        FakeProductCatalogue::new(json!(""))
+    }
+
     #[rstest]
-    fn test_transform_multiple_heat_pumps(heat_source_wet_pcdb_products: HashMap<String, Product>) {
+    fn test_transform_multiple_heat_pumps(
+        heat_source_wet_pcdb_products: HashMap<String, Product>,
+        dummy_catalogue: FakeProductCatalogue,
+    ) {
         let mut heat_source_wet_input = heat_source_wet_input();
-        let result = transform(&mut heat_source_wet_input, &heat_source_wet_pcdb_products);
+        let result = transform(
+            &mut heat_source_wet_input,
+            &heat_source_wet_pcdb_products,
+            &dummy_catalogue,
+        );
         assert!(result.is_ok());
 
         let pointers = ["/HeatSourceWet/hp", "/HeatSourceWet/boiler"];

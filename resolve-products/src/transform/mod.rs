@@ -4,7 +4,7 @@ mod space_heating;
 use crate::errors::ResolvePcdbProductsError;
 use crate::extract_product_references;
 use crate::products::{
-    find_products_for_references, DynamoDbBackedProductCatalogue, Product, Technology,
+    DynamoDbBackedProductCatalogue, Product, Technology, find_products_for_references,
 };
 use aws_sdk_dynamodb::client::Client as DynamoDbClient;
 use serde_json::value::Value as JsonValue;
@@ -29,7 +29,7 @@ pub async fn transform_json(
     }) {
         return Err(ResolvePcdbProductsError::UnsupportedProductAtMapping);
     }
-    heat_source_wet::transform(json, &products)?;
+    heat_source_wet::transform(json, &products, &product_catalogue)?;
     space_heating::transform(json, &products)?;
 
     Ok(())
