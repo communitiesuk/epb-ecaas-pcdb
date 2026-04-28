@@ -36,19 +36,18 @@ pub fn transform(
         elec_storage_heater.insert("EnergySupply".into(), fuel.to_string().into());
         elec_storage_heater.insert("fan_pwr".into(), fan_pwr.to_f64().into());
 
-        let mut dry_core_min_output: Vec<[f64; 2]> = Vec::new();
-        let mut dry_core_max_output: Vec<[f64; 2]> = Vec::new();
+        let (dry_core_min_output, dry_core_max_output): (Vec<[f64; 2]>, Vec<[f64; 2]>) = test_data
+            .iter()
+            .map(|datum| {
+                let test_point = datum.test_point.as_f64();
 
-        for datum in test_data {
-            dry_core_min_output.push([
-                datum.test_point.as_f64(),
-                datum.dry_core_min_output.as_f64(),
-            ]);
-            dry_core_max_output.push([
-                datum.test_point.as_f64(),
-                datum.dry_core_max_output.as_f64(),
-            ]);
-        }
+                (
+                    [test_point, datum.dry_core_min_output.as_f64()],
+                    [test_point, datum.dry_core_max_output.as_f64()],
+                )
+            })
+            .unzip();
+
         elec_storage_heater.insert("dry_core_min_output".into(), dry_core_min_output.into());
         elec_storage_heater.insert("dry_core_max_output".into(), dry_core_max_output.into());
 
