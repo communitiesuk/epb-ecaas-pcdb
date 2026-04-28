@@ -73,6 +73,7 @@ mod tests {
     use super::*;
     use itertools::Itertools;
     use serde_json::json;
+    use std::collections::HashMap;
 
     #[test]
     fn test_transform_esh() {
@@ -104,5 +105,32 @@ mod tests {
         for key in expected_keys {
             assert_eq!(input[key], expected[key], "{:?}", key);
         }
+    }
+
+    #[test]
+    fn test_transform_esh_errors_when_product_type_mismatch() {
+        let product_reference = "hp";
+        let mut input = json!({
+            "type": "ElecStorageHeater",
+            "n_units": 1,
+            "Zone": "ThermalZone",
+            "product_reference": product_reference,
+        });
+        let pcdb_hps: HashMap<String, Product> =
+            serde_json::from_str(include_str!("../../../test/test_heat_pump_pcdb.json")).unwrap();
+
+        let result = transform(
+            input.as_object_mut().unwrap(),
+            pcdb_hps.get(product_reference).unwrap(),
+            product_reference,
+        );
+
+        assert!(result.is_err());
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("Product reference 'hp' does not relate to an electric storage heater.")
+        );
     }
 }
