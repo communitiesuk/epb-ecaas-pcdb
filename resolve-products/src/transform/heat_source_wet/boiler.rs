@@ -98,8 +98,7 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::transform::catalogue::mock_energy_supplies;
-    use itertools::Itertools;
+    use crate::transform::catalogue::{mock_energy_supplies, transformed_input_matches_expected};
     use rstest::{fixture, rstest};
     use serde_json::{json, Value};
     use std::collections::HashMap;
@@ -139,23 +138,6 @@ mod tests {
             .as_object()
             .unwrap()
             .clone()
-    }
-
-    fn transformed_input_matches_expected(
-        transformed_input: &mut Value,
-        expected_input: Map<String, Value>,
-    ) {
-        let mut actual_keys = transformed_input.as_object().unwrap().keys().collect_vec();
-        actual_keys.sort();
-
-        let mut expected_keys = expected_input.keys().collect_vec();
-        expected_keys.sort();
-
-        assert_eq!(actual_keys, expected_keys);
-
-        for key in expected_keys {
-            assert_eq!(transformed_input[key], expected_input[key], "{:?}", key);
-        }
     }
 
     #[rstest]

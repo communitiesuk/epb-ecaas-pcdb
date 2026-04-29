@@ -73,6 +73,8 @@ mod catalogue {
     use crate::errors::ResolvePcdbProductsError;
     use crate::products::{Product, ProductCatalogue};
     use crate::transform::{extract_energy_supplies, EnergySupplies, ResolveProductsResult};
+    use itertools::Itertools;
+    use serde_json::{Map, Value};
     use std::collections::HashMap;
 
     pub(crate) struct FixtureBackedProductCatalogue {
@@ -122,5 +124,22 @@ mod catalogue {
             serde_json::from_str(include_str!("../../test/request_with_energy_supplies.json"))
                 .unwrap();
         extract_energy_supplies(&mock_energy_supplies_json).unwrap()
+    }
+
+    pub(crate) fn transformed_input_matches_expected(
+        transformed_input: &mut Value,
+        expected_input: Map<String, Value>,
+    ) {
+        let mut actual_keys = transformed_input.as_object().unwrap().keys().collect_vec();
+        actual_keys.sort();
+
+        let mut expected_keys = expected_input.keys().collect_vec();
+        expected_keys.sort();
+
+        assert_eq!(actual_keys, expected_keys);
+
+        for key in expected_keys {
+            assert_eq!(transformed_input[key], expected_input[key], "{:?}", key);
+        }
     }
 }
