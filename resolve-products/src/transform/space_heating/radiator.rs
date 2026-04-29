@@ -50,9 +50,9 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::transform::catalogue::transformed_input_matches_expected;
     use crate::transform::space_heating::tests::SPACE_HEATING_PCDB_PRODUCTS;
-    use itertools::Itertools;
-    use serde_json::json;
+    use serde_json::{Value, from_str, json};
     use std::collections::HashMap;
 
     #[test]
@@ -65,7 +65,7 @@ mod tests {
             "length": 7,
         });
 
-        let expected: JsonValue = serde_json::from_str(include_str!(
+        let expected: Map<String, Value> = from_str(include_str!(
             "../../../test/test_radiator_input_transformed.json"
         ))
         .unwrap();
@@ -78,16 +78,7 @@ mod tests {
 
         assert!(result.is_ok());
 
-        let mut actual_keys = input.as_object().unwrap().keys().collect_vec();
-        actual_keys.sort();
-        let mut expected_keys = expected.as_object().unwrap().keys().collect_vec();
-        expected_keys.sort();
-
-        assert_eq!(actual_keys, expected_keys);
-
-        for key in expected_keys {
-            assert_eq!(input[key], expected[key], "{:?}", key);
-        }
+        transformed_input_matches_expected(&mut input, expected);
     }
 
     #[test]
@@ -100,7 +91,7 @@ mod tests {
             "length": 7,
         });
         let pcdb_hps: HashMap<String, Product> =
-            serde_json::from_str(include_str!("../../../test/test_heat_pump_pcdb.json")).unwrap();
+            from_str(include_str!("../../../test/test_heat_pump_pcdb.json")).unwrap();
 
         let result = transform(
             input.as_object_mut().unwrap(),
