@@ -6,67 +6,73 @@ use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, ProductCatalogue};
 use crate::transform::{EnergySupplies, ResolveProductsResult};
 use crate::PRODUCT_REFERENCE_FIELD;
-use serde_json::Value as JsonValue;
-use smartstring::alias::String;
+use serde_json::{Map, Value as JsonValue};
+use smartstring::alias::String as SmartString;
 use std::collections::HashMap;
+
+fn product_reference_from_json_object(
+    heat_source_wet: &Map<String, JsonValue>,
+) -> Result<SmartString, ResolvePcdbProductsError> {
+    Ok(SmartString::from(
+        heat_source_wet[PRODUCT_REFERENCE_FIELD]
+            .as_str()
+            .ok_or_else(|| {
+                ResolvePcdbProductsError::InvalidProductCategoryReference(
+                    heat_source_wet[PRODUCT_REFERENCE_FIELD].clone(),
+                )
+            })?,
+    ))
+}
 
 pub async fn transform(
     json: &mut JsonValue,
-    products: &HashMap<String, Product>,
+    products: &HashMap<SmartString, Product>,
     catalogue: &impl ProductCatalogue,
     energy_supplies: &EnergySupplies,
 ) -> ResolveProductsResult<()> {
-    let heat_source_wets = match json.pointer_mut("/HeatSourceWet") {
+    let heat_source_wet = match json.pointer_mut("/HeatSourceWet") {
         Some(node) if node.is_object() => node.as_object_mut().unwrap(),
         _ => return Ok(()),
     };
-    for value in heat_source_wets.values_mut() {
-        if let JsonValue::Object(heat_source_wet) = value {
-            let product_reference = if heat_source_wet.contains_key(PRODUCT_REFERENCE_FIELD) {
-                std::string::String::from(
-                    heat_source_wet[PRODUCT_REFERENCE_FIELD]
-                        .as_str()
-                        .ok_or_else(|| {
-                            ResolvePcdbProductsError::InvalidProductCategoryReference(
-                                heat_source_wet[PRODUCT_REFERENCE_FIELD].clone(),
+
+    for heat_source in heat_source_wet.values_mut() {
+        if let JsonValue::Object(heat_source_object) = heat_source {
+            if let Some(heat_source_type) = heat_source_object.get("type").and_then(|v| v.as_str())
+            {
+                match heat_source_type {
+                    "HeatPump" => {
+                        if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) {
+                            let product_reference =
+                                product_reference_from_json_object(heat_source_object)?;
+
+                            heat_pump::transform(
+                                heat_source_object,
+                                &products[&product_reference],
+                                &product_reference,
+                                catalogue,
+                                energy_supplies,
                             )
-                        })?,
-                )
-                .into()
-            } else {
-                None
-            };
+                            .await?
+                        }
+                    }
+                    "Boiler" => {
+                        if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) {
+                            let product_reference =
+                                product_reference_from_json_object(heat_source_object)?;
 
-            if let Some(product_reference) = product_reference {
-                if heat_source_wet
-                    .get("type")
-                    .is_some_and(|v| matches!(v, JsonValue::String(s) if s == "HeatPump"))
-                {
-                    heat_pump::transform(
-                        heat_source_wet,
-                        &products[product_reference.as_str()],
-                        &product_reference,
-                        catalogue,
-                        energy_supplies,
-                    )
-                    .await?;
-                }
-
-                if heat_source_wet
-                    .get("type")
-                    .is_some_and(|v| matches!(v, JsonValue::String(s) if s == "Boiler"))
-                {
-                    boiler::transform(
-                        heat_source_wet,
-                        &products[product_reference.as_str()],
-                        &product_reference,
-                        energy_supplies,
-                    )?;
+                            boiler::transform(
+                                heat_source_object,
+                                &products[&product_reference],
+                                &product_reference,
+                                energy_supplies,
+                            )?
+                        }
+                    }
+                    _ => {}
                 }
             }
         }
     }
-
     Ok(())
 }
 
@@ -78,10 +84,10 @@ mod tests {
     use serde_json::json;
 
     #[fixture]
-    fn heat_source_wet_pcdb_products() -> HashMap<String, Product> {
-        let hps: HashMap<String, Product> =
+    fn heat_source_wet_pcdb_products() -> HashMap<SmartString, Product> {
+        let hps: HashMap<SmartString, Product> =
             serde_json::from_str(include_str!("../../../test/test_heat_pump_pcdb.json")).unwrap();
-        let boilers: HashMap<String, Product> =
+        let boilers: HashMap<SmartString, Product> =
             serde_json::from_str(include_str!("../../../test/test_boilers_pcdb.json")).unwrap();
         hps.into_iter().chain(boilers).collect()
     }
