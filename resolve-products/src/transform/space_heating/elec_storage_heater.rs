@@ -77,11 +77,10 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::transform::catalogue::mock_energy_supplies;
+    use crate::transform::catalogue::{mock_energy_supplies, transformed_input_matches_expected};
     use crate::transform::space_heating::tests::SPACE_HEATING_PCDB_PRODUCTS;
-    use itertools::Itertools;
     use rstest::*;
-    use serde_json::{from_str, json};
+    use serde_json::{Value, from_str, json};
     use smartstring::alias::String;
     use std::collections::HashMap;
 
@@ -103,7 +102,7 @@ mod tests {
     fn test_transform_esh(energy_supplies: EnergySupplies) {
         let product_reference = "444";
         let mut input = input(product_reference);
-        let expected: JsonValue =
+        let expected: Map<std::string::String, Value> =
             from_str(include_str!("../../../test/esh_input_transformed.json")).unwrap();
 
         let result = transform(
@@ -115,16 +114,7 @@ mod tests {
 
         assert!(result.is_ok());
 
-        let mut actual_keys = input.as_object().unwrap().keys().collect_vec();
-        actual_keys.sort();
-        let mut expected_keys = expected.as_object().unwrap().keys().collect_vec();
-        expected_keys.sort();
-
-        assert_eq!(actual_keys, expected_keys);
-
-        for key in expected_keys {
-            assert_eq!(input[key], expected[key], "{:?}", key);
-        }
+        transformed_input_matches_expected(&mut input, expected);
     }
 
     #[rstest]
