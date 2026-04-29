@@ -57,6 +57,10 @@ fn extract_energy_supplies(json: &JsonValue) -> Result<EnergySupplies, ()> {
     for (energy_supply_name, energy_supply) in energy_supplies_node {
         let fuel_type = energy_supply.get("fuel").ok_or(())?;
         let fuel_type: FuelType = serde_json::from_value(fuel_type.clone()).map_err(|_| ())?;
+        // if it's electricity, skip as this always maps to "mains elec" as per the FHS schema
+        if fuel_type == FuelType::Electricity {
+            continue;
+        }
 
         energy_supplies.insert(fuel_type, Arc::from(energy_supply_name.as_str()));
     }
