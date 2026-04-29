@@ -1,4 +1,5 @@
 mod elec_storage_heater;
+mod radiator;
 
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;

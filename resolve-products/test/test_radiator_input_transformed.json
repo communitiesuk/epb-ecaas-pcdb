@@ -1,0 +1,8 @@
+{
+  "wet_emitter_type": "radiator",
+  "c_per_m": 0.08,
+  "n": 1.2,
+  "frac_convective": 0.4,
+  "thermal_mass_per_m": 0.028,
+  "length": 7
+}

@@ -1,0 +1,15 @@
+{
+  "technologyType": "ConvectorRadiator",
+  "waterContents": 15.7344,
+  "c": 0.08,
+  "wetEmitterType": "radiator",
+  "dataType": "illustrative_aggregated",
+  "thermalMassPerM": 0.028,
+  "thermalOutputDelta50k": 3097,
+  "weight": 79.8415,
+  "fracConvective": 0.4,
+  "id": "60",
+  "type": "T33",
+  "n": 1.2,
+  "height": 900
+}

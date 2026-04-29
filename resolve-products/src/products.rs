@@ -163,7 +163,8 @@ pub(crate) enum Technology {
         #[serde(rename = "testData")]
         test_data: Vec<ElectricStorageHeaterTestDatum>,
     },
-    #[serde(rename = "ConvectorRadiator")]
+    #[serde(rename = "ConvectorRadiator", rename_all = "camelCase")]
+    // This is for radiator_type "standard"
     Radiator {
         /// Exponent used in heat output calculation formula
         n: Decimal,
