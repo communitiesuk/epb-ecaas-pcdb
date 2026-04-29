@@ -1,7 +1,7 @@
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{
-    HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product, ProductCatalogue,
-    Technology,
+    find_product_for_reference, HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product,
+    ProductCatalogue, Technology,
 };
 use crate::transform::{EnergySupplies, ResolveProductsResult};
 use crate::PRODUCT_REFERENCE_FIELD;
@@ -96,11 +96,9 @@ pub async fn transform(
                 );
             }
             if let Some(boiler_product_id) = boiler_product_id {
-                let boiler_product_ids = vec![boiler_product_id.clone()];
-                let boilers = catalogue
-                    .find_products_for_references(&boiler_product_ids)
-                    .await?;
-                if let Some(Technology::Boiler {
+                let boiler_product =
+                    find_product_for_reference(&boiler_product_id, catalogue).await?;
+                if let Technology::Boiler {
                     rated_power,
                     efficiency_full_load,
                     efficiency_part_load,
@@ -113,7 +111,7 @@ pub async fn transform(
                     fuel,
                     fuel_aux,
                     ..
-                }) = boilers.get(boiler_product_id).map(|p| &p.technology)
+                } = boiler_product.technology
                 {
                     let boiler = heat_pump
                         .entry("boiler")
@@ -153,11 +151,11 @@ pub async fn transform(
                     );
 
                     let energy_supply = energy_supplies
-                        .get(fuel)
-                        .ok_or_else(|| ResolvePcdbProductsError::from(fuel))?;
+                        .get(&fuel)
+                        .ok_or_else(|| ResolvePcdbProductsError::from(&fuel))?;
                     let energy_supply_aux = energy_supplies
-                        .get(fuel_aux)
-                        .ok_or_else(|| ResolvePcdbProductsError::from(fuel_aux))?;
+                        .get(&fuel_aux)
+                        .ok_or_else(|| ResolvePcdbProductsError::from(&fuel_aux))?;
                     boiler.insert("EnergySupply".into(), json!(energy_supply.as_ref()));
                     boiler.insert("EnergySupply_aux".into(), json!(energy_supply_aux.as_ref()));
                 }

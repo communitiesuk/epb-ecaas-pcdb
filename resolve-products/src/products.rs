@@ -23,6 +23,19 @@ pub(crate) async fn find_products_for_references(
         .await
 }
 
+pub(crate) async fn find_product_for_reference(
+    product_reference: &str,
+    catalogue: &impl ProductCatalogue,
+) -> ResolveProductsResult<Product> {
+    let product_references = [String::from(product_reference)];
+    let mut products = catalogue
+        .find_products_for_references(&product_references)
+        .await?;
+    Ok(products
+        .remove(product_reference)
+        .expect("Fetched product reference expected to be present in result"))
+}
+
 #[derive(Debug, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct Product {
