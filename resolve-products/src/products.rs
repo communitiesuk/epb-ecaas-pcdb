@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
-use crate::ResolveProductsResult;
 use crate::errors::ResolvePcdbProductsError;
-use aws_sdk_dynamodb::Client as DynamoDbClient;
+use crate::ResolveProductsResult;
 use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
+use aws_sdk_dynamodb::Client as DynamoDbClient;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Deserializer};
 use serde_dynamo::from_item;
@@ -332,7 +332,6 @@ pub(crate) enum FuelType {
     LpgBottled,
     #[serde(rename = "LPG_condition_11F")]
     LpgCondition11F,
-    HeatingOil,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize_enum_str, Serialize_enum_str)]
