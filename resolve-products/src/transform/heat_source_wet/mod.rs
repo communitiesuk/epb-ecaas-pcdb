@@ -68,6 +68,19 @@ pub async fn transform(
                             )?
                         }
                     }
+                    "HeatBatteryPCM" => {
+                        if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) {
+                            let product_reference =
+                                product_reference_from_json_object(heat_source_object)?;
+
+                            heat_battery_pcm::transform(
+                                heat_source_object,
+                                &products[&product_reference],
+                                &product_reference,
+                                energy_supplies,
+                            )?
+                        }
+                    }
                     _ => {}
                 }
             }
@@ -89,7 +102,14 @@ mod tests {
             serde_json::from_str(include_str!("../../../test/test_heat_pump_pcdb.json")).unwrap();
         let boilers: HashMap<SmartString, Product> =
             serde_json::from_str(include_str!("../../../test/test_boilers_pcdb.json")).unwrap();
-        hps.into_iter().chain(boilers).collect()
+        let pcm_heat_batteries: HashMap<SmartString, Product> = serde_json::from_str(include_str!(
+            "../../../test/test_pcm_heat_batteries_pcdb.json"
+        ))
+        .unwrap();
+        hps.into_iter()
+            .chain(boilers)
+            .chain(pcm_heat_batteries)
+            .collect()
     }
 
     fn heat_source_wet_input() -> JsonValue {
@@ -105,6 +125,13 @@ mod tests {
                     "type": "Boiler",
                     "EnergySupply": "mains gas",
                     "product_reference": "boiler",
+                    "is_heat_network": false
+                },
+                "pcm": {
+                    "type": "HeatBatteryPCM",
+                    "battery_type": "pcm",
+                    "product_reference": "pcm",
+                    "number_of_units": 2,
                     "is_heat_network": false
                 }
             }
@@ -123,7 +150,7 @@ mod tests {
 
     #[tokio::test]
     #[rstest]
-    async fn test_transform_multiple_heat_pumps(
+    async fn test_transform_multiple_heat_source_wet_products(
         heat_source_wet_pcdb_products: HashMap<SmartString, Product>,
         dummy_catalogue: impl ProductCatalogue,
         energy_supplies: EnergySupplies,
@@ -138,9 +165,19 @@ mod tests {
         .await;
         assert!(result.is_ok());
 
-        let pointers = ["/HeatSourceWet/hp", "/HeatSourceWet/boiler"];
+        let pointers = [
+            "/HeatSourceWet/hp",
+            "/HeatSourceWet/boiler",
+            "/HeatSourceWet/pcm",
+        ];
         for pointer in pointers {
             assert!(heat_source_wet_input.pointer(pointer).is_some());
+            assert!(
+                heat_source_wet_input
+                    .pointer(&format!("{pointer}/product_reference"))
+                    .is_none(),
+                "heat_source_wet_input still has a product_references at pointer {pointer}"
+            );
         }
     }
 }
