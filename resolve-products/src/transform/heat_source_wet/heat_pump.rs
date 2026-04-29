@@ -291,7 +291,6 @@ mod tests {
     #[case::hp_without_modulating_control("hp_without_modulating_control")]
     #[case::hp_with_modulating_control_numeric("hp_with_modulating_control_numeric")]
     #[case::hp_with_backup_ctrl_type_substitute("hp_with_backup_ctrl_type_substitute")]
-    // #[ignore = "todo: implement test case once boiler mapping has been added"]
     #[case::hp_with_boiler("hp_with_boiler")]
     async fn test_transform_heat_pump(
         pcdb_heat_pumps: HashMap<String, Product>,
