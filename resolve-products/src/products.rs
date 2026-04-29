@@ -112,6 +112,7 @@ pub(crate) enum Technology {
     },
     #[serde(rename = "HeatBatteryPCM", rename_all = "camelCase")]
     HeatBatteryPcm {
+        fuel: Option<FuelType>,
         #[serde(rename = "A")]
         a: Decimal,
         #[serde(rename = "B")]
