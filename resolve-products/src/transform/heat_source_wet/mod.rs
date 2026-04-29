@@ -124,7 +124,7 @@ mod tests {
     #[tokio::test]
     #[rstest]
     async fn test_transform_multiple_heat_pumps(
-        heat_source_wet_pcdb_products: HashMap<String, Product>,
+        heat_source_wet_pcdb_products: HashMap<SmartString, Product>,
         dummy_catalogue: impl ProductCatalogue,
         energy_supplies: EnergySupplies,
     ) {
