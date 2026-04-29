@@ -27,8 +27,8 @@ pub(crate) async fn find_products_for_references(
 #[serde(rename_all = "camelCase")]
 pub(crate) struct Product {
     id: String,
-    brand_name: String,
-    model_name: String,
+    brand_name: Option<String>,
+    model_name: Option<String>,
     model_qualifier: Option<String>,
     #[serde(flatten)]
     pub(crate) technology: Technology,
