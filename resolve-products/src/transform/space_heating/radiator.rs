@@ -21,7 +21,6 @@ pub fn _transform(
         ..
     } = &product.technology
     {
-        radiator.insert("wet_emitter_type".into(), "radiator".into());
         radiator.insert("n".into(), n.to_f64().into());
         radiator.insert("frac_convective".into(), frac_convective.to_f64().into());
         radiator.insert("c_per_m".into(), c.to_f64().into());
@@ -59,6 +58,7 @@ mod tests {
     fn test_transform_radiator() {
         let product_reference = "60";
         let mut input = json!({
+            "wet_emitter_type": "radiator",
             "radiator_type": "standard",
             "product_reference": product_reference,
             "length": 7,
@@ -94,6 +94,7 @@ mod tests {
     fn test_transform_radiator_errors_when_product_type_mismatch() {
         let product_reference = "hp";
         let mut input = json!({
+            "wet_emitter_type": "radiator",
             "radiator_type": "standard",
             "product_reference": product_reference,
             "length": 7,
