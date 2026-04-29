@@ -3,7 +3,7 @@ mod heat_pump;
 
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, ProductCatalogue};
-use crate::transform::ResolveProductsResult;
+use crate::transform::{EnergySupplies, ResolveProductsResult};
 use crate::PRODUCT_REFERENCE_FIELD;
 use serde_json::Value as JsonValue;
 use smartstring::alias::String;
@@ -13,6 +13,7 @@ pub fn transform(
     json: &mut JsonValue,
     products: &HashMap<String, Product>,
     catalogue: &impl ProductCatalogue,
+    energy_supplies: &EnergySupplies,
 ) -> ResolveProductsResult<()> {
     let heat_source_wets = match json.pointer_mut("/HeatSourceWet") {
         Some(node) if node.is_object() => node.as_object_mut().unwrap(),
@@ -56,6 +57,7 @@ pub fn transform(
                         heat_source_wet,
                         &products[product_reference.as_str()],
                         &product_reference,
+                        energy_supplies,
                     )?;
                 }
             }
@@ -68,7 +70,7 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::transform::catalogue::FixtureBackedProductCatalogue;
+    use crate::transform::catalogue::{mock_energy_supplies, FixtureBackedProductCatalogue};
     use rstest::{fixture, rstest};
     use serde_json::json;
 
@@ -105,16 +107,23 @@ mod tests {
         FixtureBackedProductCatalogue::new()
     }
 
+    #[fixture]
+    fn energy_supplies() -> EnergySupplies {
+        mock_energy_supplies()
+    }
+
     #[rstest]
     fn test_transform_multiple_heat_pumps(
         heat_source_wet_pcdb_products: HashMap<String, Product>,
         dummy_catalogue: impl ProductCatalogue,
+        energy_supplies: EnergySupplies,
     ) {
         let mut heat_source_wet_input = heat_source_wet_input();
         let result = transform(
             &mut heat_source_wet_input,
             &heat_source_wet_pcdb_products,
             &dummy_catalogue,
+            &energy_supplies,
         );
         assert!(result.is_ok());
 

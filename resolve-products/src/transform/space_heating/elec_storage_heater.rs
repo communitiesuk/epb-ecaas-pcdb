@@ -1,15 +1,16 @@
-use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, Technology};
-use crate::transform::ResolveProductsResult;
+use crate::transform::{EnergySupplies, ResolveProductsResult};
+use crate::PRODUCT_REFERENCE_FIELD;
 use rust_decimal::prelude::ToPrimitive;
-use serde_json::{Map, Value as JsonValue};
+use serde_json::{json, Map, Value as JsonValue};
 use std::vec;
 
 pub fn transform(
     elec_storage_heater: &mut Map<String, JsonValue>,
     product: &Product,
     product_reference: &str,
+    energy_supplies: &EnergySupplies,
 ) -> ResolveProductsResult<()> {
     let mut category_mismatches = vec![];
 
@@ -33,7 +34,12 @@ pub fn transform(
         elec_storage_heater.insert("storage_capacity".into(), storage_capacity.to_f64().into());
         elec_storage_heater.insert("air_flow_type".into(), air_flow_type.to_string().into());
         elec_storage_heater.insert("frac_convective".into(), frac_convective.to_f64().into());
-        elec_storage_heater.insert("EnergySupply".into(), fuel.to_string().into());
+
+        let energy_supply = energy_supplies
+            .get(fuel)
+            .ok_or_else(|| ResolvePcdbProductsError::from(fuel))?;
+        elec_storage_heater.insert("EnergySupply".into(), json!(energy_supply.as_ref()));
+
         elec_storage_heater.insert("fan_pwr".into(), fan_pwr.to_f64().into());
 
         let (dry_core_min_output, dry_core_max_output): (Vec<[f64; 2]>, Vec<[f64; 2]>) = test_data
@@ -71,12 +77,14 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::transform::catalogue::mock_energy_supplies;
     use itertools::Itertools;
+    use rstest::*;
     use serde_json::json;
     use std::collections::HashMap;
 
-    #[test]
-    fn test_transform_esh() {
+    #[rstest]
+    fn test_transform_esh(energy_supplies: EnergySupplies) {
         let product_reference = "444";
         let mut input = json!({
             "type": "ElecStorageHeater",
@@ -91,7 +99,12 @@ mod tests {
         ))
         .unwrap();
 
-        let result = transform(input.as_object_mut().unwrap(), &pcdb_esh, product_reference);
+        let result = transform(
+            input.as_object_mut().unwrap(),
+            &pcdb_esh,
+            product_reference,
+            &energy_supplies,
+        );
 
         assert!(result.is_ok());
 
@@ -107,8 +120,13 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_transform_esh_errors_when_product_type_mismatch() {
+    #[fixture]
+    fn energy_supplies() -> EnergySupplies {
+        mock_energy_supplies()
+    }
+
+    #[rstest]
+    fn test_transform_esh_errors_when_product_type_mismatch(energy_supplies: EnergySupplies) {
         let product_reference = "hp";
         let mut input = json!({
             "type": "ElecStorageHeater",
@@ -123,6 +141,7 @@ mod tests {
             input.as_object_mut().unwrap(),
             pcdb_hps.get(product_reference).unwrap(),
             product_reference,
+            &energy_supplies,
         );
 
         assert!(result.is_err());

@@ -4,12 +4,13 @@ mod space_heating;
 use crate::errors::ResolvePcdbProductsError;
 use crate::extract_product_references;
 use crate::products::{
-    find_products_for_references, DynamoDbBackedProductCatalogue, Product, Technology,
+    find_products_for_references, DynamoDbBackedProductCatalogue, FuelType, Product, Technology,
 };
 use aws_sdk_dynamodb::client::Client as DynamoDbClient;
 use serde_json::value::Value as JsonValue;
 use smartstring::alias::String;
 use std::collections::HashMap;
+use std::sync::Arc;
 
 pub async fn transform_json(
     json: &mut JsonValue,
@@ -29,19 +30,45 @@ pub async fn transform_json(
     }) {
         return Err(ResolvePcdbProductsError::UnsupportedProductAtMapping);
     }
-    heat_source_wet::transform(json, &products, &product_catalogue)?;
-    space_heating::transform(json, &products)?;
+
+    let energy_supplies = extract_energy_supplies(json).map_err(|_| {
+        ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck(
+            "Energy Supply node was not in expected form in request payload",
+        )
+    })?;
+
+    heat_source_wet::transform(json, &products, &product_catalogue, &energy_supplies)?;
+    space_heating::transform(json, &products, &energy_supplies)?;
 
     Ok(())
 }
 
 pub type ResolveProductsResult<T> = Result<T, ResolvePcdbProductsError>;
 
+pub(crate) type EnergySupplies = HashMap<FuelType, Arc<str>>;
+
+fn extract_energy_supplies(json: &JsonValue) -> Result<EnergySupplies, ()> {
+    let energy_supplies_node = json
+        .get("EnergySupply")
+        .and_then(JsonValue::as_object)
+        .ok_or(())?;
+    let mut energy_supplies = HashMap::from([(FuelType::Electricity, Arc::from("mains elec"))]);
+
+    for (energy_supply_name, energy_supply) in energy_supplies_node {
+        let fuel_type = energy_supply.get("fuel").ok_or(())?;
+        let fuel_type: FuelType = serde_json::from_value(fuel_type.clone()).map_err(|_| ())?;
+
+        energy_supplies.insert(fuel_type, Arc::from(energy_supply_name.as_str()));
+    }
+
+    Ok(energy_supplies)
+}
+
 #[cfg(test)]
 mod catalogue {
     use crate::errors::ResolvePcdbProductsError;
     use crate::products::{Product, ProductCatalogue};
-    use crate::transform::ResolveProductsResult;
+    use crate::transform::{extract_energy_supplies, EnergySupplies, ResolveProductsResult};
     use std::collections::HashMap;
 
     pub(crate) struct FixtureBackedProductCatalogue {
@@ -81,5 +108,12 @@ mod catalogue {
                 })
                 .collect()
         }
+    }
+
+    pub(crate) fn mock_energy_supplies() -> EnergySupplies {
+        let mock_energy_supplies_json =
+            serde_json::from_str(include_str!("../../test/request_with_energy_supplies.json"))
+                .unwrap();
+        extract_energy_supplies(&mock_energy_supplies_json).unwrap()
     }
 }

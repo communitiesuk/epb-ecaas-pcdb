@@ -1,10 +1,10 @@
 mod elec_storage_heater;
 mod radiator;
 
-use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::Product;
-use crate::transform::ResolveProductsResult;
+use crate::transform::{EnergySupplies, ResolveProductsResult};
+use crate::PRODUCT_REFERENCE_FIELD;
 use serde_json::Value as JsonValue;
 use smartstring::alias::String;
 use std::collections::HashMap;
@@ -12,6 +12,7 @@ use std::collections::HashMap;
 pub fn transform(
     json: &mut JsonValue,
     products: &HashMap<String, Product>,
+    energy_supplies: &EnergySupplies,
 ) -> ResolveProductsResult<()> {
     let space_heat_systems = match json.pointer_mut("/SpaceHeatSystem") {
         Some(node) if node.is_object() => node.as_object_mut().unwrap(),
@@ -40,6 +41,7 @@ pub fn transform(
                         system,
                         &products[product_reference.as_str()],
                         &product_reference,
+                        energy_supplies,
                     )?;
                 }
             }
@@ -52,11 +54,18 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::transform::catalogue::mock_energy_supplies;
     use crate::transform::space_heating::transform;
+    use rstest::*;
     use serde_json::json;
 
-    #[test]
-    fn test_transform_space_heating_with_elec_storage_heaters() {
+    #[fixture]
+    fn energy_supplies() -> EnergySupplies {
+        mock_energy_supplies()
+    }
+
+    #[rstest]
+    fn test_transform_space_heating_with_elec_storage_heaters(energy_supplies: EnergySupplies) {
         let product_ref = "444";
         let mut input = json!({
             "SpaceHeatSystem": {
@@ -88,7 +97,7 @@ mod tests {
             }
         });
 
-        let result = transform(&mut input, &products);
+        let result = transform(&mut input, &products, &energy_supplies);
 
         assert!(result.is_ok());
 

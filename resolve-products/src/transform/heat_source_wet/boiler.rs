@@ -1,14 +1,15 @@
-use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{BoilerLocation, Product, Technology};
-use crate::transform::ResolveProductsResult;
+use crate::transform::{EnergySupplies, ResolveProductsResult};
+use crate::PRODUCT_REFERENCE_FIELD;
 use rust_decimal::prelude::ToPrimitive;
-use serde_json::{Map, Value as JsonValue};
+use serde_json::{json, Map, Value as JsonValue};
 
 pub fn transform(
     boiler: &mut Map<String, JsonValue>,
     product: &Product,
     product_reference: &str,
+    energy_supplies: &EnergySupplies,
 ) -> ResolveProductsResult<()> {
     let mut category_mismatches = vec![];
 
@@ -27,8 +28,15 @@ pub fn transform(
         ..
     } = &product.technology
     {
-        boiler.insert("EnergySupply".into(), fuel.to_string().into());
-        boiler.insert("EnergySupply_aux".into(), fuel_aux.to_string().into());
+        let energy_supply = energy_supplies
+            .get(fuel)
+            .ok_or_else(|| ResolvePcdbProductsError::from(fuel))?;
+        let energy_supply_aux = energy_supplies
+            .get(fuel_aux)
+            .ok_or_else(|| ResolvePcdbProductsError::from(fuel_aux))?;
+        boiler.insert("EnergySupply".into(), json!(energy_supply.as_ref()));
+        boiler.insert("EnergySupply_aux".into(), json!(energy_supply_aux.as_ref()));
+
         boiler.insert("rated_power".into(), rated_power.to_f64().into());
         boiler.insert(
             "efficiency_full_load".into(),
@@ -90,9 +98,10 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::transform::catalogue::mock_energy_supplies;
     use itertools::Itertools;
     use rstest::{fixture, rstest};
-    use serde_json::{Value, json};
+    use serde_json::{json, Value};
     use std::collections::HashMap;
 
     fn boiler_input(product_reference: &str, specified_location: Option<&str>) -> Value {
@@ -111,6 +120,11 @@ mod tests {
     #[fixture]
     fn pcdb_boilers() -> HashMap<String, Product> {
         serde_json::from_str(include_str!("../../../test/test_boilers_pcdb.json")).unwrap()
+    }
+
+    #[fixture]
+    fn energy_supplies() -> EnergySupplies {
+        mock_energy_supplies()
     }
 
     fn expected_boiler_input(product_reference: &str) -> Map<String, JsonValue> {
@@ -151,6 +165,7 @@ mod tests {
         pcdb_boilers: HashMap<String, Product>,
         #[case] product_reference: &str,
         #[case] specified_location: Option<&str>,
+        energy_supplies: EnergySupplies,
     ) {
         let mut boiler_input = boiler_input(product_reference, specified_location);
         let pcdb_boiler = pcdb_boilers.get(product_reference).unwrap();
@@ -159,6 +174,7 @@ mod tests {
             &mut boiler_input.as_object_mut().unwrap(),
             pcdb_boiler,
             product_reference,
+            &energy_supplies,
         );
         assert!(result.is_ok());
 
@@ -169,6 +185,7 @@ mod tests {
     #[rstest]
     fn test_transform_boiler_errors_with_neither_pcdb_nor_specified_location(
         pcdb_boilers: HashMap<String, Product>,
+        energy_supplies: EnergySupplies,
     ) {
         let product_reference = "boiler_unknown_location";
         let specified_location = None;
@@ -180,6 +197,7 @@ mod tests {
             &mut input.as_object_mut().unwrap(),
             pcdb_boiler,
             product_reference,
+            &energy_supplies,
         );
         assert!(result.is_err());
     }

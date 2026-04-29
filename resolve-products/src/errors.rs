@@ -1,6 +1,7 @@
+use crate::products::FuelType;
 use jsonpath_rust::parser::errors::JsonPathError as OriginalJsonPathError;
-use jsonschema::ValidationError;
 use jsonschema::error::ValidationErrorKind;
+use jsonschema::ValidationError;
 use serde_json::Value;
 use std::fmt::{Display, Formatter};
 use std::string::FromUtf8Error;
@@ -12,6 +13,10 @@ pub enum ResolvePcdbProductsError {
     InvalidJson,
     #[error("Request was considered invalid due to error: {0}")]
     InvalidRequest(#[from] JsonValidationError),
+    #[error(
+        "Request was considered invalid due to error encountered after initial check against JSON schema: {0}"
+    )]
+    InvalidRequestEncounteredAfterSchemaCheck(&'static str),
     #[error("Request was considered invalid due to combination of input and PCDB data")]
     InvalidCombination,
     #[error("Could not extract product references: {0:?}")]
@@ -36,6 +41,8 @@ pub enum ResolvePcdbProductsError {
         "Received a product type that is not yet supported. Currently supported products: heat pump, boiler, and electric storage heater."
     )]
     UnsupportedProductAtMapping,
+    #[error("No energy supply provided for fuel type '{0}' to be mapped to")]
+    NoEnergySupplyProvidedForFuelType(FuelType),
 }
 
 #[derive(Debug, Error)]
@@ -71,6 +78,12 @@ impl From<ValidationError<'_>> for JsonValidationError {
             schema_path: schema_path.to_string(),
             kind: kind.into(),
         }
+    }
+}
+
+impl From<&FuelType> for ResolvePcdbProductsError {
+    fn from(fuel_type: &FuelType) -> Self {
+        Self::NoEnergySupplyProvidedForFuelType(*fuel_type)
     }
 }
 

@@ -319,12 +319,10 @@ pub(crate) enum HeatPumpTestLetter {
     F,
 }
 
-#[derive(Debug, Deserialize_enum_str, Serialize_enum_str)]
+#[derive(Clone, Copy, Debug, Deserialize_enum_str, Eq, Hash, PartialEq, Serialize_enum_str)]
 #[serde(rename_all = "snake_case")]
-pub(crate) enum FuelType {
-    #[serde(rename(serialize = "mains elec"))]
+pub enum FuelType {
     Electricity,
-    #[serde(rename(serialize = "mains gas"))]
     MainsGas,
     #[serde(rename = "LPG_bulk")]
     LpgBulk,
