@@ -160,6 +160,9 @@ pub async fn transform(
                     boiler.insert("EnergySupply_aux".into(), json!(energy_supply_aux.as_ref()));
                 }
             }
+        } else {
+            // ensure we don't keep any boiler node on the heat pump
+            heat_pump.remove("boiler");
         }
 
         heat_pump.insert("power_off".into(), power_off.to_f64().into());
