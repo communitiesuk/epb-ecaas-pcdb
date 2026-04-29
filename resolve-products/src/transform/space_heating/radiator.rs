@@ -6,7 +6,7 @@ use rust_decimal::prelude::ToPrimitive;
 use serde_json::{Map, Value as JsonValue};
 use std::vec;
 
-pub fn _transform(
+pub fn transform(
     radiator: &mut Map<String, JsonValue>,
     product: &Product,
     product_reference: &str,
@@ -50,6 +50,7 @@ pub fn _transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::transform::space_heating::tests::SPACE_HEATING_PCDB_PRODUCTS;
     use itertools::Itertools;
     use serde_json::json;
     use std::collections::HashMap;
@@ -63,16 +64,15 @@ mod tests {
             "product_reference": product_reference,
             "length": 7,
         });
-        let pcdb_radiator =
-            serde_json::from_str(include_str!("../../../test/test_radiator_pcdb.json")).unwrap();
+
         let expected: JsonValue = serde_json::from_str(include_str!(
             "../../../test/test_radiator_input_transformed.json"
         ))
         .unwrap();
 
-        let result = _transform(
+        let result = transform(
             input.as_object_mut().unwrap(),
-            &pcdb_radiator,
+            SPACE_HEATING_PCDB_PRODUCTS.get(product_reference).unwrap(),
             product_reference,
         );
 
@@ -102,7 +102,7 @@ mod tests {
         let pcdb_hps: HashMap<String, Product> =
             serde_json::from_str(include_str!("../../../test/test_heat_pump_pcdb.json")).unwrap();
 
-        let result = _transform(
+        let result = transform(
             input.as_object_mut().unwrap(),
             pcdb_hps.get(product_reference).unwrap(),
             product_reference,

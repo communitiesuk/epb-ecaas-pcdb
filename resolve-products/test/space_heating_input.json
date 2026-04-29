@@ -1,0 +1,50 @@
+{
+  "SpaceHeatSystem": {
+    "ElecHeater1": {
+      "type": "ElecStorageHeater",
+      "n_units": 1,
+      "Zone": "ThermalZone",
+      "product_reference": "444"
+    },
+    "ElecHeater2": {
+      "type": "ElecStorageHeater",
+      "n_units": 1,
+      "Zone": "ThermalZone",
+      "product_reference": "444"
+    },
+    "Radiators": {
+      "type": "WetDistribution",
+      "HeatSource": {
+        "name": "boiler",
+        "temp_flow_limit_upper": 65
+      },
+      "Zone": "ThermalZone",
+      "design_flow_temp": 45,
+      "ecodesign_controller": {
+        "ecodesign_control_class": 2,
+        "max_outdoor_temp": 20,
+        "min_flow_temp": 30,
+        "min_outdoor_temp": 0
+      },
+      "emitters": [
+        {
+          "wet_emitter_type": "radiator",
+          "radiator_type": "standard",
+          "product_reference": "60",
+          "length": 7
+        },
+        {
+          "wet_emitter_type": "radiator",
+          "radiator_type": "standard",
+          "product_reference": "60",
+          "length": 7
+        }
+      ],
+      "max_flow_rate": 21,
+      "min_flow_rate": 3.6,
+      "temp_diff_emit_dsgn": 5,
+      "thermal_mass": 0.055946206,
+      "variable_flow": true
+    }
+  }
+}

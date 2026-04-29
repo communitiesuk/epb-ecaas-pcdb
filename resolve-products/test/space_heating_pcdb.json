@@ -1,0 +1,154 @@
+{
+  "444": {
+    "id": "444",
+    "technologyType": "StorageHeater",
+    "brandName": "Gabarron",
+    "testData": [
+      {
+        "dryCoreMinOutput": 0,
+        "productID": 444,
+        "testPoint": 0,
+        "id": 287,
+        "dryCoreMaxOutput": 0,
+        "parentID": 12
+      },
+      {
+        "dryCoreMinOutput": 0.01,
+        "productID": 444,
+        "testPoint": 1,
+        "id": 288,
+        "dryCoreMaxOutput": 0.33,
+        "parentID": 12
+      },
+      {
+        "dryCoreMinOutput": 0.02,
+        "productID": 444,
+        "testPoint": 2,
+        "id": 289,
+        "dryCoreMaxOutput": 0.77,
+        "parentID": 12
+      },
+      {
+        "dryCoreMinOutput": 0.03,
+        "productID": 444,
+        "testPoint": 3,
+        "id": 290,
+        "dryCoreMaxOutput": 0.88,
+        "parentID": 12
+      },
+      {
+        "dryCoreMinOutput": 0.04,
+        "productID": 444,
+        "testPoint": 4,
+        "id": 291,
+        "dryCoreMaxOutput": 0.99,
+        "parentID": 12
+      },
+      {
+        "dryCoreMinOutput": 0.05,
+        "productID": 444,
+        "testPoint": 5,
+        "id": 292,
+        "dryCoreMaxOutput": 1.11,
+        "parentID": 12
+      },
+      {
+        "dryCoreMinOutput": 0.06,
+        "productID": 444,
+        "testPoint": 6,
+        "id": 293,
+        "dryCoreMaxOutput": 1.22,
+        "parentID": 12
+      },
+      {
+        "dryCoreMinOutput": 0.07,
+        "productID": 444,
+        "testPoint": 7,
+        "id": 294,
+        "dryCoreMaxOutput": 1.25,
+        "parentID": 12
+      },
+      {
+        "dryCoreMinOutput": 0.08,
+        "productID": 444,
+        "testPoint": 8,
+        "id": 295,
+        "dryCoreMaxOutput": 1.33,
+        "parentID": 12
+      },
+      {
+        "dryCoreMinOutput": 0.09,
+        "productID": 444,
+        "testPoint": 9,
+        "id": 296,
+        "dryCoreMaxOutput": 1.35,
+        "parentID": 12
+      },
+      {
+        "dryCoreMinOutput": 0.1,
+        "productID": 444,
+        "testPoint": 10,
+        "id": 297,
+        "dryCoreMaxOutput": 1.44,
+        "parentID": 12
+      },
+      {
+        "dryCoreMinOutput": 0.11,
+        "productID": 444,
+        "testPoint": 11,
+        "id": 298,
+        "dryCoreMaxOutput": 1.45,
+        "parentID": 12
+      },
+      {
+        "dryCoreMinOutput": 0.12,
+        "productID": 444,
+        "testPoint": 12,
+        "id": 299,
+        "dryCoreMaxOutput": 1.55,
+        "parentID": 12
+      },
+      {
+        "dryCoreMinOutput": 0.13,
+        "productID": 444,
+        "testPoint": 13,
+        "id": 300,
+        "dryCoreMaxOutput": 1.66,
+        "parentID": 12
+      }
+    ],
+    "storageCapacity": 20,
+    "fanPwr": 12,
+    "productID": 444,
+    "ratedPowerInstant": 2.5,
+    "ratedPower": 2.2,
+    "airFlowType": "fan-assisted",
+    "fuel": "electricity",
+    "dataType": "listed_product",
+    "modelQualifier": "SOLARHHR40",
+    "finalYearOfManufacture": "current",
+    "firstYearOfManufacture": "2017",
+    "modelName": "SOLARHHR",
+    "heatRetention": 51,
+    "pwrIn": 3.7,
+    "fracConvective": 0.7,
+    "outputPower": 1.8,
+    "highHeatRetention": true,
+    "controlType": "HHRSH"
+  },
+  "60": {
+    "technologyType": "ConvectorRadiator",
+    "waterContents": 15.7344,
+    "c": 0.08,
+    "wetEmitterType": "radiator",
+    "dataType": "illustrative_aggregated",
+    "thermalMassPerM": 0.028,
+    "thermalOutputDelta50k": 3097,
+    "weight": 79.8415,
+    "fracConvective": 0.4,
+    "id": "60",
+    "type": "T33",
+    "n": 1.2,
+    "height": 900
+  }
+}

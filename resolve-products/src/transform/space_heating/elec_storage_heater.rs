@@ -1,9 +1,9 @@
+use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, Technology};
 use crate::transform::{EnergySupplies, ResolveProductsResult};
-use crate::PRODUCT_REFERENCE_FIELD;
 use rust_decimal::prelude::ToPrimitive;
-use serde_json::{json, Map, Value as JsonValue};
+use serde_json::{Map, Value as JsonValue, json};
 use std::vec;
 
 pub fn transform(
@@ -78,30 +78,37 @@ pub fn transform(
 mod tests {
     use super::*;
     use crate::transform::catalogue::mock_energy_supplies;
+    use crate::transform::space_heating::tests::SPACE_HEATING_PCDB_PRODUCTS;
     use itertools::Itertools;
     use rstest::*;
-    use serde_json::json;
+    use serde_json::{from_str, json};
+    use smartstring::alias::String;
     use std::collections::HashMap;
 
-    #[rstest]
-    fn test_transform_esh(energy_supplies: EnergySupplies) {
-        let product_reference = "444";
-        let mut input = json!({
+    #[fixture]
+    fn energy_supplies() -> EnergySupplies {
+        mock_energy_supplies()
+    }
+
+    fn input(product_reference: &str) -> JsonValue {
+        json!({
             "type": "ElecStorageHeater",
             "n_units": 1,
             "Zone": "ThermalZone",
             "product_reference": product_reference,
-        });
-        let pcdb_esh =
-            serde_json::from_str(include_str!("../../../test/test_esh_pcdb.json")).unwrap();
-        let expected: JsonValue = serde_json::from_str(include_str!(
-            "../../../test/test_esh_input_transformed.json"
-        ))
-        .unwrap();
+        })
+    }
+
+    #[rstest]
+    fn test_transform_esh(energy_supplies: EnergySupplies) {
+        let product_reference = "444";
+        let mut input = input(product_reference);
+        let expected: JsonValue =
+            from_str(include_str!("../../../test/esh_input_transformed.json")).unwrap();
 
         let result = transform(
             input.as_object_mut().unwrap(),
-            &pcdb_esh,
+            SPACE_HEATING_PCDB_PRODUCTS.get(product_reference).unwrap(),
             product_reference,
             &energy_supplies,
         );
@@ -120,22 +127,13 @@ mod tests {
         }
     }
 
-    #[fixture]
-    fn energy_supplies() -> EnergySupplies {
-        mock_energy_supplies()
-    }
-
     #[rstest]
     fn test_transform_esh_errors_when_product_type_mismatch(energy_supplies: EnergySupplies) {
         let product_reference = "hp";
-        let mut input = json!({
-            "type": "ElecStorageHeater",
-            "n_units": 1,
-            "Zone": "ThermalZone",
-            "product_reference": product_reference,
-        });
+        let mut input = input(product_reference);
+
         let pcdb_hps: HashMap<String, Product> =
-            serde_json::from_str(include_str!("../../../test/test_heat_pump_pcdb.json")).unwrap();
+            from_str(include_str!("../../../test/test_heat_pump_pcdb.json")).unwrap();
 
         let result = transform(
             input.as_object_mut().unwrap(),
