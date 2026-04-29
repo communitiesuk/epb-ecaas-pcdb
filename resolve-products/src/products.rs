@@ -110,7 +110,7 @@ pub(crate) enum Technology {
         electricity_full_load: Decimal,
         electricity_standby: Decimal,
     },
-    #[serde(rename = "HeatBatteryPCM")]
+    #[serde(rename = "HeatBatteryPCM", rename_all = "camelCase")]
     HeatBatteryPcm {
         #[serde(rename = "A")]
         a: Decimal,
@@ -120,11 +120,11 @@ pub(crate) enum Technology {
         electricity_circ_pump: Decimal,
         electricity_standby: Decimal,
         flow_rate_l_per_min: Decimal,
-        #[serde(rename = "heat_storage_kJ_per_K_above_Phase_transition")]
+        #[serde(rename = "heatStorageKJPerKAbovePhaseTransition")]
         heat_storage_kj_per_k_above_phase_transition: Decimal,
-        #[serde(rename = "heat_storage_kJ_per_K_below_Phase_transition")]
+        #[serde(rename = "heatStorageKJPerKBelowPhaseTransition")]
         heat_storage_kj_per_k_below_phase_transition: Decimal,
-        #[serde(rename = "heat_storage_kJ_per_K_during_Phase_transition")]
+        #[serde(rename = "heatStorageKJPerKDuringPhaseTransition")]
         heat_storage_kj_per_k_during_phase_transition: Decimal,
         max_rated_losses: Decimal,
         max_temperature: Decimal,
@@ -132,7 +132,7 @@ pub(crate) enum Technology {
         phase_transition_temperature_lower: Decimal,
         rated_charge_power: Decimal,
         simultaneous_charging_and_discharging: bool,
-        #[serde(rename = "velocity_in_HEX_tube_at_1_l_per_min_m_per_s")]
+        #[serde(rename = "velocityInHEXTubeAt1LPerMinMPerS")]
         velocity_in_hex_tube_at_1_l_per_min_m_per_s: Decimal,
     },
     HeatBatteryDryCore {

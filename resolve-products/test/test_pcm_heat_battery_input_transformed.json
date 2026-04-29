@@ -1,0 +1,27 @@
+{
+  "HeatSourceWet": {
+    "hb1": {
+      "A": 300.0,
+      "B": -300.0,
+      "EnergySupply": "mains elec",
+      "battery_type": "pcm",
+      "electricity_circ_pump": 0.01,
+      "electricity_standby": 0.01,
+      "flow_rate_l_per_min": 5,
+      "heat_storage_kJ_per_K_above_Phase_transition": 2000.0,
+      "heat_storage_kJ_per_K_below_Phase_transition": 5000.0,
+      "heat_storage_kJ_per_K_during_Phase_transition": 900,
+      "inlet_diameter_mm": 18,
+      "is_heat_network": false,
+      "max_rated_losses": 0.05,
+      "max_temperature": 75,
+      "number_of_units": 1,
+      "phase_transition_temperature_lower": 50,
+      "phase_transition_temperature_upper": 65,
+      "rated_charge_power": 1.5,
+      "simultaneous_charging_and_discharging": false,
+      "type": "HeatBattery",
+      "velocity_in_HEX_tube_at_1_l_per_min_m_per_s": 0.035
+    }
+  }
+}

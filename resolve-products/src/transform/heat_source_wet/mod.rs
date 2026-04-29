@@ -1,4 +1,5 @@
 mod boiler;
+mod heat_battery_pcm;
 mod heat_pump;
 
 use crate::errors::ResolvePcdbProductsError;
