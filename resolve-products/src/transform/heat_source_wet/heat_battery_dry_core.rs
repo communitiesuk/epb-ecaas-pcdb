@@ -125,13 +125,13 @@ mod tests {
         let pcdb_dry_core_heat_battery = pcdb_heat_batteries.get(product_reference).unwrap();
 
         let result = transform(
-            &mut dry_core_input.as_object_mut().unwrap(),
+            dry_core_input.as_object_mut().unwrap(),
             pcdb_dry_core_heat_battery,
             product_reference,
             &energy_supplies,
         );
         assert!(result.is_ok());
         let expected_input = expected_transformed_input(product_reference);
-        transformed_input_matches_expected(&mut dry_core_input, expected_input);
+        transformed_input_matches_expected(&dry_core_input, expected_input);
     }
 }

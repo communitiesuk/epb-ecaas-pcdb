@@ -78,8 +78,8 @@ pub async fn transform(
                                 energy_supplies,
                             )?
                         }
-                    "HeatBatteryDryCore" => {
-                        if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) {
+                    "HeatBatteryDryCore"
+                        if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) => {
                             let product_reference =
                                 product_reference_from_json_object(heat_source_object)?;
 
@@ -90,7 +90,6 @@ pub async fn transform(
                                 energy_supplies,
                             )?
                         }
-                    }
                     _ => {}
                 }
             }
