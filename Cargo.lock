@@ -2392,6 +2392,7 @@ dependencies = [
  "serde_repr",
  "serde_valid",
  "smartstring",
+ "this-error-from-box",
  "thiserror 2.0.18",
  "tokio",
 ]
@@ -3023,6 +3024,16 @@ name = "tap"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "55937e1799185b12863d447f42597ed69d9928686b8d88a1df17376a097d8369"
+
+[[package]]
+name = "this-error-from-box"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "37dcff46c48cacb8b3316bb29933d5e92498c05d199b0cf84c135212d9f4b456"
+dependencies = [
+ "quote",
+ "syn 2.0.117",
+]
 
 [[package]]
 name = "thiserror"

@@ -1,18 +1,20 @@
 use crate::products::FuelType;
 use jsonpath_rust::parser::errors::JsonPathError as OriginalJsonPathError;
-use jsonschema::ValidationError;
 use jsonschema::error::ValidationErrorKind;
+use jsonschema::ValidationError;
 use serde_json::Value;
 use std::fmt::{Display, Formatter};
 use std::string::FromUtf8Error;
+use this_error_from_box::this_error_from_box;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
+#[this_error_from_box]
 pub enum ResolvePcdbProductsError {
     #[error("Request content could not be parsed as JSON")]
     InvalidJson,
     #[error("Request was considered invalid due to error: {0}")]
-    InvalidRequest(#[from] JsonValidationError),
+    InvalidRequest(#[from] Box<JsonValidationError>),
     #[error(
         "Request was considered invalid due to error encountered after initial check against JSON schema: {0}"
     )]
@@ -32,7 +34,7 @@ pub enum ResolvePcdbProductsError {
     #[error("PCDB product with reference {0} breaks an expected invariant: {1}")]
     InvalidProduct(String, &'static str),
     #[error("Error encountered while accessing PCDB store: {0:?}")]
-    AccessError(#[from] aws_sdk_dynamodb::Error),
+    AccessError(#[from] Box<aws_sdk_dynamodb::Error>),
     #[error("Error encountered while deserializing PCDB products: {0:?}")]
     DeserializeError(serde_dynamo::Error),
     #[cfg(test)]

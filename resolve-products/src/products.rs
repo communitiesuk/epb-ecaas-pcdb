@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
-use crate::ResolveProductsResult;
 use crate::errors::ResolvePcdbProductsError;
-use aws_sdk_dynamodb::Client as DynamoDbClient;
+use crate::ResolveProductsResult;
 use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
+use aws_sdk_dynamodb::Client as DynamoDbClient;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Deserializer};
 use serde_dynamo::from_item;
@@ -549,7 +549,7 @@ impl ProductCatalogue for DynamoDbBackedProductCatalogue<'_> {
         let results = match results {
             Ok(results) => results,
             Err(e) => {
-                return Err(ResolvePcdbProductsError::AccessError(e.into()));
+                return Err(ResolvePcdbProductsError::AccessError(Box::new(e.into())));
             }
         };
 
