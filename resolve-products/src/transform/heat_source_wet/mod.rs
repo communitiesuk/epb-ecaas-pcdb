@@ -52,7 +52,7 @@ pub async fn transform(
                                 catalogue,
                                 energy_supplies,
                             )
-                            .await?
+                                .await?
                         }
                     }
                     "Boiler" => {
@@ -104,8 +104,7 @@ mod tests {
             serde_json::from_str(include_str!("../../../test/test_boilers_pcdb.json")).unwrap();
         let pcm_heat_batteries: HashMap<SmartString, Product> = serde_json::from_str(include_str!(
             "../../../test/test_pcm_heat_batteries_pcdb.json"
-        ))
-        .unwrap();
+        )).unwrap();
         hps.into_iter()
             .chain(boilers)
             .chain(pcm_heat_batteries)
@@ -162,7 +161,7 @@ mod tests {
             &dummy_catalogue,
             &energy_supplies,
         )
-        .await;
+            .await;
         assert!(result.is_ok());
 
         let pointers = [
@@ -179,5 +178,56 @@ mod tests {
                 "heat_source_wet_input still has a product_references at pointer {pointer}"
             );
         }
+    }
+
+    fn incorrect_heat_pump_input() -> JsonValue {
+        // test this for products that have the same structure
+        json!({
+            "HeatSourceWet": {
+                "hp": {
+                    "type": "Boiler", // product_reference is for HeatPump
+                    "EnergySupply": "mains elec",
+                    "product_reference": "hp",
+                    "is_heat_network": false
+                }
+            }
+        })
+    }
+
+    fn incorrect_boiler_input() -> JsonValue {
+        // test this for products that have the same structure
+        json!({
+            "HeatSourceWet": {
+                "boiler": {
+                    "type": "HeatPump", // product_reference is for Boiler
+                    "EnergySupply": "mains gas",
+                    "product_reference": "boiler",
+                    "is_heat_network": false
+                }
+            }
+        })
+    }
+
+    #[tokio::test]
+    #[rstest]
+    #[case(incorrect_boiler_input())]
+    #[case(incorrect_heat_pump_input())]
+    async fn test_tranform_errors_given_product_type_mismatch(
+        heat_source_wet_pcdb_products: HashMap<SmartString, Product>,
+        dummy_catalogue: impl ProductCatalogue,
+        energy_supplies: EnergySupplies,
+        #[case] mut input: JsonValue,
+    ) {
+        let hp_result = transform(
+            &mut input,
+            &heat_source_wet_pcdb_products,
+            &dummy_catalogue,
+            &energy_supplies,
+        )
+            .await;
+
+        assert!(hp_result.is_err());
+        let error = hp_result.unwrap_err().to_string();
+        assert!(error.contains("There were mismatch errors where provided product references related to incompatible product categories"));
     }
 }
