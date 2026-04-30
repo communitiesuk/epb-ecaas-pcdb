@@ -1,9 +1,9 @@
+use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, Technology};
 use crate::transform::{EnergySupplies, ResolveProductsResult};
-use crate::PRODUCT_REFERENCE_FIELD;
 use itertools::Itertools;
-use serde_json::{json, Map, Value as JsonValue};
+use serde_json::{Map, Value as JsonValue, json};
 
 pub(crate) fn transform(
     dry_core_battery: &mut Map<String, JsonValue>,
@@ -23,17 +23,30 @@ pub(crate) fn transform(
         fan_pwr,
         test_data,
         ..
-    } = &product.technology {
+    } = &product.technology
+    {
         let energy_supply = energy_supplies
             .get(fuel)
             .ok_or_else(|| ResolvePcdbProductsError::from(fuel))?;
 
         dry_core_battery.insert("EnergySupply".into(), json!(energy_supply.as_ref()));
-        dry_core_battery.insert("electricity_circ_pump".into(), electricity_circ_pump.as_f64().into());
-        dry_core_battery.insert("electricity_standby".into(), electricity_standby.as_f64().into());
+        dry_core_battery.insert(
+            "electricity_circ_pump".into(),
+            electricity_circ_pump.as_f64().into(),
+        );
+        dry_core_battery.insert(
+            "electricity_standby".into(),
+            electricity_standby.as_f64().into(),
+        );
         dry_core_battery.insert("pwr_in".into(), pwr_in.as_f64().into());
-        dry_core_battery.insert("rated_power_instant".into(), rated_power_instant.as_f64().into());
-        dry_core_battery.insert("heat_storage_capacity".into(), heat_storage_capacity.as_f64().into());
+        dry_core_battery.insert(
+            "rated_power_instant".into(),
+            rated_power_instant.as_f64().into(),
+        );
+        dry_core_battery.insert(
+            "heat_storage_capacity".into(),
+            heat_storage_capacity.as_f64().into(),
+        );
         dry_core_battery.insert("fan_pwr".into(), fan_pwr.as_f64().into());
 
         let (dry_core_min_output, dry_core_max_output): (Vec<[f64; 2]>, Vec<[f64; 2]>) = test_data
@@ -53,7 +66,10 @@ pub(crate) fn transform(
         let state_of_charge_init = test_data.first().unwrap().charge_level;
         dry_core_battery.insert("dry_core_min_output".into(), dry_core_min_output.into());
         dry_core_battery.insert("dry_core_max_output".into(), dry_core_max_output.into());
-        dry_core_battery.insert("state_of_charge_init".into(), state_of_charge_init.as_f64().into());
+        dry_core_battery.insert(
+            "state_of_charge_init".into(),
+            state_of_charge_init.as_f64().into(),
+        );
 
         dry_core_battery.remove(PRODUCT_REFERENCE_FIELD);
     } else {
@@ -68,11 +84,11 @@ pub(crate) fn transform(
 #[cfg(test)]
 mod tests {
     use crate::products::Product;
+    use crate::transform::EnergySupplies;
     use crate::transform::catalogue::{mock_energy_supplies, transformed_input_matches_expected};
     use crate::transform::heat_source_wet::heat_battery_dry_core::transform;
-    use crate::transform::EnergySupplies;
     use rstest::{fixture, rstest};
-    use serde_json::{json, Map, Value as JsonValue};
+    use serde_json::{Map, Value as JsonValue, json};
     use std::collections::HashMap;
 
     fn dry_core_heat_battery_input(product_reference: &str) -> JsonValue {
@@ -87,10 +103,7 @@ mod tests {
 
     #[fixture]
     fn pcdb_heat_batteries() -> HashMap<String, Product> {
-        serde_json::from_str(include_str!(
-            "../../../test/test_heat_batteries_pcdb.json"
-        ))
-            .unwrap()
+        serde_json::from_str(include_str!("../../../test/test_heat_batteries_pcdb.json")).unwrap()
     }
 
     #[fixture]
@@ -102,7 +115,7 @@ mod tests {
         let expected_input: JsonValue = serde_json::from_str(include_str!(
             "../../../test/test_heat_battery_input_transformed.json"
         ))
-            .unwrap();
+        .unwrap();
 
         expected_input
             .pointer(&format!("/HeatSourceWet/{}", product_reference))

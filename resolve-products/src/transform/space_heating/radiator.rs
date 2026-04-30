@@ -1,7 +1,7 @@
+use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, Technology};
 use crate::transform::ResolveProductsResult;
-use crate::PRODUCT_REFERENCE_FIELD;
 use rust_decimal::prelude::ToPrimitive;
 use serde_json::{Map, Value as JsonValue};
 use std::vec;
@@ -52,7 +52,7 @@ mod tests {
     use super::*;
     use crate::transform::catalogue::transformed_input_matches_expected;
     use crate::transform::space_heating::tests::SPACE_HEATING_PCDB_PRODUCTS;
-    use serde_json::{from_str, json, Value};
+    use serde_json::{Value, from_str, json};
     use std::collections::HashMap;
 
     fn input(product_reference: &str) -> JsonValue {

@@ -3,9 +3,9 @@ mod fancoil;
 mod radiator;
 mod underfloor_heating;
 
-use crate::products::Product;
-use crate::transform::{product_reference_from_json_object, EnergySupplies, ResolveProductsResult};
 use crate::PRODUCT_REFERENCE_FIELD;
+use crate::products::Product;
+use crate::transform::{EnergySupplies, ResolveProductsResult, product_reference_from_json_object};
 use serde_json::Value as JsonValue;
 use smartstring::alias::String;
 use std::collections::HashMap;

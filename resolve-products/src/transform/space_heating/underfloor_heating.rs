@@ -1,7 +1,7 @@
+use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, Technology};
 use crate::transform::ResolveProductsResult;
-use crate::PRODUCT_REFERENCE_FIELD;
 use serde_json::{Map, Value as JsonValue};
 
 pub fn transform(
