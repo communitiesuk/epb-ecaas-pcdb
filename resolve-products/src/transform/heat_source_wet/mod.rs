@@ -3,10 +3,10 @@ mod heat_battery_pcm;
 mod heat_pump;
 mod heat_battery_dry_core;
 
-use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, ProductCatalogue};
 use crate::transform::{EnergySupplies, ResolveProductsResult};
+use crate::PRODUCT_REFERENCE_FIELD;
 use serde_json::{Map, Value as JsonValue};
 use smartstring::alias::String as SmartString;
 use std::collections::HashMap;
@@ -52,7 +52,7 @@ pub async fn transform(
                             catalogue,
                             energy_supplies,
                         )
-                        .await?
+                            .await?
                     }
                     "Boiler" if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) => {
                         let product_reference =
@@ -89,7 +89,7 @@ pub async fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::transform::catalogue::{FixtureBackedProductCatalogue, mock_energy_supplies};
+    use crate::transform::catalogue::{mock_energy_supplies, FixtureBackedProductCatalogue};
     use rstest::{fixture, rstest};
     use serde_json::json;
 
@@ -100,9 +100,9 @@ mod tests {
         let boilers: HashMap<SmartString, Product> =
             serde_json::from_str(include_str!("../../../test/test_boilers_pcdb.json")).unwrap();
         let pcm_heat_batteries: HashMap<SmartString, Product> = serde_json::from_str(include_str!(
-            "../../../test/test_pcm_heat_batteries_pcdb.json"
+            "../../../test/test_heat_batteries_pcdb.json"
         ))
-        .unwrap();
+            .unwrap();
         hps.into_iter()
             .chain(boilers)
             .chain(pcm_heat_batteries)
@@ -159,7 +159,7 @@ mod tests {
             &dummy_catalogue,
             &energy_supplies,
         )
-        .await;
+            .await;
         assert!(result.is_ok());
 
         let pointers = [
@@ -222,7 +222,7 @@ mod tests {
             &dummy_catalogue,
             &energy_supplies,
         )
-        .await;
+            .await;
 
         assert!(hp_result.is_err());
         let error = hp_result.unwrap_err().to_string();

@@ -57,5 +57,49 @@
     "brandName": "Heat Battery PCM",
     "dataType": "illustrative_conservative",
     "finalYearOfManufacture": "current"
+  },
+  "dry_core": {
+    "id": "dry_core",
+    "technologyType": "HeatBatteryDryCore",
+    "productID": "dry_core",
+    "type": "HeatBattery",
+    "batteryType": "dry_core",
+    "brandName": "Test brand name",
+    "modelName": "Test model name",
+    "electricityCircPump": 0,
+    "electricityStandby": 0.024,
+    "fanPwr": 11.0,
+    "finalYearOfManufacture": "current",
+    "fuel": "electricity",
+    "heatStorageCapacity": 20,
+    "pwrIn": 9,
+    "ratedPowerInstant": 2.5,
+    "setpointTempWater": 60,
+    "testData": [
+      {
+        "dryCoreMinOutput": 0,
+        "productID": 111,
+        "chargeLevel": 0,
+        "id": 1,
+        "dryCoreMaxOutput": 0,
+        "parentID": 1
+      },
+      {
+        "dryCoreMinOutput": 0.1,
+        "productID": 111,
+        "chargeLevel": 0.001,
+        "id": 2,
+        "dryCoreMaxOutput": 1.0,
+        "parentID": 1
+      },
+      {
+        "dryCoreMinOutput": 1.0,
+        "productID": 111,
+        "chargeLevel": 0.9,
+        "id": 21,
+        "dryCoreMaxOutput": 9,
+        "parentID": 1
+      }
+    ]
   }
 }

@@ -45,6 +45,48 @@
       "simultaneous_charging_and_discharging": false,
       "type": "HeatBattery",
       "velocity_in_HEX_tube_at_1_l_per_min_m_per_s": 0.05
+    },
+    "dry_core": {
+      "type": "HeatBattery",
+      "battery_type": "dry_core",
+      "EnergySupply": "mains elec",
+      "electricity_circ_pump": 0.0,
+      "electricity_standby": 0.024,
+      "pwr_in": 9.0,
+      "rated_power_instant": 2.5,
+      "heat_storage_capacity": 20.0,
+      "number_of_units": 2,
+      "state_of_charge_init": 0.0,
+      "is_heat_network": false,
+      "fan_pwr": 11.0,
+      "dry_core_min_output": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.001,
+          0.1
+        ],
+        [
+          0.9,
+          1.0
+        ]
+      ],
+      "dry_core_max_output": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.001,
+          1.0
+        ],
+        [
+          0.9,
+          9.0
+        ]
+      ]
     }
   }
 }
