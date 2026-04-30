@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
-use crate::ResolveProductsResult;
 use crate::errors::ResolvePcdbProductsError;
-use aws_sdk_dynamodb::Client as DynamoDbClient;
+use crate::ResolveProductsResult;
 use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
+use aws_sdk_dynamodb::Client as DynamoDbClient;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Deserializer};
 use serde_dynamo::from_item;
@@ -48,7 +48,11 @@ pub(crate) struct Product {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(tag = "technologyType", rename_all = "camelCase")]
+#[serde(
+    tag = "technologyType",
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase"
+)]
 pub(crate) enum Technology {
     #[serde(
         alias = "AirSourceHeatPump",
@@ -58,8 +62,7 @@ pub(crate) enum Technology {
         alias = "ExhaustAirMixedHeatPump",
         alias = "ExhaustAirMevHeatPump",
         alias = "ExhaustAirMvhrHeatPump",
-        alias = "HybridHeatPump",
-        rename_all = "camelCase"
+        alias = "HybridHeatPump"
     )]
     HeatPump {
         source_type: HeatPumpSourceType,
@@ -92,11 +95,7 @@ pub(crate) enum Technology {
         #[serde(rename = "boilerProductID")]
         boiler_product_id: Option<String>,
     },
-    #[serde(
-        alias = "RegularBoiler",
-        alias = "CombiBoiler",
-        rename_all = "camelCase"
-    )]
+    #[serde(alias = "RegularBoiler", alias = "CombiBoiler")]
     Boiler {
         fuel: FuelType,
         fuel_aux: FuelType,
@@ -110,7 +109,7 @@ pub(crate) enum Technology {
         electricity_full_load: Decimal,
         electricity_standby: Decimal,
     },
-    #[serde(rename = "HeatBatteryPCM", rename_all = "camelCase")]
+    #[serde(rename = "HeatBatteryPCM")]
     HeatBatteryPcm {
         fuel: Option<FuelType>,
         a: Decimal,
@@ -161,7 +160,7 @@ pub(crate) enum Technology {
         utilisation_factor: Decimal,
         test_data: Vec<WwhrsTestDatum>,
     },
-    #[serde(rename = "StorageHeater", rename_all = "camelCase")]
+    #[serde(rename = "StorageHeater")]
     ElectricStorageHeater {
         /// Maximum heat storage capacity in kWh
         storage_capacity: Decimal,
@@ -177,7 +176,7 @@ pub(crate) enum Technology {
         #[serde(rename = "testData")]
         test_data: Vec<ElectricStorageHeaterTestDatum>,
     },
-    #[serde(rename = "ConvectorRadiator", rename_all = "camelCase")]
+    #[serde(rename = "ConvectorRadiator")]
     // This is for radiator_type "standard"
     Radiator {
         /// Exponent used in heat output calculation formula
@@ -199,7 +198,7 @@ pub(crate) enum Technology {
         /// Convective heat output fraction (unitless)
         frac_convective: Decimal,
     },
-    #[serde(alias = "FanCoils", rename_all = "camelCase")]
+    #[serde(alias = "FanCoils")]
     FanCoil {
         /// The number of fan speeds (n) for which data are provided in the record (maximum 5)
         number_of_fan_speeds: usize,

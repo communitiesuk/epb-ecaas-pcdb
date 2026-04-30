@@ -16,6 +16,13 @@
       "frac_convective": 0.4,
       "thermal_mass_per_m": 0.028,
       "length": 7
+    },
+    {
+      "wet_emitter_type": "ufh",
+      "emitter_floor_area": 42,
+      "system_performance_factor": 5.0,
+      "frac_convective": 0.43,
+      "equivalent_specific_thermal_mass": 80.0
     }
   ],
   "EnergySupply": "mains elec",

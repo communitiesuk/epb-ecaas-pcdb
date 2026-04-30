@@ -1,0 +1,7 @@
+{
+  "emitter_floor_area": 42,
+  "equivalent_specific_thermal_mass": 80.0,
+  "frac_convective": 0.43,
+  "system_performance_factor": 5.0,
+  "wet_emitter_type": "ufh"
+}

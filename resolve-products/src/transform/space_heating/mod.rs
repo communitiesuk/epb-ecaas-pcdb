@@ -1,9 +1,10 @@
 mod elec_storage_heater;
 mod radiator;
+mod underfloor_heating;
 
-use crate::PRODUCT_REFERENCE_FIELD;
 use crate::products::Product;
-use crate::transform::{EnergySupplies, ResolveProductsResult, product_reference_from_json_object};
+use crate::transform::{product_reference_from_json_object, EnergySupplies, ResolveProductsResult};
+use crate::PRODUCT_REFERENCE_FIELD;
 use serde_json::Value as JsonValue;
 use smartstring::alias::String;
 use std::collections::HashMap;
@@ -48,7 +49,11 @@ pub fn transform(
                                                 &products[&product_ref],
                                                 &product_ref,
                                             )?,
-                                            "ufh" => {}
+                                            "ufh" => underfloor_heating::transform(
+                                                emitter,
+                                                &products[&product_ref],
+                                                &product_ref,
+                                            )?,
                                             _ => {}
                                         }
                                     }
@@ -104,6 +109,12 @@ mod tests {
 
         assert!(result.is_ok());
 
-        assert_eq!(input, expected_input);
+        assert_eq!(
+            input,
+            expected_input,
+            "actual: {}\nexpected: {}",
+            serde_json::to_string_pretty(&input).unwrap(),
+            serde_json::to_string_pretty(&expected_input).unwrap()
+        );
     }
 }

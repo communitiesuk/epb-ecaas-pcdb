@@ -25,6 +25,11 @@
           "radiator_type": "standard",
           "product_reference": "60",
           "length": 7
+        },
+        {
+          "wet_emitter_type": "ufh",
+          "product_reference": "720",
+          "emitter_floor_area": 42
         }
       ],
       "EnergySupply": "mains elec",

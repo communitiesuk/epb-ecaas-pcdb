@@ -150,5 +150,21 @@
     "type": "T33",
     "n": 1.2,
     "height": 900
+  },
+  "720": {
+    "floorFinishCompatibility": "2.5mm Acoustic Vinyl",
+    "equivalentSpecificThermalMass": 80.0,
+    "systemName": "Standard screed floor",
+    "dataType": "illustrative_conservative",
+    "wetEmitterType": "ufh",
+    "systemType": "in-screed",
+    "depthOfFloorStructuralMaterial": 65,
+    "pipeCentres": 250,
+    "fracConvective": 0.43,
+    "id": "1643",
+    "systemPerformanceFactor": 5,
+    "structuralFloorMaterial": "Sand & Cement Screed",
+    "floorFinishResistance": 0,
+    "technologyType": "UnderFloorHeating"
   }
 }
