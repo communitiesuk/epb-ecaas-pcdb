@@ -1,9 +1,9 @@
-use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, Technology};
 use crate::transform::{EnergySupplies, ResolveProductsResult};
+use crate::PRODUCT_REFERENCE_FIELD;
 use itertools::Itertools;
-use serde_json::{Map, Value as JsonValue, json};
+use serde_json::{json, Map, Value as JsonValue};
 
 pub(crate) fn transform(
     dry_core_battery: &mut Map<String, JsonValue>,
@@ -62,8 +62,16 @@ pub(crate) fn transform(
             })
             .unzip();
 
-        // todo: get lowest charge_level instead of first
-        let state_of_charge_init = test_data.first().unwrap().charge_level;
+        let state_of_charge_init = test_data
+            .iter()
+            .map(|datum| datum.charge_level)
+            .min()
+            .ok_or_else(|| {
+                ResolvePcdbProductsError::InvalidProduct(
+                    product_reference.into(),
+                    "fancoil test data was unexpectedly empty",
+                )
+            })?;
         dry_core_battery.insert("dry_core_min_output".into(), dry_core_min_output.into());
         dry_core_battery.insert("dry_core_max_output".into(), dry_core_max_output.into());
         dry_core_battery.insert(
@@ -84,11 +92,11 @@ pub(crate) fn transform(
 #[cfg(test)]
 mod tests {
     use crate::products::Product;
-    use crate::transform::EnergySupplies;
     use crate::transform::catalogue::{mock_energy_supplies, transformed_input_matches_expected};
     use crate::transform::heat_source_wet::heat_battery_dry_core::transform;
+    use crate::transform::EnergySupplies;
     use rstest::{fixture, rstest};
-    use serde_json::{Map, Value as JsonValue, json};
+    use serde_json::{json, Map, Value as JsonValue};
     use std::collections::HashMap;
 
     fn dry_core_heat_battery_input(product_reference: &str) -> JsonValue {
@@ -127,7 +135,6 @@ mod tests {
 
     #[rstest]
     #[case("dry_core")]
-    #[ignore]
     #[case("dry_core_unordered_test_data")]
     fn test_transform_heat_battery_dry_core(
         pcdb_heat_batteries: HashMap<String, Product>,
