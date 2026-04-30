@@ -166,5 +166,219 @@
     "structuralFloorMaterial": "Sand & Cement Screed",
     "floorFinishResistance": 0,
     "technologyType": "UnderFloorHeating"
+  },
+  "999": {
+    "firstYearOfManufacture": "2025",
+    "modelName": "Fan Coils",
+    "brandName": "HEM Default",
+    "testData": [
+      {
+        "fan_speed": 1,
+        "temperature_diff": 20,
+        "productID": 310000,
+        "power_output": 0.24,
+        "airflow": 147,
+        "wet_emitter_type": "fancoil",
+        "ID": 74,
+        "fan_power_W": 66,
+        "parentID": 7
+      },
+      {
+        "fan_speed": 1,
+        "temperature_diff": 30,
+        "productID": 310000,
+        "power_output": 0.56,
+        "airflow": 147,
+        "wet_emitter_type": "fancoil",
+        "ID": 75,
+        "fan_power_W": 66,
+        "parentID": 7
+      },
+      {
+        "fan_speed": 1,
+        "temperature_diff": 40,
+        "productID": 310000,
+        "power_output": 0.8,
+        "airflow": 147,
+        "wet_emitter_type": "fancoil",
+        "ID": 76,
+        "fan_power_W": 66,
+        "parentID": 7
+      },
+      {
+        "fan_speed": 2,
+        "temperature_diff": 20,
+        "productID": 310000,
+        "power_output": 0.32,
+        "airflow": 169,
+        "wet_emitter_type": "fancoil",
+        "ID": 79,
+        "fan_power_W": 79.2,
+        "parentID": 7
+      },
+      {
+        "fan_speed": 2,
+        "temperature_diff": 30,
+        "productID": 310000,
+        "power_output": 0.64,
+        "airflow": 169,
+        "wet_emitter_type": "fancoil",
+        "ID": 80,
+        "fan_power_W": 79.2,
+        "parentID": 7
+      },
+      {
+        "fan_speed": 2,
+        "temperature_diff": 40,
+        "productID": 310000,
+        "power_output": 0.96,
+        "airflow": 169,
+        "wet_emitter_type": "fancoil",
+        "ID": 82,
+        "fan_power_W": 79.2,
+        "parentID": 7
+      },
+      {
+        "fan_speed": 3,
+        "temperature_diff": 20,
+        "productID": 310000,
+        "power_output": 0.32,
+        "airflow": 190.7,
+        "wet_emitter_type": "fancoil",
+        "ID": 85,
+        "fan_power_W": 97.2,
+        "parentID": 7
+      },
+      {
+        "fan_speed": 3,
+        "temperature_diff": 30,
+        "productID": 310000,
+        "power_output": 0.72,
+        "airflow": 190.7,
+        "wet_emitter_type": "fancoil",
+        "ID": 87,
+        "fan_power_W": 97.2,
+        "parentID": 7
+      },
+      {
+        "fan_speed": 3,
+        "temperature_diff": 40,
+        "productID": 310000,
+        "power_output": 1.04,
+        "airflow": 190.7,
+        "wet_emitter_type": "fancoil",
+        "ID": 88,
+        "fan_power_W": 97.2,
+        "parentID": 7
+      },
+      {
+        "fan_speed": 4,
+        "temperature_diff": 20,
+        "productID": 310000,
+        "power_output": 0.4,
+        "airflow": 212.3,
+        "wet_emitter_type": "fancoil",
+        "ID": 90,
+        "fan_power_W": 118.8,
+        "parentID": 7
+      },
+      {
+        "fan_speed": 4,
+        "temperature_diff": 30,
+        "productID": 310000,
+        "power_output": 0.8,
+        "airflow": 212.3,
+        "wet_emitter_type": "fancoil",
+        "ID": 91,
+        "fan_power_W": 118.8,
+        "parentID": 7
+      },
+      {
+        "fan_speed": 4,
+        "temperature_diff": 40,
+        "productID": 310000,
+        "power_output": 1.12,
+        "airflow": 212.3,
+        "wet_emitter_type": "fancoil",
+        "ID": 92,
+        "fan_power_W": 118.8,
+        "parentID": 7
+      },
+      {
+        "fan_speed": 5,
+        "temperature_diff": 20,
+        "productID": 310000,
+        "power_output": 0.4,
+        "airflow": 234.3,
+        "wet_emitter_type": "fancoil",
+        "ID": 94,
+        "fan_power_W": 145.2,
+        "parentID": 7
+      },
+      {
+        "fan_speed": 5,
+        "temperature_diff": 30,
+        "productID": 310000,
+        "power_output": 0.88,
+        "airflow": 234.3,
+        "wet_emitter_type": "fancoil",
+        "ID": 95,
+        "fan_power_W": 145.2,
+        "parentID": 7
+      },
+      {
+        "fan_speed": 5,
+        "temperature_diff": 40,
+        "productID": 310000,
+        "power_output": 1.2,
+        "airflow": 234.3,
+        "wet_emitter_type": "fancoil",
+        "ID": 96,
+        "fan_power_W": 145.2,
+        "parentID": 7
+      },
+      {
+        "fan_speed": 6,
+        "temperature_diff": 20,
+        "productID": 310000,
+        "power_output": 0.48,
+        "airflow": 259,
+        "wet_emitter_type": "fancoil",
+        "ID": 97,
+        "fan_power_W": 177.6,
+        "parentID": 7
+      },
+      {
+        "fan_speed": 6,
+        "temperature_diff": 30,
+        "productID": 310000,
+        "power_output": 0.88,
+        "airflow": 259,
+        "wet_emitter_type": "fancoil",
+        "ID": 98,
+        "fan_power_W": 177.6,
+        "parentID": 7
+      },
+      {
+        "fan_speed": 6,
+        "temperature_diff": 40,
+        "productID": 310000,
+        "power_output": 1.28,
+        "airflow": 259,
+        "wet_emitter_type": "fancoil",
+        "ID": 99,
+        "fan_power_W": 177.6,
+        "parentID": 7
+      }
+    ],
+    "productID": "999",
+    "id": "999",
+    "numberOfFanSpeeds": 6,
+    "fuel": "electricity",
+    "numberOfTestPointDeltaT": 3,
+    "dataType": "illustrative_conservative",
+    "fracConvective": 1,
+    "finalYearOfManufacture": "current",
+    "technologyType": "FanCoils"
   }
 }

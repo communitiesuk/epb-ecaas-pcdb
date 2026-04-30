@@ -1,4 +1,5 @@
 mod elec_storage_heater;
+mod fancoil;
 mod radiator;
 mod underfloor_heating;
 
@@ -50,6 +51,11 @@ pub fn transform(
                                                 &product_ref,
                                             )?,
                                             "ufh" => underfloor_heating::transform(
+                                                emitter,
+                                                &products[&product_ref],
+                                                &product_ref,
+                                            )?,
+                                            "fancoil" => fancoil::transform(
                                                 emitter,
                                                 &products[&product_ref],
                                                 &product_ref,

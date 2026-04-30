@@ -399,16 +399,16 @@ pub(crate) struct ElectricStorageHeaterTestDatum {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub(crate) struct FanCoilTestDatum {
     /// fan speeds (n) for which data are provided in the record
-    fan_speed: Decimal,
+    pub(crate) fan_speed: Decimal,
     /// DeltaT (difference between mean feed water temperature and room air temperature) at test point heat output test, in K., up to 6 chs, e.g. xxxx.x
-    temperature_diff: Decimal,
+    pub(crate) temperature_diff: Decimal,
     /// power_output at deltaT and fan speed, in kW. up to 5 chs, e.g. xx.xx
-    power_output: Decimal,
+    pub(crate) power_output: Decimal,
     /// Electrical power consumed by fan at fan different speeds in W., up to 5 chs, e.g. xxx.x
-    fan_power_w: Decimal,
+    #[serde(rename = "fan_power_W")]
+    pub(crate) fan_power_w: Decimal,
 }
 
 #[derive(Debug, Deserialize)]

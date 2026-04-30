@@ -1,0 +1,50 @@
+{
+  "wet_emitter_type": "fancoil",
+  "n_units": 2,
+  "frac_convective": 1.0,
+  "fancoil_test_data": {
+    "fan_speed_data": [
+      {
+        "temperature_diff": 20.0,
+        "power_output": [
+          0.24,
+          0.32,
+          0.32,
+          0.4,
+          0.4,
+          0.48
+        ]
+      },
+      {
+        "temperature_diff": 30.0,
+        "power_output": [
+          0.56,
+          0.64,
+          0.72,
+          0.8,
+          0.88,
+          0.88
+        ]
+      },
+      {
+        "temperature_diff": 40.0,
+        "power_output": [
+          0.8,
+          0.96,
+          1.04,
+          1.12,
+          1.2,
+          1.28
+        ]
+      }
+    ],
+    "fan_power_W": [
+      66.0,
+      79.2,
+      97.2,
+      118.8,
+      145.2,
+      177.6
+    ]
+  }
+}

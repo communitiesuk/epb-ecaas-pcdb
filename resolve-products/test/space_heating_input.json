@@ -30,6 +30,11 @@
           "wet_emitter_type": "ufh",
           "product_reference": "720",
           "emitter_floor_area": 42
+        },
+        {
+          "wet_emitter_type": "fancoil",
+          "product_reference": "999",
+          "n_units": 2
         }
       ],
       "EnergySupply": "mains elec",
