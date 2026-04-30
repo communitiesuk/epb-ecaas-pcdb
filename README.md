@@ -10,17 +10,6 @@ calculations.
 
 This repository contains Rust packages to help fulfill these requirements.
 
-## schemagen
-
-The `schemagen` package uses a series of [JSON Patch](https://jsonpatch.com) patches to take a JSON Schema file (such as
-those published for the Future Homes Standard, or HEM core) and produce another JSON schema file that defines formats
-that will allow relevant parts of the document to include `product_reference` fields that can be used in place of full
-product data needed for a HEM-based calculation.
-
-```shell
-cargo run -p schemagen [URL of JSON Schema document]
-```
-
 ## resolve-products
 
 This library package exposes a function `resolve_products` that takes a parameter that implements `std::io::Read` (this
@@ -29,7 +18,8 @@ must be a conforming JSON document) and returns another value that implements `s
 
 ### Temporary binary for resolving JSON
 
-There is also a binary entry point for this package that can be used to resolve input JSON from a file (`products.json`).
+There is also a binary entry point for this package that can be used to resolve input JSON from a file (
+`products.json`).
 
 To convert a JSON document from a local file:
 
