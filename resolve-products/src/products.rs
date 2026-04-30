@@ -599,7 +599,8 @@ impl ProductCatalogue for DynamoDbBackedProductCatalogue<'_> {
 //     async fn test_find_heat_pump_by_reference() {
 //         let product_references = ["10870".into()];
 //         let local_dynamo = local_dynamo_client().await;
-//         let result = find_products_for_references(&product_references, &local_dynamo).await;
+//         let catalogue = DynamoDbBackedProductCatalogue::new(&local_dynamo);
+//         let result = find_products_for_references(&product_references, &catalogue).await;
 //         assert!(result.is_ok())
 //     }
 //
@@ -607,7 +608,8 @@ impl ProductCatalogue for DynamoDbBackedProductCatalogue<'_> {
 //     async fn test_find_boiler_by_reference() {
 //         let product_references = ["6605".into()];
 //         let local_dynamo = local_dynamo_client().await;
-//         let result = find_products_for_references(&product_references, &local_dynamo).await;
+//         let catalogue = DynamoDbBackedProductCatalogue::new(&local_dynamo);
+//         let result = find_products_for_references(&product_references, &catalogue).await;
 //         assert!(result.is_ok());
 //     }
 //
@@ -615,7 +617,8 @@ impl ProductCatalogue for DynamoDbBackedProductCatalogue<'_> {
 //     async fn test_find_fancoil_by_reference() {
 //         let product_references = ["300002".into()];
 //         let local_dynamo = local_dynamo_client().await;
-//         let result = find_products_for_references(&product_references, &local_dynamo).await;
+//         let catalogue = DynamoDbBackedProductCatalogue::new(&local_dynamo);
+//         let result = find_products_for_references(&product_references, &catalogue).await;
 //         assert!(result.is_ok())
 //     }
 //
@@ -623,7 +626,17 @@ impl ProductCatalogue for DynamoDbBackedProductCatalogue<'_> {
 //     async fn test_find_mech_vent_by_reference() {
 //         let product_references = ["2746".into()];
 //         let local_dynamo = local_dynamo_client().await;
-//         let result = find_products_for_references(&product_references, &local_dynamo).await;
+//         let catalogue = DynamoDbBackedProductCatalogue::new(&local_dynamo);
+//         let result = find_products_for_references(&product_references, &catalogue).await;
+//         assert!(result.is_ok());
+//     }
+//
+//     #[tokio::test]
+//     async fn test_find_pcm_heat_battery_by_reference() {
+//         let product_references = ["800002".into()];
+//         let local_dynamo = local_dynamo_client().await;
+//         let catalogue = DynamoDbBackedProductCatalogue::new(&local_dynamo);
+//         let result = find_products_for_references(&product_references, &catalogue).await;
 //         assert!(result.is_ok());
 //     }
 //
@@ -636,7 +649,8 @@ impl ProductCatalogue for DynamoDbBackedProductCatalogue<'_> {
 //             "300002".into(),
 //         ];
 //         let local_dynamo = local_dynamo_client().await;
-//         let result = find_products_for_references(&product_references, &local_dynamo).await;
+//         let catalogue = DynamoDbBackedProductCatalogue::new(&local_dynamo);
+//         let result = find_products_for_references(&product_references, &catalogue).await;
 //         assert!(result.is_ok());
 //     }
 //
@@ -644,7 +658,8 @@ impl ProductCatalogue for DynamoDbBackedProductCatalogue<'_> {
 //     async fn test_find_unsupported_product_by_reference() {
 //         let product_references = ["10378".into()];
 //         let local_dynamo = local_dynamo_client().await;
-//         let result = find_products_for_references(&product_references, &local_dynamo).await;
+//         let catalogue = DynamoDbBackedProductCatalogue::new(&local_dynamo);
+//         let result = find_products_for_references(&product_references, &catalogue).await;
 //         assert!(result.is_err());
 //         let err = result.err().unwrap();
 //         assert!(err.to_string().contains("Received a product type that is not yet supported"));
