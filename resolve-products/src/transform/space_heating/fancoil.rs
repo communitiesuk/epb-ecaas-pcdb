@@ -52,7 +52,7 @@ fn test_data_for_target(test_data: &[FanCoilTestDatum]) -> JsonValue {
     for test_datum in test_data.iter().sorted_by(|a, b| {
         a.fan_speed
             .cmp(&b.fan_speed)
-            .then(a.temperature_diff.cmp(&b.temperature_diff))
+            .then_with(|| a.temperature_diff.cmp(&b.temperature_diff))
     }) {
         let fan_speed_datum = fan_speed_data
             .iter_mut()
