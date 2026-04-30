@@ -39,11 +39,11 @@ pub enum ResolvePcdbProductsError {
     #[error("Error encountered while deserializing test product: {0:?}")]
     BadTestProductError(serde_json::Error),
     #[error(
-        "Received a product type that is not yet supported. Currently supported products: heat pump, boiler, and electric storage heater."
+        "Received a product type that is not yet supported. Currently supported products: heat pump, boiler, electric storage heater, and PCM heat batteries."
     )]
     UnsupportedProductAtDeserialization(serde_dynamo::Error),
     #[error(
-        "Received a product type that is not yet supported. Currently supported products: heat pump, boiler, and electric storage heater."
+        "Received a product type that is not yet supported. Currently supported products: heat pump, boiler, electric storage heater, and PCM heat batteries."
     )]
     UnsupportedProductAtMapping,
     #[error("No energy supply provided for fuel type '{0}' to be mapped to")]

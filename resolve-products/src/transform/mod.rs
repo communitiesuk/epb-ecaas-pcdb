@@ -26,6 +26,7 @@ pub async fn transform_json(
             Technology::HeatPump { .. }
                 | Technology::Boiler { .. }
                 | Technology::ElectricStorageHeater { .. }
+                | Technology::HeatBatteryPcm { .. }
         )
     }) {
         return Err(ResolvePcdbProductsError::UnsupportedProductAtMapping);
