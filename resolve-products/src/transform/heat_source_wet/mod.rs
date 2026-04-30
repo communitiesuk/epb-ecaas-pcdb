@@ -40,8 +40,8 @@ pub async fn transform(
             if let Some(heat_source_type) = heat_source_object.get("type").and_then(|v| v.as_str())
             {
                 match heat_source_type {
-                    "HeatPump" => {
-                        if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) {
+                    "HeatPump"
+                        if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) => {
                             let product_reference =
                                 product_reference_from_json_object(heat_source_object)?;
 
@@ -54,9 +54,8 @@ pub async fn transform(
                             )
                                 .await?
                         }
-                    }
-                    "Boiler" => {
-                        if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) {
+                    "Boiler"
+                        if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) => {
                             let product_reference =
                                 product_reference_from_json_object(heat_source_object)?;
 
@@ -67,9 +66,8 @@ pub async fn transform(
                                 energy_supplies,
                             )?
                         }
-                    }
-                    "HeatBatteryPCM" => {
-                        if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) {
+                    "HeatBatteryPCM"
+                        if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) => {
                             let product_reference =
                                 product_reference_from_json_object(heat_source_object)?;
 
@@ -80,7 +78,6 @@ pub async fn transform(
                                 energy_supplies,
                             )?
                         }
-                    }
                     _ => {}
                 }
             }

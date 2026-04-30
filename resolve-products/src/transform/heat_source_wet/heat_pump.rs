@@ -97,7 +97,7 @@ pub async fn transform(
             }
             if let Some(boiler_product_id) = boiler_product_id {
                 let boiler_product =
-                    find_product_for_reference(&boiler_product_id, catalogue).await?;
+                    find_product_for_reference(boiler_product_id, catalogue).await?;
                 if let Technology::Boiler {
                     rated_power,
                     efficiency_full_load,
@@ -311,7 +311,7 @@ mod tests {
         }
 
         let result = transform(
-            &mut input.as_object_mut().unwrap(),
+            input.as_object_mut().unwrap(),
             pcdb_data,
             product_reference,
             &catalogue,

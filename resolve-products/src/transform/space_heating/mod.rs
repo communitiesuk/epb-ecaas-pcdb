@@ -22,8 +22,8 @@ pub fn transform(
         if let JsonValue::Object(system) = value {
             if let Some(system_type) = system.get("type").and_then(|v| v.as_str()) {
                 match system_type {
-                    "ElecStorageHeater" => {
-                        if system.contains_key(PRODUCT_REFERENCE_FIELD) {
+                    "ElecStorageHeater"
+                        if system.contains_key(PRODUCT_REFERENCE_FIELD) => {
                             let product_ref = product_reference_from_json_object(system)?;
 
                             elec_storage_heater::transform(
@@ -33,7 +33,6 @@ pub fn transform(
                                 energy_supplies,
                             )?
                         }
-                    }
                     "WetDistribution" => {
                         let emitters = system.get_mut("emitters").and_then(|v| v.as_array_mut());
                         for value in emitters.into_iter().flatten() {

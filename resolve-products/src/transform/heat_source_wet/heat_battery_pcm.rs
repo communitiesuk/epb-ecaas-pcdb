@@ -172,7 +172,7 @@ mod tests {
         let pcdb_pcm_heat_battery = pcdb_pcm_heat_batteries.get(product_reference).unwrap();
 
         let result = transform(
-            &mut pcm_input.as_object_mut().unwrap(),
+            pcm_input.as_object_mut().unwrap(),
             pcdb_pcm_heat_battery,
             product_reference,
             &energy_supplies,

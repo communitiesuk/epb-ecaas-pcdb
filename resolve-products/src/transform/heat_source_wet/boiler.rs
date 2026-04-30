@@ -153,7 +153,7 @@ mod tests {
         let pcdb_boiler = pcdb_boilers.get(product_reference).unwrap();
 
         let result = transform(
-            &mut boiler_input.as_object_mut().unwrap(),
+            boiler_input.as_object_mut().unwrap(),
             pcdb_boiler,
             product_reference,
             &energy_supplies,
@@ -176,7 +176,7 @@ mod tests {
         let pcdb_boiler = pcdb_boilers.get(product_reference).unwrap();
 
         let result = transform(
-            &mut input.as_object_mut().unwrap(),
+            input.as_object_mut().unwrap(),
             pcdb_boiler,
             product_reference,
             &energy_supplies,
