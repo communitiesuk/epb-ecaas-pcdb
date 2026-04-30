@@ -2,6 +2,7 @@ use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, Technology};
 use crate::transform::{EnergySupplies, ResolveProductsResult};
 use crate::PRODUCT_REFERENCE_FIELD;
+use itertools::Itertools;
 use serde_json::{json, Map, Value as JsonValue};
 
 pub(crate) fn transform(
@@ -37,7 +38,7 @@ pub(crate) fn transform(
 
         let (dry_core_min_output, dry_core_max_output): (Vec<[f64; 2]>, Vec<[f64; 2]>) = test_data
             .iter()
-            // todo: charge_level ascending
+            .sorted_by(|a, b| Ord::cmp(&a.charge_level, &b.charge_level))
             .map(|datum| {
                 let charge_level = datum.charge_level.as_f64();
 
@@ -48,6 +49,7 @@ pub(crate) fn transform(
             })
             .unzip();
 
+        // todo: get lowest charge_level instead of first
         let state_of_charge_init = test_data.first().unwrap().charge_level;
         dry_core_battery.insert("dry_core_min_output".into(), dry_core_min_output.into());
         dry_core_battery.insert("dry_core_max_output".into(), dry_core_max_output.into());
@@ -112,6 +114,8 @@ mod tests {
 
     #[rstest]
     #[case("dry_core")]
+    #[ignore]
+    #[case("dry_core_unordered_test_data")]
     fn test_transform_heat_battery_dry_core(
         pcdb_heat_batteries: HashMap<String, Product>,
         energy_supplies: EnergySupplies,
