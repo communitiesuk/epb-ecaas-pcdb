@@ -4,7 +4,7 @@ mod space_heating;
 use crate::errors::ResolvePcdbProductsError;
 use crate::extract_product_references;
 use crate::products::{
-    find_products_for_references, DynamoDbBackedProductCatalogue, FuelType, Product, Technology,
+    DynamoDbBackedProductCatalogue, FuelType, Product, Technology, find_products_for_references,
 };
 use aws_sdk_dynamodb::client::Client as DynamoDbClient;
 use serde_json::value::Value as JsonValue;
@@ -27,6 +27,7 @@ pub async fn transform_json(
                 | Technology::Boiler { .. }
                 | Technology::ElectricStorageHeater { .. }
                 | Technology::HeatBatteryPcm { .. }
+                | Technology::Radiator { .. }
         )
     }) {
         return Err(ResolvePcdbProductsError::UnsupportedProductAtMapping);
@@ -73,7 +74,7 @@ fn extract_energy_supplies(json: &JsonValue) -> Result<EnergySupplies, ()> {
 mod catalogue {
     use crate::errors::ResolvePcdbProductsError;
     use crate::products::{Product, ProductCatalogue};
-    use crate::transform::{extract_energy_supplies, EnergySupplies, ResolveProductsResult};
+    use crate::transform::{EnergySupplies, ResolveProductsResult, extract_energy_supplies};
     use itertools::Itertools;
     use serde_json::{Map, Value};
     use std::collections::HashMap;

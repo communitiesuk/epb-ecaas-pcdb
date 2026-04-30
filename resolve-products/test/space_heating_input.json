@@ -12,20 +12,7 @@
       "Zone": "ThermalZone",
       "product_reference": "444"
     },
-    "Radiators": {
-      "type": "WetDistribution",
-      "HeatSource": {
-        "name": "boiler",
-        "temp_flow_limit_upper": 65
-      },
-      "Zone": "ThermalZone",
-      "design_flow_temp": 45,
-      "ecodesign_controller": {
-        "ecodesign_control_class": 2,
-        "max_outdoor_temp": 20,
-        "min_flow_temp": 30,
-        "min_outdoor_temp": 0
-      },
+    "WetDistribution": {
       "emitters": [
         {
           "wet_emitter_type": "radiator",
@@ -40,11 +27,25 @@
           "length": 7
         }
       ],
-      "max_flow_rate": 21,
-      "min_flow_rate": 3.6,
-      "temp_diff_emit_dsgn": 5,
-      "thermal_mass": 0.055946206,
-      "variable_flow": true
+      "EnergySupply": "mains elec",
+      "temp_diff_emit_dsgn": 10,
+      "Zone": "ThermalZone",
+      "type": "WetDistribution",
+      "design_flow_temp": 40,
+      "HeatSource": {
+        "name": "boiler",
+        "temp_flow_limit_upper": 65
+      },
+      "ecodesign_controller": {
+        "ecodesign_control_class": 2,
+        "min_outdoor_temp": 0,
+        "max_outdoor_temp": 20,
+        "min_flow_temp": 30
+      },
+      "bypass_fraction_recirculated": 0.8,
+      "variable_flow": false,
+      "design_flow_rate": 6,
+      "thermal_mass": 0.7
     }
   }
 }

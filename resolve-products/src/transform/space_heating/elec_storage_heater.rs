@@ -103,7 +103,7 @@ mod tests {
         let product_reference = "444";
         let mut input = input(product_reference);
         let expected: Map<std::string::String, Value> =
-            from_str(include_str!("../../../test/esh_input_transformed.json")).unwrap();
+            from_str(include_str!("../../../test/esh_transformed.json")).unwrap();
 
         let result = transform(
             input.as_object_mut().unwrap(),
@@ -113,7 +113,6 @@ mod tests {
         );
 
         assert!(result.is_ok());
-
         transformed_input_matches_expected(&mut input, expected);
     }
 
@@ -121,7 +120,6 @@ mod tests {
     fn test_transform_esh_errors_when_product_type_mismatch(energy_supplies: EnergySupplies) {
         let product_reference = "hp";
         let mut input = input(product_reference);
-
         let pcdb_hps: HashMap<String, Product> =
             from_str(include_str!("../../../test/test_heat_pump_pcdb.json")).unwrap();
 

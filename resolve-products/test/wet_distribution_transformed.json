@@ -1,0 +1,39 @@
+{
+  "type": "WetDistribution",
+  "emitters": [
+    {
+      "wet_emitter_type": "radiator",
+      "c_per_m": 0.08,
+      "n": 1.2,
+      "frac_convective": 0.4,
+      "thermal_mass_per_m": 0.028,
+      "length": 7
+    },
+    {
+      "wet_emitter_type": "radiator",
+      "c_per_m": 0.08,
+      "n": 1.2,
+      "frac_convective": 0.4,
+      "thermal_mass_per_m": 0.028,
+      "length": 7
+    }
+  ],
+  "EnergySupply": "mains elec",
+  "HeatSource": {
+    "name": "boiler",
+    "temp_flow_limit_upper": 65
+  },
+  "Zone": "ThermalZone",
+  "design_flow_temp": 40,
+  "temp_diff_emit_dsgn": 10,
+  "ecodesign_controller": {
+    "ecodesign_control_class": 2,
+    "max_outdoor_temp": 20,
+    "min_flow_temp": 30,
+    "min_outdoor_temp": 0
+  },
+  "bypass_fraction_recirculated": 0.8,
+  "variable_flow": false,
+  "design_flow_rate": 6,
+  "thermal_mass": 0.7
+}

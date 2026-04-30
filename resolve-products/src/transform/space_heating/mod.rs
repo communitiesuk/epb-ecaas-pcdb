@@ -71,7 +71,7 @@ pub fn transform(
                             }
                         }
                     }
-                    _ => {}
+                    _ => {} // TODO could add warning about unexpected type being reached
                 }
             }
         }
@@ -86,8 +86,7 @@ mod tests {
     use crate::transform::catalogue::mock_energy_supplies;
     use crate::transform::space_heating::transform;
     use rstest::*;
-    use serde_json::from_str;
-    use serde_json::json;
+    use serde_json::{from_str, json};
     use std::sync::LazyLock;
 
     #[fixture]
@@ -102,9 +101,9 @@ mod tests {
     fn test_transform_space_heating(energy_supplies: EnergySupplies) {
         let mut input = from_str(include_str!("../../../test/space_heating_input.json")).unwrap();
         let expected_esh: JsonValue =
-            from_str(include_str!("../../../test/esh_input_transformed.json")).unwrap();
-        let expected_radiator: JsonValue = from_str(include_str!(
-            "../../../test/test_radiator_input_transformed.json"
+            from_str(include_str!("../../../test/esh_transformed.json")).unwrap();
+        let expected_wet_distribution: JsonValue = from_str(include_str!(
+            "../../../test/wet_distribution_transformed.json"
         ))
         .unwrap();
 
@@ -112,29 +111,9 @@ mod tests {
 
         let expected_input = json!({
             "SpaceHeatSystem": {
-                "Radiators": {
-                    "type": "WetDistribution",
-                    "HeatSource": {
-                        "name": "boiler",
-                        "temp_flow_limit_upper": 65
-                    },
-                    "Zone": "ThermalZone",
-                    "design_flow_temp": 45,
-                    "ecodesign_controller": {
-                        "ecodesign_control_class": 2,
-                        "max_outdoor_temp": 20,
-                        "min_flow_temp": 30,
-                        "min_outdoor_temp": 0
-                    },
-                    "emitters": [expected_radiator, expected_radiator],
-                    "max_flow_rate": 21,
-                    "min_flow_rate": 3.6,
-                    "temp_diff_emit_dsgn": 5,
-                    "thermal_mass": 0.055946206,
-                    "variable_flow": true
-                },
                 "ElecHeater1": expected_esh,
-                "ElecHeater2": expected_esh
+                "ElecHeater2": expected_esh,
+                "WetDistribution": expected_wet_distribution,
             }
         });
 

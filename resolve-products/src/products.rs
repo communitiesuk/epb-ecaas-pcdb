@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
-use crate::errors::ResolvePcdbProductsError;
 use crate::ResolveProductsResult;
-use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
+use crate::errors::ResolvePcdbProductsError;
 use aws_sdk_dynamodb::Client as DynamoDbClient;
+use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Deserializer};
 use serde_dynamo::from_item;
@@ -187,7 +187,8 @@ pub(crate) enum Technology {
         /// Thermal mass of the radiator, measured in kilowatt hours per kelvin per meter length (kWh/K)/m
         thermal_mass_per_m: Decimal,
         /// C-value for the radiator in Watt per meter (W/m)
-        c: Decimal,
+        #[serde(rename = "c")]
+        c_per_m: Decimal,
     },
     #[serde(rename = "UnderFloorHeating")]
     UnderfloorHeating {
