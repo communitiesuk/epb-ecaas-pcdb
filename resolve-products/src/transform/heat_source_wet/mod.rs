@@ -1,6 +1,7 @@
 mod boiler;
 mod heat_battery_pcm;
 mod heat_pump;
+mod heat_battery_dry_core;
 
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;

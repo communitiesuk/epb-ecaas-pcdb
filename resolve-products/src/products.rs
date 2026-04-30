@@ -134,6 +134,7 @@ pub(crate) enum Technology {
         #[serde(rename = "velocityInHEXTubeAt1LPerMinMPerS")]
         velocity_in_hex_tube_at_1_l_per_min_m_per_s: Decimal,
     },
+    #[serde(alias = "HeatBatteryDryCore", rename_all = "camelCase")]
     HeatBatteryDryCore {
         fuel: FuelType,
         electricity_circ_pump: Decimal,
@@ -146,8 +147,7 @@ pub(crate) enum Technology {
         heat_storage_capacity: Decimal,
         /// Fan power (W)
         fan_pwr: Decimal,
-        #[serde(rename = "testData")]
-        test_data: Vec<HeatBatteryPcmTestDatum>,
+        test_data: Vec<HeatBatteryDryCoreTestDatum>,
         // TODO: state_of_charge_init needs to come from somewhere = account for this
     },
     #[serde(rename = "HeatInterfaceUnit")]
@@ -356,13 +356,14 @@ pub(crate) enum BoilerLocation {
 }
 
 #[derive(Debug, Deserialize)]
-pub(crate) struct HeatBatteryPcmTestDatum {
+#[serde(rename_all = "camelCase")]
+pub(crate) struct HeatBatteryDryCoreTestDatum {
     /// Charge level (e.g., percentage or step index)
-    charge_level: Decimal,
+    pub(crate) charge_level: Decimal,
     /// Minimum output (kW)
-    dry_core_min_output: Decimal,
+    pub(crate) dry_core_min_output: Decimal,
     /// Maximum output (kW)
-    dry_core_max_output: Decimal,
+    pub(crate) dry_core_max_output: Decimal,
 }
 
 #[derive(Debug, Deserialize)]
