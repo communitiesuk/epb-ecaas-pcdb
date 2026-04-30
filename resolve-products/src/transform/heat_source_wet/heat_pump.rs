@@ -1,13 +1,13 @@
-use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{
-    HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product, ProductCatalogue,
-    Technology, find_product_for_reference,
+    find_product_for_reference, HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product,
+    ProductCatalogue, Technology,
 };
 use crate::transform::{EnergySupplies, ResolveProductsResult};
+use crate::PRODUCT_REFERENCE_FIELD;
 use itertools::Itertools;
 use rust_decimal::prelude::ToPrimitive;
-use serde_json::{Map, Value as JsonValue, json};
+use serde_json::{json, Map, Value as JsonValue};
 
 pub async fn transform(
     heat_pump: &mut Map<String, JsonValue>,
@@ -241,10 +241,10 @@ pub async fn transform(
 mod tests {
     use super::*;
     use crate::transform::catalogue::{
-        FixtureBackedProductCatalogue, mock_energy_supplies, transformed_input_matches_expected,
+        mock_energy_supplies, transformed_input_matches_expected, FixtureBackedProductCatalogue,
     };
     use rstest::{fixture, rstest};
-    use serde_json::{Value, json};
+    use serde_json::{json, Value};
     use std::collections::HashMap;
 
     fn heat_pump_input(product_reference: &str) -> Value {
@@ -321,6 +321,6 @@ mod tests {
         assert!(result.is_ok(), "result: {result:?}");
 
         let expected_input = expected_heat_pump_input(product_reference);
-        transformed_input_matches_expected(&mut input, expected_input);
+        transformed_input_matches_expected(&input, expected_input);
     }
 }

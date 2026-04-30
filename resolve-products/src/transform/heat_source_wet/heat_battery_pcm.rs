@@ -1,8 +1,8 @@
-use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, Technology};
 use crate::transform::{EnergySupplies, ResolveProductsResult};
-use serde_json::{Map, Value as JsonValue, json};
+use crate::PRODUCT_REFERENCE_FIELD;
+use serde_json::{json, Map, Value as JsonValue};
 
 pub(crate) fn transform(
     pcm_battery: &mut Map<String, JsonValue>,
@@ -116,11 +116,11 @@ pub(crate) fn transform(
 #[cfg(test)]
 mod tests {
     use crate::products::Product;
-    use crate::transform::EnergySupplies;
     use crate::transform::catalogue::{mock_energy_supplies, transformed_input_matches_expected};
     use crate::transform::heat_source_wet::heat_battery_pcm::transform;
+    use crate::transform::EnergySupplies;
     use rstest::{fixture, rstest};
-    use serde_json::{Map, Value as JsonValue, json};
+    use serde_json::{json, Map, Value as JsonValue};
     use std::collections::HashMap;
 
     fn pcm_heat_battery_input(product_reference: &str) -> JsonValue {
@@ -179,6 +179,6 @@ mod tests {
         );
         assert!(result.is_ok());
         let expected_input = expected_transformed_input(product_reference);
-        transformed_input_matches_expected(&mut pcm_input, expected_input);
+        transformed_input_matches_expected(&pcm_input, expected_input);
     }
 }

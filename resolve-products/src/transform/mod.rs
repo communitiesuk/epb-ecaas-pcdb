@@ -3,12 +3,12 @@ mod space_heating;
 
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{
-    DynamoDbBackedProductCatalogue, FuelType, Product, Technology, find_products_for_references,
+    find_products_for_references, DynamoDbBackedProductCatalogue, FuelType, Product, Technology,
 };
-use crate::{PRODUCT_REFERENCE_FIELD, extract_product_references};
+use crate::{extract_product_references, PRODUCT_REFERENCE_FIELD};
 use aws_sdk_dynamodb::client::Client as DynamoDbClient;
-use serde_json::Map;
 use serde_json::value::Value as JsonValue;
+use serde_json::Map;
 use smartstring::alias::String;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -89,7 +89,7 @@ fn extract_energy_supplies(json: &JsonValue) -> Result<EnergySupplies, ()> {
 mod catalogue {
     use crate::errors::ResolvePcdbProductsError;
     use crate::products::{Product, ProductCatalogue};
-    use crate::transform::{EnergySupplies, ResolveProductsResult, extract_energy_supplies};
+    use crate::transform::{extract_energy_supplies, EnergySupplies, ResolveProductsResult};
     use itertools::Itertools;
     use serde_json::{Map, Value};
     use std::collections::HashMap;
@@ -144,7 +144,7 @@ mod catalogue {
     }
 
     pub(crate) fn transformed_input_matches_expected(
-        transformed_input: &mut Value,
+        transformed_input: &Value,
         expected_input: Map<String, Value>,
     ) {
         let mut actual_keys = transformed_input.as_object().unwrap().keys().collect_vec();
