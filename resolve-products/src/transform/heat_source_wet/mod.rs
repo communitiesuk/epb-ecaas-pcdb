@@ -66,17 +66,30 @@ pub async fn transform(
                         )?
                     }
                     "HeatBatteryPCM"
-                        if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) =>
-                    {
-                        let product_reference =
-                            product_reference_from_json_object(heat_source_object)?;
+                    if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) =>
+                        {
+                            let product_reference =
+                                product_reference_from_json_object(heat_source_object)?;
 
-                        heat_battery_pcm::transform(
-                            heat_source_object,
-                            &products[&product_reference],
-                            &product_reference,
-                            energy_supplies,
-                        )?
+                            heat_battery_pcm::transform(
+                                heat_source_object,
+                                &products[&product_reference],
+                                &product_reference,
+                                energy_supplies,
+                            )?
+                        }
+                    "HeatBatteryDryCore" => {
+                        if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) {
+                            let product_reference =
+                                product_reference_from_json_object(heat_source_object)?;
+
+                            heat_battery_dry_core::transform(
+                                heat_source_object,
+                                &products[&product_reference],
+                                &product_reference,
+                                energy_supplies,
+                            )?
+                        }
                     }
                     _ => {}
                 }
@@ -130,6 +143,13 @@ mod tests {
                     "product_reference": "pcm",
                     "number_of_units": 2,
                     "is_heat_network": false
+                },
+                "dry_core": {
+                    "type": "HeatBatteryDryCore",
+                    "battery_type": "dry_core",
+                    "product_reference": "dry_core",
+                    "number_of_units": 2,
+                    "is_heat_network": false
                 }
             }
         })
@@ -166,6 +186,7 @@ mod tests {
             "/HeatSourceWet/hp",
             "/HeatSourceWet/boiler",
             "/HeatSourceWet/pcm",
+            "/HeatSourceWet/dry_core",
         ];
         for pointer in pointers {
             assert!(heat_source_wet_input.pointer(pointer).is_some());

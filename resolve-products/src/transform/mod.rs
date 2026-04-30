@@ -29,6 +29,7 @@ pub async fn transform_json(
                 | Technology::ElectricStorageHeater { .. }
                 | Technology::HeatBatteryPcm { .. }
                 | Technology::Radiator { .. }
+                | Technology::HeatBatteryDryCore{ .. }
         )
     }) {
         return Err(ResolvePcdbProductsError::UnsupportedProductAtMapping);
@@ -104,10 +105,10 @@ mod catalogue {
                 products: serde_json::from_str::<serde_json::Value>(include_str!(
                     "../../test/referenced_products.json"
                 ))
-                .unwrap()
-                .as_object()
-                .unwrap()
-                .to_owned(),
+                    .unwrap()
+                    .as_object()
+                    .unwrap()
+                    .to_owned(),
             }
         }
     }
