@@ -2,11 +2,9 @@ mod elec_storage_heater;
 mod radiator;
 
 use crate::PRODUCT_REFERENCE_FIELD;
-use crate::errors::ResolvePcdbProductsError;
 use crate::products::Product;
-use crate::transform::{EnergySupplies, ResolveProductsResult};
+use crate::transform::{EnergySupplies, ResolveProductsResult, product_reference_from_json_object};
 use serde_json::Value as JsonValue;
-use smartstring::SmartString;
 use smartstring::alias::String;
 use std::collections::HashMap;
 
@@ -26,13 +24,7 @@ pub fn transform(
                 match system_type {
                     "ElecStorageHeater" => {
                         if system.contains_key(PRODUCT_REFERENCE_FIELD) {
-                            let product_ref = SmartString::from(
-                                system[PRODUCT_REFERENCE_FIELD].as_str().ok_or_else(|| {
-                                    ResolvePcdbProductsError::InvalidProductCategoryReference(
-                                        system[PRODUCT_REFERENCE_FIELD].clone(),
-                                    )
-                                })?,
-                            );
+                            let product_ref = product_reference_from_json_object(system)?;
 
                             elec_storage_heater::transform(
                                 system,
@@ -47,13 +39,8 @@ pub fn transform(
                         for value in emitters.into_iter().flatten() {
                             if let Some(emitter) = value.as_object_mut() {
                                 if emitter.contains_key(PRODUCT_REFERENCE_FIELD) {
-                                    let product_ref = SmartString::from(
-                                        emitter[PRODUCT_REFERENCE_FIELD].as_str().ok_or_else(|| {
-                                            ResolvePcdbProductsError::InvalidProductCategoryReference(
-                                                emitter[PRODUCT_REFERENCE_FIELD].clone(),
-                                            )
-                                        })?,
-                                    );
+                                    let product_ref = product_reference_from_json_object(emitter)?;
+
                                     if let Some(emitter_type) =
                                         emitter.get("wet_emitter_type").and_then(|v| v.as_str())
                                     {

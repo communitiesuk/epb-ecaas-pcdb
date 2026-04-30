@@ -2,11 +2,12 @@ pub mod heat_source_wet;
 mod space_heating;
 
 use crate::errors::ResolvePcdbProductsError;
-use crate::extract_product_references;
 use crate::products::{
     DynamoDbBackedProductCatalogue, FuelType, Product, Technology, find_products_for_references,
 };
+use crate::{PRODUCT_REFERENCE_FIELD, extract_product_references};
 use aws_sdk_dynamodb::client::Client as DynamoDbClient;
+use serde_json::Map;
 use serde_json::value::Value as JsonValue;
 use smartstring::alias::String;
 use std::collections::HashMap;
@@ -43,6 +44,20 @@ pub async fn transform_json(
     space_heating::transform(json, &products, &energy_supplies)?;
 
     Ok(())
+}
+
+fn product_reference_from_json_object(
+    product_json: &Map<std::string::String, JsonValue>,
+) -> Result<String, ResolvePcdbProductsError> {
+    Ok(String::from(
+        product_json[PRODUCT_REFERENCE_FIELD]
+            .as_str()
+            .ok_or_else(|| {
+                ResolvePcdbProductsError::InvalidProductCategoryReference(
+                    product_json[PRODUCT_REFERENCE_FIELD].clone(),
+                )
+            })?,
+    ))
 }
 
 pub type ResolveProductsResult<T> = Result<T, ResolvePcdbProductsError>;
