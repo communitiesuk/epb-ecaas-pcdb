@@ -2,10 +2,10 @@ mod boiler;
 mod heat_battery_pcm;
 mod heat_pump;
 
+use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, ProductCatalogue};
 use crate::transform::{EnergySupplies, ResolveProductsResult};
-use crate::PRODUCT_REFERENCE_FIELD;
 use serde_json::{Map, Value as JsonValue};
 use smartstring::alias::String as SmartString;
 use std::collections::HashMap;
@@ -40,44 +40,43 @@ pub async fn transform(
             if let Some(heat_source_type) = heat_source_object.get("type").and_then(|v| v.as_str())
             {
                 match heat_source_type {
-                    "HeatPump"
-                        if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) => {
-                            let product_reference =
-                                product_reference_from_json_object(heat_source_object)?;
+                    "HeatPump" if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) => {
+                        let product_reference =
+                            product_reference_from_json_object(heat_source_object)?;
 
-                            heat_pump::transform(
-                                heat_source_object,
-                                &products[&product_reference],
-                                &product_reference,
-                                catalogue,
-                                energy_supplies,
-                            )
-                                .await?
-                        }
-                    "Boiler"
-                        if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) => {
-                            let product_reference =
-                                product_reference_from_json_object(heat_source_object)?;
+                        heat_pump::transform(
+                            heat_source_object,
+                            &products[&product_reference],
+                            &product_reference,
+                            catalogue,
+                            energy_supplies,
+                        )
+                        .await?
+                    }
+                    "Boiler" if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) => {
+                        let product_reference =
+                            product_reference_from_json_object(heat_source_object)?;
 
-                            boiler::transform(
-                                heat_source_object,
-                                &products[&product_reference],
-                                &product_reference,
-                                energy_supplies,
-                            )?
-                        }
+                        boiler::transform(
+                            heat_source_object,
+                            &products[&product_reference],
+                            &product_reference,
+                            energy_supplies,
+                        )?
+                    }
                     "HeatBatteryPCM"
-                        if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) => {
-                            let product_reference =
-                                product_reference_from_json_object(heat_source_object)?;
+                        if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) =>
+                    {
+                        let product_reference =
+                            product_reference_from_json_object(heat_source_object)?;
 
-                            heat_battery_pcm::transform(
-                                heat_source_object,
-                                &products[&product_reference],
-                                &product_reference,
-                                energy_supplies,
-                            )?
-                        }
+                        heat_battery_pcm::transform(
+                            heat_source_object,
+                            &products[&product_reference],
+                            &product_reference,
+                            energy_supplies,
+                        )?
+                    }
                     _ => {}
                 }
             }
@@ -89,7 +88,7 @@ pub async fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::transform::catalogue::{mock_energy_supplies, FixtureBackedProductCatalogue};
+    use crate::transform::catalogue::{FixtureBackedProductCatalogue, mock_energy_supplies};
     use rstest::{fixture, rstest};
     use serde_json::json;
 
@@ -101,7 +100,8 @@ mod tests {
             serde_json::from_str(include_str!("../../../test/test_boilers_pcdb.json")).unwrap();
         let pcm_heat_batteries: HashMap<SmartString, Product> = serde_json::from_str(include_str!(
             "../../../test/test_pcm_heat_batteries_pcdb.json"
-        )).unwrap();
+        ))
+        .unwrap();
         hps.into_iter()
             .chain(boilers)
             .chain(pcm_heat_batteries)
@@ -158,7 +158,7 @@ mod tests {
             &dummy_catalogue,
             &energy_supplies,
         )
-            .await;
+        .await;
         assert!(result.is_ok());
 
         let pointers = [
@@ -221,7 +221,7 @@ mod tests {
             &dummy_catalogue,
             &energy_supplies,
         )
-            .await;
+        .await;
 
         assert!(hp_result.is_err());
         let error = hp_result.unwrap_err().to_string();

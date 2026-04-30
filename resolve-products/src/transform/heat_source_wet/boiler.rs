@@ -1,9 +1,9 @@
+use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{BoilerLocation, Product, Technology};
 use crate::transform::{EnergySupplies, ResolveProductsResult};
-use crate::PRODUCT_REFERENCE_FIELD;
 use rust_decimal::prelude::ToPrimitive;
-use serde_json::{json, Map, Value as JsonValue};
+use serde_json::{Map, Value as JsonValue, json};
 
 pub fn transform(
     boiler: &mut Map<String, JsonValue>,
@@ -100,7 +100,7 @@ mod tests {
     use super::*;
     use crate::transform::catalogue::{mock_energy_supplies, transformed_input_matches_expected};
     use rstest::{fixture, rstest};
-    use serde_json::{json, Value};
+    use serde_json::{Value, json};
     use std::collections::HashMap;
 
     fn boiler_input(product_reference: &str, specified_location: Option<&str>) -> Value {
