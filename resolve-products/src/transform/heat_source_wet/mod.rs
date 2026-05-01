@@ -4,26 +4,11 @@ mod heat_battery_pcm;
 mod heat_pump;
 
 use crate::PRODUCT_REFERENCE_FIELD;
-use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, ProductCatalogue};
-use crate::transform::{EnergySupplies, ResolveProductsResult};
-use serde_json::{Map, Value as JsonValue};
+use crate::transform::{EnergySupplies, ResolveProductsResult, product_reference_from_json_object};
+use serde_json::Value as JsonValue;
 use smartstring::alias::String as SmartString;
 use std::collections::HashMap;
-
-fn product_reference_from_json_object(
-    heat_source_wet: &Map<String, JsonValue>,
-) -> Result<SmartString, ResolvePcdbProductsError> {
-    Ok(SmartString::from(
-        heat_source_wet[PRODUCT_REFERENCE_FIELD]
-            .as_str()
-            .ok_or_else(|| {
-                ResolvePcdbProductsError::InvalidProductCategoryReference(
-                    heat_source_wet[PRODUCT_REFERENCE_FIELD].clone(),
-                )
-            })?,
-    ))
-}
 
 pub async fn transform(
     json: &mut JsonValue,
