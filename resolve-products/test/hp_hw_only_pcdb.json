@@ -1,0 +1,47 @@
+{
+  "id": "62",
+  "technologyType": "HotWaterOnlyHeatPump",
+  "brandName": "TEST",
+  "heatExchangerSurfaceAreaDeclared": 0.67,
+  "testData": [
+    {
+      "copDhw": 1.0,
+      "usefulHeat": 1.0,
+      "hwTappingProfDailyTotal": 1.0,
+      "productID": 62,
+      "electricalConsumption": 1.0,
+      "tappingProfile": "M",
+      "powerStandby": 1.0,
+      "id": 1,
+      "energyInputMeasured": 1.0,
+      "parentID": 4
+    },
+    {
+      "copDhw": 1.0,
+      "usefulHeat": 1.0,
+      "hwTappingProfDailyTotal": 1.0,
+      "productID": 62,
+      "electricalConsumption": 1.0,
+      "tappingProfile": "L",
+      "powerStandby": 1.0,
+      "id": 2,
+      "energyInputMeasured": 1.0,
+      "parentID": 4
+    }
+  ],
+  "productID": 62,
+  "dailyLossesDeclared": 2.22,
+  "fuel": "electricity",
+  "dataType": "listed_product",
+  "modelQualifier": "62070005",
+  "sourceType": "ExhaustAirMEV",
+  "finalYearOfManufacture": "current",
+  "type": "HeatPump_HWOnly",
+  "powerMax": 3,
+  "firstYearOfManufacture": "2016",
+  "modelName": "Modul-AIR Aqua",
+  "vesselType": "Separate limiting characteristics",
+  "testVesselVolume": 200,
+  "tankVolumeDeclared": 150,
+  "hwVesselLossDaily": 1.867
+}
