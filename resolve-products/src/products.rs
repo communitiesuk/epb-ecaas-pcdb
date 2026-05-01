@@ -413,13 +413,13 @@ pub(crate) struct FanCoilTestDatum {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct CentralisedMevTestDatum {
     /// Whether tested using flexible, rigid ducting or semi-rigid, coded as 1,2 and 3 respectively. Semi-rigid have the same in use factors as rigid.
     duct_type: MechanicalVentilationDuctType,
     /// Number of additional wet rooms (i.e. in addition to the kitchen)
     configuration: usize,
     /// Specific fan power in watts per (litre per second)
-    #[serde(rename = "SFP")]
     sfp: Decimal,
 }
 
@@ -477,6 +477,7 @@ pub(crate) enum TappingProfile {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct HeatPumpHotWaterOnlyTestDatum {
     tapping_profile: TappingProfile,
     /// Coefficienct of Performance (CoP) measured during EN 16147 test
