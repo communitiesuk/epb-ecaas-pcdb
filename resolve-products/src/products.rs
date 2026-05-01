@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
-use crate::ResolveProductsResult;
 use crate::errors::ResolvePcdbProductsError;
-use aws_sdk_dynamodb::Client as DynamoDbClient;
+use crate::ResolveProductsResult;
 use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
+use aws_sdk_dynamodb::Client as DynamoDbClient;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Deserializer};
 use serde_dynamo::from_item;
@@ -400,6 +400,7 @@ pub(crate) struct ElectricStorageHeaterTestDatum {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct FanCoilTestDatum {
     /// fan speeds (n) for which data are provided in the record
     pub(crate) fan_speed: Decimal,
@@ -408,7 +409,6 @@ pub(crate) struct FanCoilTestDatum {
     /// power_output at deltaT and fan speed, in kW. up to 5 chs, e.g. xx.xx
     pub(crate) power_output: Decimal,
     /// Electrical power consumed by fan at fan different speeds in W., up to 5 chs, e.g. xxx.x
-    #[serde(rename = "fan_power_W")]
     pub(crate) fan_power_w: Decimal,
 }
 
