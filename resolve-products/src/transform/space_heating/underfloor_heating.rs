@@ -1,16 +1,13 @@
-use crate::PRODUCT_REFERENCE_FIELD;
-use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, Technology};
-use crate::transform::ResolveProductsResult;
+use crate::transform::{InvalidProductCategoryError, TransformResult};
+use crate::PRODUCT_REFERENCE_FIELD;
 use serde_json::{Map, Value as JsonValue};
 
 pub fn transform(
     underfloor_heating: &mut Map<String, JsonValue>,
     product: &Product,
     product_reference: &str,
-) -> ResolveProductsResult<()> {
-    let mut category_mismatches = vec![];
-
+) -> TransformResult {
     if let Technology::UnderfloorHeating {
         system_performance_factor,
         frac_convective,
@@ -31,15 +28,10 @@ pub fn transform(
         // now remove product reference
         underfloor_heating.remove(PRODUCT_REFERENCE_FIELD);
     } else {
-        category_mismatches.push(format!(
-            "Product reference '{product_reference}' does not relate to an underfloor heating product."
-        ));
-    }
-
-    if !category_mismatches.is_empty() {
-        return Err(ResolvePcdbProductsError::ProductCategoryMismatches(
-            category_mismatches,
-        ));
+        return Err(InvalidProductCategoryError::from((
+            product_reference,
+            "underfloor heating",
+        )));
     }
 
     Ok(())

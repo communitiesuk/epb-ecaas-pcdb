@@ -4,15 +4,16 @@ mod wwhrs;
 
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{
-    DynamoDbBackedProductCatalogue, FuelType, Product, Technology, find_products_for_references,
+    find_products_for_references, DynamoDbBackedProductCatalogue, FuelType, Product, Technology,
 };
-use crate::{PRODUCT_REFERENCE_FIELD, extract_product_references};
+use crate::{extract_product_references, PRODUCT_REFERENCE_FIELD};
 use aws_sdk_dynamodb::client::Client as DynamoDbClient;
-use serde_json::Map;
 use serde_json::value::Value as JsonValue;
+use serde_json::Map;
 use smartstring::alias::String;
 use std::collections::HashMap;
 use std::sync::Arc;
+use thiserror::Error;
 
 pub async fn transform_json(
     json: &mut JsonValue,
@@ -91,11 +92,37 @@ fn extract_energy_supplies(json: &JsonValue) -> Result<EnergySupplies, ()> {
     Ok(energy_supplies)
 }
 
+#[derive(Debug, Error)]
+#[error(
+    "Product reference '{product_reference}' does not have the expected category '{category_for_display}' product."
+)]
+struct InvalidProductCategoryError {
+    product_reference: String,
+    category_for_display: &'static str,
+}
+
+impl<T: Into<String>> From<(T, &'static str)> for InvalidProductCategoryError {
+    fn from((product_reference, category_for_display): (T, &'static str)) -> Self {
+        Self {
+            product_reference: product_reference.into(),
+            category_for_display,
+        }
+    }
+}
+
+type TransformResult = Result<(), InvalidProductCategoryError>;
+
+impl From<InvalidProductCategoryError> for ResolvePcdbProductsError {
+    fn from(err: InvalidProductCategoryError) -> Self {
+        ResolvePcdbProductsError::ProductCategoryMismatches(vec![err.to_string()])
+    }
+}
+
 #[cfg(test)]
 mod catalogue {
     use crate::errors::ResolvePcdbProductsError;
     use crate::products::{Product, ProductCatalogue};
-    use crate::transform::{EnergySupplies, ResolveProductsResult, extract_energy_supplies};
+    use crate::transform::{extract_energy_supplies, EnergySupplies, ResolveProductsResult};
     use itertools::Itertools;
     use serde_json::{Map, Value};
     use std::collections::HashMap;

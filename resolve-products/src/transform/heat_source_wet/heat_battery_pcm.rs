@@ -1,8 +1,8 @@
-use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, Technology};
-use crate::transform::{EnergySupplies, ResolveProductsResult};
-use serde_json::{Map, Value as JsonValue, json};
+use crate::transform::{EnergySupplies, InvalidProductCategoryError, ResolveProductsResult};
+use crate::PRODUCT_REFERENCE_FIELD;
+use serde_json::{json, Map, Value as JsonValue};
 
 pub(crate) fn transform(
     pcm_battery: &mut Map<String, JsonValue>,
@@ -10,8 +10,6 @@ pub(crate) fn transform(
     product_reference: &str,
     energy_supplies: &EnergySupplies,
 ) -> ResolveProductsResult<()> {
-    let mut category_mismatches = vec![];
-
     if let Technology::HeatBatteryPcm {
         a,
         b,
@@ -99,15 +97,9 @@ pub(crate) fn transform(
         );
         pcm_battery.remove(PRODUCT_REFERENCE_FIELD);
     } else {
-        category_mismatches.push(format!(
-            "Product reference '{product_reference}' does not relate to a heat battery."
-        ));
-    }
-
-    if !category_mismatches.is_empty() {
-        return Err(ResolvePcdbProductsError::ProductCategoryMismatches(
-            category_mismatches,
-        ));
+        return Err(
+            InvalidProductCategoryError::from((product_reference, "PCM heat battery")).into(),
+        );
     }
 
     Ok(())
@@ -116,11 +108,11 @@ pub(crate) fn transform(
 #[cfg(test)]
 mod tests {
     use crate::products::Product;
-    use crate::transform::EnergySupplies;
     use crate::transform::catalogue::{mock_energy_supplies, transformed_input_matches_expected};
     use crate::transform::heat_source_wet::heat_battery_pcm::transform;
+    use crate::transform::EnergySupplies;
     use rstest::{fixture, rstest};
-    use serde_json::{Map, Value as JsonValue, json};
+    use serde_json::{json, Map, Value as JsonValue};
     use std::collections::HashMap;
 
     fn pcm_heat_battery_input(product_reference: &str) -> JsonValue {

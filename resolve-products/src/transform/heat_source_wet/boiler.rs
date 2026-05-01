@@ -1,9 +1,9 @@
-use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{BoilerLocation, Product, Technology};
-use crate::transform::{EnergySupplies, ResolveProductsResult};
+use crate::transform::{EnergySupplies, InvalidProductCategoryError, ResolveProductsResult};
+use crate::PRODUCT_REFERENCE_FIELD;
 use rust_decimal::prelude::ToPrimitive;
-use serde_json::{Map, Value as JsonValue, json};
+use serde_json::{json, Map, Value as JsonValue};
 
 pub fn transform(
     boiler: &mut Map<String, JsonValue>,
@@ -11,8 +11,6 @@ pub fn transform(
     product_reference: &str,
     energy_supplies: &EnergySupplies,
 ) -> ResolveProductsResult<()> {
-    let mut category_mismatches = vec![];
-
     if let Technology::Boiler {
         fuel,
         fuel_aux,
@@ -81,15 +79,7 @@ pub fn transform(
         boiler.remove("specified_location");
         boiler.remove(PRODUCT_REFERENCE_FIELD);
     } else {
-        category_mismatches.push(format!(
-            "Product reference '{product_reference}' does not relate to a boiler."
-        ));
-    }
-
-    if !category_mismatches.is_empty() {
-        return Err(ResolvePcdbProductsError::ProductCategoryMismatches(
-            category_mismatches,
-        ));
+        return Err(InvalidProductCategoryError::from((product_reference, "boiler")).into());
     }
 
     Ok(())
@@ -100,7 +90,7 @@ mod tests {
     use super::*;
     use crate::transform::catalogue::{mock_energy_supplies, transformed_input_matches_expected};
     use rstest::{fixture, rstest};
-    use serde_json::{Value, json};
+    use serde_json::{json, Value};
     use std::collections::HashMap;
 
     fn boiler_input(product_reference: &str, specified_location: Option<&str>) -> Value {

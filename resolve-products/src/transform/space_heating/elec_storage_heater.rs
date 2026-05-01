@@ -1,10 +1,9 @@
-use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, Technology};
-use crate::transform::{EnergySupplies, ResolveProductsResult};
+use crate::transform::{EnergySupplies, InvalidProductCategoryError, ResolveProductsResult};
+use crate::PRODUCT_REFERENCE_FIELD;
 use rust_decimal::prelude::ToPrimitive;
-use serde_json::{Map, Value as JsonValue, json};
-use std::vec;
+use serde_json::{json, Map, Value as JsonValue};
 
 pub fn transform(
     elec_storage_heater: &mut Map<String, JsonValue>,
@@ -12,8 +11,6 @@ pub fn transform(
     product_reference: &str,
     energy_supplies: &EnergySupplies,
 ) -> ResolveProductsResult<()> {
-    let mut category_mismatches = vec![];
-
     if let Technology::ElectricStorageHeater {
         pwr_in,
         rated_power_instant,
@@ -60,15 +57,11 @@ pub fn transform(
         // now remove product reference
         elec_storage_heater.remove(PRODUCT_REFERENCE_FIELD);
     } else {
-        category_mismatches.push(format!(
-            "Product reference '{product_reference}' does not relate to an electric storage heater."
-        ));
-    }
-
-    if !category_mismatches.is_empty() {
-        return Err(ResolvePcdbProductsError::ProductCategoryMismatches(
-            category_mismatches,
-        ));
+        return Err(InvalidProductCategoryError::from((
+            product_reference,
+            "electric storage heater",
+        ))
+        .into());
     }
 
     Ok(())
@@ -80,7 +73,7 @@ mod tests {
     use crate::transform::catalogue::{mock_energy_supplies, transformed_input_matches_expected};
     use crate::transform::space_heating::tests::SPACE_HEATING_PCDB_PRODUCTS;
     use rstest::*;
-    use serde_json::{Value, from_str, json};
+    use serde_json::{from_str, json, Value};
     use std::collections::HashMap;
 
     #[fixture]
@@ -134,7 +127,7 @@ mod tests {
             result
                 .unwrap_err()
                 .to_string()
-                .contains("Product reference 'hp' does not relate to an electric storage heater.")
+                .contains("electric storage heater")
         );
     }
 }

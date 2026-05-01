@@ -1,20 +1,17 @@
-use crate::PRODUCT_REFERENCE_FIELD;
-use crate::errors::ResolvePcdbProductsError;
 use crate::products::{FanCoilTestDatum, Product, Technology};
-use crate::transform::ResolveProductsResult;
+use crate::transform::{InvalidProductCategoryError, TransformResult};
+use crate::PRODUCT_REFERENCE_FIELD;
 use itertools::Itertools;
 use rust_decimal::Decimal;
 use serde::Serialize;
-use serde_json::{Map, Value as JsonValue, json};
+use serde_json::{json, Map, Value as JsonValue};
 use std::collections::BTreeSet;
 
 pub fn transform(
     fancoil: &mut Map<String, JsonValue>,
     product: &Product,
     product_reference: &str,
-) -> ResolveProductsResult<()> {
-    let mut category_mismatches = vec![];
-
+) -> TransformResult {
     if let Technology::FanCoil {
         frac_convective,
         test_data,
@@ -30,15 +27,10 @@ pub fn transform(
         // now remove product reference
         fancoil.remove(PRODUCT_REFERENCE_FIELD);
     } else {
-        category_mismatches.push(format!(
-            "Product reference '{product_reference}' does not relate to a fancoil product."
-        ));
-    }
-
-    if !category_mismatches.is_empty() {
-        return Err(ResolvePcdbProductsError::ProductCategoryMismatches(
-            category_mismatches,
-        ));
+        return Err(InvalidProductCategoryError::from((
+            product_reference,
+            "fan coil",
+        )));
     }
 
     Ok(())

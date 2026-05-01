@@ -1,13 +1,13 @@
-use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{
-    HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product, ProductCatalogue,
-    Technology, find_product_for_reference,
+    find_product_for_reference, HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product,
+    ProductCatalogue, Technology,
 };
-use crate::transform::{EnergySupplies, ResolveProductsResult};
+use crate::transform::{EnergySupplies, InvalidProductCategoryError, ResolveProductsResult};
+use crate::PRODUCT_REFERENCE_FIELD;
 use itertools::Itertools;
 use rust_decimal::prelude::ToPrimitive;
-use serde_json::{Map, Value as JsonValue, json};
+use serde_json::{json, Map, Value as JsonValue};
 
 pub async fn transform(
     heat_pump: &mut Map<String, JsonValue>,
@@ -16,8 +16,6 @@ pub async fn transform(
     catalogue: &impl ProductCatalogue,
     energy_supplies: &EnergySupplies,
 ) -> ResolveProductsResult<()> {
-    let mut category_mismatches = vec![];
-
     if let Technology::HeatPump {
         source_type,
         sink_type,
@@ -223,15 +221,7 @@ pub async fn transform(
         // now remove product reference
         heat_pump.remove(PRODUCT_REFERENCE_FIELD);
     } else {
-        category_mismatches.push(format!(
-            "Product reference '{product_reference}' does not relate to an air source heat pump."
-        ));
-    }
-
-    if !category_mismatches.is_empty() {
-        return Err(ResolvePcdbProductsError::ProductCategoryMismatches(
-            category_mismatches,
-        ));
+        return Err(InvalidProductCategoryError::from((product_reference, "heat pump")).into());
     }
 
     Ok(())
@@ -241,10 +231,10 @@ pub async fn transform(
 mod tests {
     use super::*;
     use crate::transform::catalogue::{
-        FixtureBackedProductCatalogue, mock_energy_supplies, transformed_input_matches_expected,
+        mock_energy_supplies, transformed_input_matches_expected, FixtureBackedProductCatalogue,
     };
     use rstest::{fixture, rstest};
-    use serde_json::{Value, json};
+    use serde_json::{json, Value};
     use std::collections::HashMap;
 
     fn heat_pump_input(product_reference: &str) -> Value {

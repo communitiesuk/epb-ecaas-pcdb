@@ -1,18 +1,14 @@
-use crate::PRODUCT_REFERENCE_FIELD;
-use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, Technology};
-use crate::transform::ResolveProductsResult;
+use crate::transform::{InvalidProductCategoryError, TransformResult};
+use crate::PRODUCT_REFERENCE_FIELD;
 use rust_decimal::prelude::ToPrimitive;
 use serde_json::{Map, Value as JsonValue};
-use std::vec;
 
 pub fn transform(
     radiator: &mut Map<String, JsonValue>,
     product: &Product,
     product_reference: &str,
-) -> ResolveProductsResult<()> {
-    let mut category_mismatches = vec![];
-
+) -> TransformResult {
     if let Technology::Radiator {
         n,
         frac_convective,
@@ -33,15 +29,10 @@ pub fn transform(
         radiator.remove(PRODUCT_REFERENCE_FIELD);
         radiator.remove("radiator_type");
     } else {
-        category_mismatches.push(format!(
-            "Product reference '{product_reference}' does not relate to a radiator."
-        ));
-    }
-
-    if !category_mismatches.is_empty() {
-        return Err(ResolvePcdbProductsError::ProductCategoryMismatches(
-            category_mismatches,
-        ));
+        return Err(InvalidProductCategoryError::from((
+            product_reference,
+            "radiator",
+        )));
     }
 
     Ok(())
@@ -52,7 +43,7 @@ mod tests {
     use super::*;
     use crate::transform::catalogue::transformed_input_matches_expected;
     use crate::transform::space_heating::tests::SPACE_HEATING_PCDB_PRODUCTS;
-    use serde_json::{Value, from_str, json};
+    use serde_json::{from_str, json, Value};
     use std::collections::HashMap;
 
     fn input(product_reference: &str) -> JsonValue {
@@ -95,11 +86,6 @@ mod tests {
         );
 
         assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .to_string()
-                .contains("Product reference 'hp' does not relate to a radiator.")
-        );
+        assert!(result.unwrap_err().to_string().contains("radiator"));
     }
 }
