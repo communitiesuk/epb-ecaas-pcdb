@@ -81,7 +81,6 @@ mod tests {
     use crate::transform::space_heating::tests::SPACE_HEATING_PCDB_PRODUCTS;
     use rstest::*;
     use serde_json::{Value, from_str, json};
-    use smartstring::alias::String;
     use std::collections::HashMap;
 
     #[fixture]
@@ -102,7 +101,7 @@ mod tests {
     fn test_transform_esh(energy_supplies: EnergySupplies) {
         let product_reference = "444";
         let mut input = input(product_reference);
-        let expected: Map<std::string::String, Value> =
+        let expected: Map<String, Value> =
             from_str(include_str!("../../../test/esh_transformed.json")).unwrap();
 
         let result = transform(
