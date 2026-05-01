@@ -366,14 +366,15 @@ pub(crate) struct HeatBatteryDryCoreTestDatum {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct WwhrsTestDatum {
-    flow_rate: Decimal,
+    pub(crate) flow_rate: Decimal,
     /// Heat recovery efficiency of Instantaneous WWHR system (%).
-    efficiency: Decimal,
-    system_type: WwhrsSystemType,
+    pub(crate) efficiency: Decimal,
+    pub(crate) system_type: WwhrsSystemType,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize_enum_str)]
+#[derive(Clone, Copy, Debug, Deserialize_enum_str, PartialEq)]
 pub(crate) enum WwhrsSystemType {
     A,
     B,

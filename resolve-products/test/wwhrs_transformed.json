@@ -1,0 +1,48 @@
+{
+  "wwhrsA": {
+    "WWHRS": {
+      "wwhrsA": {
+        "type": "WWHRS_Instantaneous",
+        "ColdWaterSource": "mains water",
+        "flow_rates": [
+          5.0,
+          7.0,
+          9.0,
+          11.0,
+          13.0
+        ],
+        "system_a_efficiencies": [
+          44.08,
+          35.99,
+          30.48,
+          26.39,
+          23.29
+        ],
+        "system_a_utilisation_factor": 0.8839
+      }
+    }
+  },
+  "wwhrsC": {
+    "WWHRS": {
+      "wwhrsC": {
+        "type": "WWHRS_Instantaneous",
+        "ColdWaterSource": "mains water",
+        "flow_rates": [
+          5.0,
+          7.0,
+          9.0,
+          11.0,
+          13.0
+        ],
+        "system_c_efficiencies": [
+          63.0,
+          54.9,
+          48.6,
+          43.6,
+          39.6
+        ],
+        "system_c_utilisation_factor": 0.9334
+      }
+    }
+  }
+}

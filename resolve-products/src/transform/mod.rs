@@ -1,5 +1,6 @@
 pub mod heat_source_wet;
 mod space_heating;
+mod wwhrs;
 
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{
@@ -32,6 +33,7 @@ pub async fn transform_json(
                 | Technology::Radiator { .. }
                 | Technology::UnderfloorHeating { .. }
                 | Technology::FanCoil { .. }
+                | Technology::Wwhrs { .. }
         )
     }) {
         return Err(ResolvePcdbProductsError::UnsupportedProductAtMapping);
@@ -45,6 +47,7 @@ pub async fn transform_json(
 
     heat_source_wet::transform(json, &products, &product_catalogue, &energy_supplies).await?;
     space_heating::transform(json, &products, &energy_supplies)?;
+    wwhrs::transform(json, &products)?;
 
     Ok(())
 }
