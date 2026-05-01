@@ -1,6 +1,6 @@
+use crate::PRODUCT_REFERENCE_FIELD;
 use crate::products::{Product, Technology};
 use crate::transform::{InvalidProductCategoryError, TransformResult};
-use crate::PRODUCT_REFERENCE_FIELD;
 use serde_json::{Map, Value as JsonValue};
 
 pub fn transform(

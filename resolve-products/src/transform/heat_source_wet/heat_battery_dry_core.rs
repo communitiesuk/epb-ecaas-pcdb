@@ -1,9 +1,9 @@
+use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, Technology};
 use crate::transform::{EnergySupplies, InvalidProductCategoryError, ResolveProductsResult};
-use crate::PRODUCT_REFERENCE_FIELD;
 use itertools::Itertools;
-use serde_json::{json, Map, Value as JsonValue};
+use serde_json::{Map, Value as JsonValue, json};
 
 pub(crate) fn transform(
     dry_core_battery: &mut Map<String, JsonValue>,
@@ -92,11 +92,11 @@ pub(crate) fn transform(
 #[cfg(test)]
 mod tests {
     use crate::products::Product;
+    use crate::transform::EnergySupplies;
     use crate::transform::catalogue::{mock_energy_supplies, transformed_input_matches_expected};
     use crate::transform::heat_source_wet::heat_battery_dry_core::transform;
-    use crate::transform::EnergySupplies;
     use rstest::{fixture, rstest};
-    use serde_json::{json, Map, Value as JsonValue};
+    use serde_json::{Map, Value as JsonValue, json};
     use std::collections::HashMap;
 
     fn dry_core_heat_battery_input(product_reference: &str) -> JsonValue {

@@ -4,12 +4,12 @@ mod wwhrs;
 
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{
-    find_products_for_references, DynamoDbBackedProductCatalogue, FuelType, Product, Technology,
+    DynamoDbBackedProductCatalogue, FuelType, Product, Technology, find_products_for_references,
 };
-use crate::{extract_product_references, PRODUCT_REFERENCE_FIELD};
+use crate::{PRODUCT_REFERENCE_FIELD, extract_product_references};
 use aws_sdk_dynamodb::client::Client as DynamoDbClient;
-use serde_json::value::Value as JsonValue;
 use serde_json::Map;
+use serde_json::value::Value as JsonValue;
 use smartstring::alias::String;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -122,7 +122,7 @@ impl From<InvalidProductCategoryError> for ResolvePcdbProductsError {
 mod catalogue {
     use crate::errors::ResolvePcdbProductsError;
     use crate::products::{Product, ProductCatalogue};
-    use crate::transform::{extract_energy_supplies, EnergySupplies, ResolveProductsResult};
+    use crate::transform::{EnergySupplies, ResolveProductsResult, extract_energy_supplies};
     use itertools::Itertools;
     use serde_json::{Map, Value};
     use std::collections::HashMap;

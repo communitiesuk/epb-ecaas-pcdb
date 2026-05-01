@@ -1,10 +1,10 @@
+use crate::PRODUCT_REFERENCE_FIELD;
 use crate::products::{FanCoilTestDatum, Product, Technology};
 use crate::transform::{InvalidProductCategoryError, TransformResult};
-use crate::PRODUCT_REFERENCE_FIELD;
 use itertools::Itertools;
 use rust_decimal::Decimal;
 use serde::Serialize;
-use serde_json::{json, Map, Value as JsonValue};
+use serde_json::{Map, Value as JsonValue, json};
 use std::collections::BTreeSet;
 
 pub fn transform(

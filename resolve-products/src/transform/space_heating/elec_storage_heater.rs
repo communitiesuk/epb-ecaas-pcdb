@@ -1,9 +1,9 @@
+use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, Technology};
 use crate::transform::{EnergySupplies, InvalidProductCategoryError, ResolveProductsResult};
-use crate::PRODUCT_REFERENCE_FIELD;
 use rust_decimal::prelude::ToPrimitive;
-use serde_json::{json, Map, Value as JsonValue};
+use serde_json::{Map, Value as JsonValue, json};
 
 pub fn transform(
     elec_storage_heater: &mut Map<String, JsonValue>,
@@ -73,7 +73,7 @@ mod tests {
     use crate::transform::catalogue::{mock_energy_supplies, transformed_input_matches_expected};
     use crate::transform::space_heating::tests::SPACE_HEATING_PCDB_PRODUCTS;
     use rstest::*;
-    use serde_json::{from_str, json, Value};
+    use serde_json::{Value, from_str, json};
     use std::collections::HashMap;
 
     #[fixture]
