@@ -173,7 +173,6 @@ pub(crate) enum Technology {
         fan_pwr: Decimal,
         /// Proportion of heat output that is convective (0 to 1)
         frac_convective: Decimal,
-        #[serde(rename = "testData")]
         test_data: Vec<ElectricStorageHeaterTestDatum>,
     },
     #[serde(rename = "ConvectorRadiator")]
@@ -227,14 +226,12 @@ pub(crate) enum Technology {
         /// Maximum flow rate of the pump (unit: litre/minute)
         max_flow_rate_pump_l_per_min: Decimal,
         /// Pump power (unit: kW)
-        #[serde(rename = "power_pump_kW")]
         power_pump_kw: Decimal,
     },
     #[serde(rename = "HotWaterOnlyHeatPump")]
     HeatPumpHotWaterOnly {
         fuel: FuelType,
         /// Description of the type of hot water storage vessel
-        #[serde(rename = "vesselType")]
         vessel_type: HeatPumpVesselType,
         /// Hot water storage vessel volume in litres. If vessel is not integral, this is the minimum volume of the separate vessel to which the declared performance data relates
         tank_volume_declared: Decimal,
@@ -246,7 +243,6 @@ pub(crate) enum Technology {
         power_max: Decimal,
         /// Daily hot water vessel heat loss (kWh/day) for a 45 K temperature difference between vessel and surroundings,tested in accordance with BS 1566 or EN 12897 or any other equivalent standard. Vessel standing heat loss of the cylinder used during EN 16147 test
         hw_vessel_loss_daily: Decimal,
-        #[serde(rename = "testData")]
         test_data: Vec<HeatPumpHotWaterOnlyTestDatum>,
     },
     #[serde(rename = "HeatNetworks")]
