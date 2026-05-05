@@ -157,6 +157,8 @@ pub enum JsonValidationErrorKind {
     Pattern { pattern: String },
     /// Object property names are invalid.
     PropertyNames { error: String },
+    /// When a regex failure happens.
+    RegexEngineFailure { message: String },
     /// When a required property is missing.
     Required { property: Value },
     /// When the input value doesn't match one or multiple required types.
@@ -240,6 +242,9 @@ impl From<&ValidationErrorKind> for JsonValidationErrorKind {
             },
             ValidationErrorKind::PropertyNames { error } => Self::PropertyNames {
                 error: format!("associated error: {error:?}"),
+            },
+            ValidationErrorKind::RegexEngineFailure { message } => Self::RegexEngineFailure {
+                message: message.clone(),
             },
             ValidationErrorKind::Required { property } => Self::Required {
                 property: property.clone(),
