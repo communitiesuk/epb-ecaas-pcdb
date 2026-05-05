@@ -1,9 +1,9 @@
 use crate::PRODUCT_REFERENCE_FIELD;
-use crate::products::{Product, Technology};
+use crate::products::{Product, TappingProfile, Technology};
 use crate::transform::{
     InvalidProductCategoryError, ResolveProductsResult, product_reference_from_json_object,
 };
-use serde_json::Value as JsonValue;
+use serde_json::{Value as JsonValue, json};
 use smartstring::alias::String;
 use std::collections::HashMap;
 
@@ -25,7 +25,57 @@ pub fn _transform(
                     let product_reference = product_reference_from_json_object(heat_source)?;
                     let product = &products[&product_reference];
 
-                    if let Technology::HeatPumpHotWaterOnly { .. } = &product.technology {
+                    if let Technology::HeatPumpHotWaterOnly {
+                        power_max,
+                        tank_volume_declared,
+                        daily_losses_declared,
+                        heat_exchanger_surface_area_declared,
+                        test_data,
+                        hw_vessel_loss_daily,
+                        ..
+                    } = &product.technology
+                    {
+                        heat_source.insert("power_max".into(), power_max.as_f64().into());
+                        heat_source.insert(
+                            "tank_volume_declared".into(),
+                            tank_volume_declared.as_f64().into(),
+                        );
+                        heat_source.insert(
+                            "daily_losses_declared".into(),
+                            daily_losses_declared.as_f64().into(),
+                        );
+                        if let Some(heat_exchanger_surface_area_declared) =
+                            heat_exchanger_surface_area_declared
+                        {
+                            heat_source.insert(
+                                "heat_exchanger_surface_area_declared".into(),
+                                heat_exchanger_surface_area_declared.as_f64().into(),
+                            );
+                        }
+                        heat_source.insert(
+                            "test_data".into(),
+                            test_data
+                                .iter()
+                                .map(|datum| {
+                                    let tapping_profile = match datum.tapping_profile {
+                                        TappingProfile::L => "L",
+                                        TappingProfile::M => "M",
+                                    };
+                                    (
+                                        tapping_profile,
+                                        json!({
+                                            "cop_dhw": datum.cop_dhw.as_f64(),
+                                            "hw_tapping_prof_daily_total": datum.hw_tapping_prof_daily_total.as_f64(),
+                                            "energy_input_measured": datum.energy_input_measured.as_f64(),
+                                            "power_standby": datum.power_standby.as_f64(),
+                                            "hw_vessel_loss_daily": hw_vessel_loss_daily.as_f64(),
+                                        })
+                                    )
+                                })
+                                .collect(),
+                        );
+                        heat_source.insert("in_use_factor_mismatch".into(), 0.6.into()); // TODO insert actual in_use_factor_mismatch
+
                         // now remove product reference
                         heat_source.remove(PRODUCT_REFERENCE_FIELD);
                     } else {
@@ -63,20 +113,13 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "todo complete transformed test file and mapping"]
     fn test_transform_heat_pump_hw_only() {
         let product_reference = "62";
         let mut input = input(product_reference);
         let expected: JsonValue =
             from_str(include_str!("../../test/hp_hw_only_transformed.json")).unwrap();
-        let pcdb_hp_hw_only: Product = serde_json::from_value(
-            from_str::<JsonValue>(include_str!("../../test/hp_hw_only_pcdb.json"))
-                .unwrap()
-                .get(product_reference)
-                .unwrap()
-                .clone(),
-        )
-        .unwrap();
+        let pcdb_hp_hw_only: Product =
+            from_str(include_str!("../../test/hp_hw_only_pcdb.json")).unwrap();
 
         let result = _transform(
             &mut input,

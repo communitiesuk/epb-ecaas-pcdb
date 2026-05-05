@@ -479,15 +479,15 @@ pub(crate) enum TappingProfile {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct HeatPumpHotWaterOnlyTestDatum {
-    tapping_profile: TappingProfile,
+    pub(crate) tapping_profile: TappingProfile,
     /// Coefficienct of Performance (CoP) measured during EN 16147 test
-    cop_dhw: Decimal,
+    pub(crate) cop_dhw: Decimal,
     /// Daily energy requirement (kWh/day) for tapping profile used for test
-    hw_tapping_prof_daily_total: Decimal,
+    pub(crate) hw_tapping_prof_daily_total: Decimal,
     /// Electrical input energy measured during EN 16147 test over 24 hours
-    energy_input_measured: Decimal,
+    pub(crate) energy_input_measured: Decimal,
     /// Standby power (kW) measured in EN 16147 test
-    power_standby: Decimal,
+    pub(crate) power_standby: Decimal,
 }
 
 #[derive(Debug, Deserialize)]
