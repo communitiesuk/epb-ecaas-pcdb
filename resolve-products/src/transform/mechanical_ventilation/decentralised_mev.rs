@@ -30,53 +30,48 @@ pub(crate) fn transform(
             })?
             .as_str();
 
-        match (installation_type, installation_location) {
+        let expected_configuration = match (installation_type, installation_location) {
             (Some("in_ceiling"), Some("kitchen")) => {
-                let conf: &DecentralisedMevTestDatum = test_data
-                    .iter()
-                    .find(|a|
-                        { matches!(a.configuration, DecentralisedMevInstallationConfiguration::InRoomFanKitchen) }
-                    )
-                    .ok_or_else(|| ResolvePcdbProductsError::InvalidCombination(format!("Decentralised Mev installation configuration for InRoomFanKitchen is missing from PCDB product {}", product_reference)))?;
-
-                // TODO: review, account for other PCDB fields: SFP2 (required) and SFP3 (optional)
-                // TODO: review, account for other PCDB fields: flowRate2 (required) and flowRate3 (optional)
-                let DecentralisedMevTestDatum { sfp, flow_rate, .. } = conf;
-                mech_vent.insert("SFP".into(), json!(sfp.as_f64()));
-                mech_vent.insert(
-                    "design_outdoor_air_flow_rate".into(),
-                    json!(flow_rate.as_f64()),
-                );
+                Ok(DecentralisedMevInstallationConfiguration::InRoomFanKitchen)
             }
             (Some("in_ceiling"), Some("other_wet_room")) => {
-                let conf: &DecentralisedMevTestDatum = test_data
-                    .iter()
-                    .find(|a|
-                        { matches!(a.configuration, DecentralisedMevInstallationConfiguration::InRoomFanOtherWetRoom) }
-                    )
-                    .ok_or_else(|| ResolvePcdbProductsError::InvalidCombination(format!("Decentralised Mev installation configuration for InRoomFanOtherWetRoom is missing from PCDB product {}", product_reference)))?;
-
-                let DecentralisedMevTestDatum { sfp, flow_rate, .. } = conf;
-                mech_vent.insert("SFP".into(), json!(sfp.as_f64()));
-                mech_vent.insert(
-                    "design_outdoor_air_flow_rate".into(),
-                    json!(flow_rate.as_f64()),
-                );
+                Ok(DecentralisedMevInstallationConfiguration::InRoomFanOtherWetRoom)
             }
             (Some("in_duct"), Some("kitchen")) => {
-                todo!()
+                Ok(DecentralisedMevInstallationConfiguration::InDuctFanKitchen)
             }
             (Some("in_duct"), Some("other_wet_room")) => {
-                todo!()
+                Ok(DecentralisedMevInstallationConfiguration::InDuctFanOtherWetRoom)
             }
             (Some("through_wall"), Some("kitchen")) => {
-                todo!()
+                Ok(DecentralisedMevInstallationConfiguration::ThroughWallFanKitchen)
             }
             (Some("through_wall"), Some("other_wet_room")) => {
-                todo!()
+                Ok(DecentralisedMevInstallationConfiguration::ThroughWallFanOtherWetRoom)
             }
-            (_, _) => {}
-        };
+            (_, _) => Err(
+                ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck(
+                    "Decentralised Mev fields 'installation_type' and 'installation_location' were expected to be strings",
+                ),
+            ),
+        }?;
+
+        let test_datum: &DecentralisedMevTestDatum = test_data
+            .iter()
+            .find(|a|
+                a.configuration == expected_configuration
+            )
+            .ok_or_else(|| ResolvePcdbProductsError::InvalidCombination(format!("Decentralised Mev product {} from PCDB is not compatible with specified installation configuration ({:?}, {:?})", product_reference, installation_type, installation_location)))?;
+
+        // TODO: review, account for other PCDB fields: SFP2 (required) and SFP3 (optional)
+        // TODO: review, account for other PCDB fields: flowRate2 (required) and flowRate3 (optional)
+        let DecentralisedMevTestDatum { sfp, flow_rate, .. } = test_datum;
+        mech_vent.insert("SFP".into(), json!(sfp.as_f64()));
+        mech_vent.insert(
+            "design_outdoor_air_flow_rate".into(),
+            json!(flow_rate.as_f64()),
+        );
+
         mech_vent.remove("installation_type");
         mech_vent.remove("installation_location");
         mech_vent.remove("installed_under_approved_scheme"); // TODO: review
@@ -140,11 +135,15 @@ mod tests {
 
     #[rstest]
     #[case::in_ceiling_kitchen("decentralisedMev", "in_ceiling", "kitchen")]
-    #[case::in_ceiling_other("decentralisedMevInRoomOtherWetRoom", "in_ceiling", "other_wet_room")]
-    // #[case::InCeilingKitchen("decentralisedMev", "in_duct", "kitchen")]
-    // #[case::InCeilingKitchen("decentralisedMev", "in_duct", "other_wet_room")]
-    // #[case::InCeilingKitchen("decentralisedMev", "through_wall", "kitchen")]
-    // #[case::InCeilingKitchen("decentralisedMev", "through_wall", "other_wet_room")]
+    #[case::in_ceiling_other("decentralisedMevInCeilingOther", "in_ceiling", "other_wet_room")]
+    #[case::in_duct_kitchen("decentralisedMevInDuctKitchen", "in_duct", "kitchen")]
+    #[case::in_duct_other("decentralisedMevInDuctOther", "in_duct", "other_wet_room")]
+    #[case::through_wall_kitchen("decentralisedMevThroughWallKitchen", "through_wall", "kitchen")]
+    #[case::through_wall_other(
+        "decentralisedMevThroughWallOther",
+        "through_wall",
+        "other_wet_room"
+    )]
     fn test_transform_decentralised_mev(
         mechanical_ventilation_pcdb_products: HashMap<String, Product>,
         #[case] product_reference: &str,
@@ -154,7 +153,7 @@ mod tests {
         let mut mev_input =
             decentralised_mev_input(product_reference, installation_type, installation_location);
         let pcdb_mev = mechanical_ventilation_pcdb_products
-            .get(product_reference)
+            .get("decentralisedMevWithAllConfigurations")
             .unwrap();
 
         let result = transform(

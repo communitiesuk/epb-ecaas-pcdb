@@ -459,7 +459,7 @@ pub(crate) struct DecentralisedMevTestDatum {
     pub(crate) flow_rate3: Option<Decimal>,
 }
 
-#[derive(Debug, Deserialize_repr, PartialEq)]
+#[derive(Debug, Deserialize_repr, PartialEq, Copy, Clone)]
 #[repr(u8)]
 pub(crate) enum DecentralisedMevInstallationConfiguration {
     InRoomFanKitchen = 1,

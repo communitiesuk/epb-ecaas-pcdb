@@ -3,17 +3,53 @@
     "decentralisedMev": {
       "vent_type": "Decentralised continuous MEV",
       "EnergySupply": "mains elec",
-      "design_outdoor_air_flow_rate": 50.0,
-      "SFP": 0.11,
+      "SFP": 0.01,
+      "design_outdoor_air_flow_rate": 10.0,
       "mid_height_air_flow_path": 2,
       "orientation360": 0,
       "pitch": 90
     },
-    "decentralisedMevInRoomOtherWetRoom": {
+    "decentralisedMevInCeilingOther": {
       "vent_type": "Decentralised continuous MEV",
       "EnergySupply": "mains elec",
+      "SFP": 0.02,
+      "design_outdoor_air_flow_rate": 20.0,
+      "mid_height_air_flow_path": 2,
+      "orientation360": 0,
+      "pitch": 90
+    },
+    "decentralisedMevInDuctKitchen": {
+      "vent_type": "Decentralised continuous MEV",
+      "EnergySupply": "mains elec",
+      "SFP": 0.03,
+      "design_outdoor_air_flow_rate": 30.0,
+      "mid_height_air_flow_path": 2,
+      "orientation360": 0,
+      "pitch": 90
+    },
+    "decentralisedMevInDuctOther": {
+      "vent_type": "Decentralised continuous MEV",
+      "EnergySupply": "mains elec",
+      "SFP": 0.04,
       "design_outdoor_air_flow_rate": 40.0,
-      "SFP": 0.08,
+      "mid_height_air_flow_path": 2,
+      "orientation360": 0,
+      "pitch": 90
+    },
+    "decentralisedMevThroughWallKitchen": {
+      "vent_type": "Decentralised continuous MEV",
+      "EnergySupply": "mains elec",
+      "SFP": 0.05,
+      "design_outdoor_air_flow_rate": 50.0,
+      "mid_height_air_flow_path": 2,
+      "orientation360": 0,
+      "pitch": 90
+    },
+    "decentralisedMevThroughWallOther": {
+      "vent_type": "Decentralised continuous MEV",
+      "EnergySupply": "mains elec",
+      "SFP": 0.06,
+      "design_outdoor_air_flow_rate": 60.0,
       "mid_height_air_flow_path": 2,
       "orientation360": 0,
       "pitch": 90
