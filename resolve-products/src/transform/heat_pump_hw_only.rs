@@ -1,5 +1,7 @@
 use crate::PRODUCT_REFERENCE_FIELD;
-use crate::products::{Product, TappingProfile, Technology};
+use crate::errors::ResolvePcdbProductsError;
+use crate::in_use_factors::{HotWaterOnlyInUseFactorEntry, InUseFactorsAccess};
+use crate::products::{HeatPumpVesselType, Product, TappingProfile, Technology};
 use crate::transform::{
     InvalidProductCategoryError, ResolveProductsResult, product_reference_from_json_object,
 };
@@ -7,9 +9,10 @@ use serde_json::{Value as JsonValue, json};
 use smartstring::alias::String;
 use std::collections::HashMap;
 
-pub fn transform(
+pub async fn transform(
     json: &mut JsonValue,
     products: &HashMap<String, Product>,
+    in_use_factors_access: &impl InUseFactorsAccess,
 ) -> ResolveProductsResult<()> {
     let heat_sources = match json.pointer_mut("/HotWaterSource/hw cylinder/HeatSource") {
         Some(node) if node.is_object() => node.as_object_mut().unwrap(),
@@ -32,6 +35,7 @@ pub fn transform(
                         heat_exchanger_surface_area_declared,
                         test_data,
                         hw_vessel_loss_daily,
+                        vessel_type,
                         ..
                     } = &product.technology
                     {
@@ -74,7 +78,27 @@ pub fn transform(
                                 })
                                 .collect(),
                         );
-                        heat_source.insert("in_use_factor_mismatch".into(), 0.6.into()); // TODO insert actual in_use_factor_mismatch
+
+                        let hot_water_in_use_factors = in_use_factors_access
+                            .in_use_factors::<HotWaterOnlyInUseFactorEntry>()
+                            .await?;
+
+                        let in_use_factor_mismatch = hot_water_in_use_factors
+                            .iter()
+                            .find(|entry| {
+                                Option::<HeatPumpVesselType>::try_from(*entry)
+                                    .ok()
+                                    .flatten()
+                                    .is_some_and(|entry_vessel_type| {
+                                        entry_vessel_type == *vessel_type
+                                    })
+                            })
+                            .ok_or_else(|| ResolvePcdbProductsError::InUseFactorEntryMissingError)?
+                            .in_use_factor_mismatch;
+                        heat_source.insert(
+                            "in_use_factor_mismatch".into(),
+                            in_use_factor_mismatch.as_f64().into(),
+                        );
 
                         // now remove product reference
                         heat_source.remove(PRODUCT_REFERENCE_FIELD);
@@ -96,8 +120,15 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::in_use_factors::mocks::FixtureBackedInUseFactorsAccess;
+    use rstest::*;
     use serde_json::{from_str, json};
     use std::collections::HashMap;
+
+    #[fixture]
+    fn in_use_factors_access() -> impl InUseFactorsAccess {
+        FixtureBackedInUseFactorsAccess
+    }
 
     fn input(product_reference: &str) -> JsonValue {
         json!({
@@ -116,8 +147,9 @@ mod tests {
         })
     }
 
-    #[test]
-    fn test_transform_heat_pump_hw_only() {
+    #[tokio::test]
+    #[rstest]
+    async fn test_transform_heat_pump_hw_only(in_use_factors_access: impl InUseFactorsAccess) {
         let product_reference = "62";
         let mut input = input(product_reference);
         let expected: JsonValue =
@@ -128,7 +160,9 @@ mod tests {
         let result = transform(
             &mut input,
             &HashMap::from([(product_reference.into(), pcdb_hp_hw_only)]),
-        );
+            &in_use_factors_access,
+        )
+        .await;
 
         assert!(result.is_ok());
         assert_eq!(
@@ -140,14 +174,17 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_transform_heat_pump_hw_only_errors_when_product_type_mismatch() {
+    #[tokio::test]
+    #[rstest]
+    async fn test_transform_heat_pump_hw_only_errors_when_product_type_mismatch(
+        in_use_factors_access: impl InUseFactorsAccess,
+    ) {
         let product_reference = "hp";
         let mut input = input(product_reference);
         let pcdb_hps: HashMap<String, Product> =
             from_str(include_str!("../../test/test_heat_pump_pcdb.json")).unwrap();
 
-        let result = transform(&mut input, &pcdb_hps);
+        let result = transform(&mut input, &pcdb_hps, &in_use_factors_access).await;
 
         assert!(result.is_err());
         assert!(

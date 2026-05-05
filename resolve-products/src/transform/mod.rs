@@ -6,6 +6,7 @@ mod space_heat_system;
 mod wwhrs;
 
 use crate::errors::ResolvePcdbProductsError;
+use crate::in_use_factors::DynamoDbBackedInUseFactorsAccess;
 use crate::products::{
     DynamoDbBackedProductCatalogue, FuelType, Product, Technology, find_products_for_references,
 };
@@ -50,10 +51,12 @@ pub async fn transform_json(
         )
     })?;
 
+    let in_use_factors_access = DynamoDbBackedInUseFactorsAccess::new(dynamo_client);
+
     heat_source_wet::transform(json, &products, &product_catalogue, &energy_supplies).await?;
     space_heat_system::transform(json, &products, &energy_supplies)?;
     wwhrs::transform(json, &products)?;
-    heat_pump_hw_only::transform(json, &products)?;
+    heat_pump_hw_only::transform(json, &products, &in_use_factors_access).await?;
 
     Ok(())
 }

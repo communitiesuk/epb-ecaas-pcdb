@@ -87,6 +87,14 @@ pub struct DynamoDbBackedInUseFactorsAccess<'a> {
     dynamo_db_client: &'a DynamoDbClient,
 }
 
+impl<'a> DynamoDbBackedInUseFactorsAccess<'a> {
+    pub fn new(dynamo_client: &'a DynamoDbClient) -> Self {
+        Self {
+            dynamo_db_client: dynamo_client,
+        }
+    }
+}
+
 impl InUseFactorsAccess for DynamoDbBackedInUseFactorsAccess<'_> {
     async fn in_use_factors<T: InUseFactorsEntry>(
         &self,
@@ -128,7 +136,7 @@ impl From<InUseFactorsInaccessibleError> for ResolvePcdbProductsError {
 pub struct UnmatchableVesselTypeError;
 
 #[cfg(test)]
-mod mocks {
+pub mod mocks {
     use crate::in_use_factors::{
         InUseFactorsAccess, InUseFactorsEntry, InUseFactorsInaccessibleError, MVInUseFactorEntry,
         MechanicalVentilationSystemType,
