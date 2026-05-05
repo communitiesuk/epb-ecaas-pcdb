@@ -71,7 +71,7 @@ pub fn transform(
 mod tests {
     use super::*;
     use crate::transform::catalogue::{mock_energy_supplies, transformed_input_matches_expected};
-    use crate::transform::space_heating::tests::SPACE_HEATING_PCDB_PRODUCTS;
+    use crate::transform::space_heat_system::tests::SPACE_HEATING_PCDB_PRODUCTS;
     use rstest::*;
     use serde_json::{Value, from_str, json};
     use std::collections::HashMap;

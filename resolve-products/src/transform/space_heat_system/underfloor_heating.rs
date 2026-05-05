@@ -41,7 +41,7 @@ pub fn transform(
 mod tests {
     use super::*;
     use crate::transform::catalogue::transformed_input_matches_expected;
-    use crate::transform::space_heating::tests::SPACE_HEATING_PCDB_PRODUCTS;
+    use crate::transform::space_heat_system::tests::SPACE_HEATING_PCDB_PRODUCTS;
     use serde_json::{from_str, json};
 
     fn input(product_reference: &str) -> JsonValue {

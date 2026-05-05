@@ -80,7 +80,7 @@ pub fn transform(
 mod tests {
     use super::*;
     use crate::transform::catalogue::mock_energy_supplies;
-    use crate::transform::space_heating::transform;
+    use crate::transform::space_heat_system::transform;
     use rstest::*;
     use serde_json::{from_str, json};
     use std::sync::LazyLock;

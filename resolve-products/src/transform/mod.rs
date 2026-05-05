@@ -1,7 +1,7 @@
 mod heat_pump_hw_only;
 pub mod heat_source_wet;
 mod mechanical_ventilation;
-mod space_heating;
+mod space_heat_system;
 mod wwhrs;
 
 use crate::errors::ResolvePcdbProductsError;
@@ -50,7 +50,7 @@ pub async fn transform_json(
     })?;
 
     heat_source_wet::transform(json, &products, &product_catalogue, &energy_supplies).await?;
-    space_heating::transform(json, &products, &energy_supplies)?;
+    space_heat_system::transform(json, &products, &energy_supplies)?;
     wwhrs::transform(json, &products)?;
     heat_pump_hw_only::transform(json, &products)?;
 
