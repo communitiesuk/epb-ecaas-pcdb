@@ -1,7 +1,6 @@
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::products::{Product, Technology};
 use crate::transform::{InvalidProductCategoryError, TransformResult};
-use rust_decimal::prelude::ToPrimitive;
 use serde_json::{Map, Value as JsonValue};
 
 pub fn transform(
@@ -17,12 +16,12 @@ pub fn transform(
         ..
     } = &product.technology
     {
-        radiator.insert("n".into(), n.to_f64().into());
-        radiator.insert("frac_convective".into(), frac_convective.to_f64().into());
-        radiator.insert("c_per_m".into(), c_per_m.to_f64().into());
+        radiator.insert("n".into(), n.as_f64().into());
+        radiator.insert("frac_convective".into(), frac_convective.as_f64().into());
+        radiator.insert("c_per_m".into(), c_per_m.as_f64().into());
         radiator.insert(
             "thermal_mass_per_m".into(),
-            thermal_mass_per_m.to_f64().into(),
+            thermal_mass_per_m.as_f64().into(),
         );
 
         // now remove product reference and radiator type
