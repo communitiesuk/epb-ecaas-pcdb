@@ -10,24 +10,51 @@
     "dataType": "listed_product",
     "testData": [
       {
-        "sfp2": 0.15,
-        "productID": 111,
         "configuration": 1,
-        "flowRate": 50,
-        "id": 1,
         "sfp": 0.11,
+        "sfp2": 0.15,
+        "flowRate": 50,
         "flowRate2": 8,
-        "parentID": 2360
+        "id": 1,
+        "productID": 111,
+        "parentID": 1
       },
       {
-        "sfp2": 0.14,
-        "productID": 111,
         "configuration": 3,
-        "flowRate": 40,
-        "id": 2,
         "sfp": 0.08,
+        "sfp2": 0.14,
+        "flowRate": 40,
         "flowRate2": 8,
-        "parentID": 2360
+        "id": 2,
+        "productID": 111,
+        "parentID": 1
+      }
+    ]
+  },
+  "decentralisedMevInRoomOtherWetRoom": {
+    "id": "decentralisedMev",
+    "productID": 111,
+    "technologyType": "DecentralisedMev",
+    "testData": [
+      {
+        "configuration": 1,
+        "sfp": 0.11,
+        "sfp2": 0.15,
+        "flowRate": 50,
+        "flowRate2": 8,
+        "id": 1,
+        "productID": 111,
+        "parentID": 1
+      },
+      {
+        "configuration": 2,
+        "sfp": 0.08,
+        "sfp2": 0.14,
+        "flowRate": 40,
+        "flowRate2": 8,
+        "id": 2,
+        "productID": 111,
+        "parentID": 1
       }
     ]
   }

@@ -30,15 +30,6 @@ pub(crate) fn transform(
             })?
             .as_str();
 
-        // PCDB configuration
-        // It defines the configuration which the other test data relates to.
-        // 1 In-room fan, kitchen
-        // 2 In-room fan, other wet room
-        // 3 In-duct fan, kitchen
-        // 4 In-duct fan, other wet room
-        // 5 Through-wall fan, kitchen
-        // 6 Through-wall fan, other wet room
-
         match (installation_type, installation_location) {
             (Some("in_ceiling"), Some("kitchen")) => {
                 let conf: &DecentralisedMevTestDatum = test_data
@@ -48,15 +39,29 @@ pub(crate) fn transform(
                     )
                     .ok_or_else(|| ResolvePcdbProductsError::InvalidCombination(format!("Decentralised Mev installation configuration for InRoomFanKitchen is missing from PCDB product {}", product_reference)))?;
 
+                // TODO: review, account for other PCDB fields: SFP2 (required) and SFP3 (optional)
+                // TODO: review, account for other PCDB fields: flowRate2 (required) and flowRate3 (optional)
                 let DecentralisedMevTestDatum { sfp, flow_rate, .. } = conf;
-                mech_vent.insert("SFP".into(), json!(sfp.as_f64())); // TODO: review, account for other PCDB fields: SFP2 (required) and SFP3 (optional)
+                mech_vent.insert("SFP".into(), json!(sfp.as_f64()));
                 mech_vent.insert(
                     "design_outdoor_air_flow_rate".into(),
                     json!(flow_rate.as_f64()),
-                ); // TODO: review, account for other PCDB fields: flowRate2 (required) and flowRate3 (optional)
+                );
             }
             (Some("in_ceiling"), Some("other_wet_room")) => {
-                todo!()
+                let conf: &DecentralisedMevTestDatum = test_data
+                    .iter()
+                    .find(|a|
+                        { matches!(a.configuration, DecentralisedMevInstallationConfiguration::InRoomFanOtherWetRoom) }
+                    )
+                    .ok_or_else(|| ResolvePcdbProductsError::InvalidCombination(format!("Decentralised Mev installation configuration for InRoomFanOtherWetRoom is missing from PCDB product {}", product_reference)))?;
+
+                let DecentralisedMevTestDatum { sfp, flow_rate, .. } = conf;
+                mech_vent.insert("SFP".into(), json!(sfp.as_f64()));
+                mech_vent.insert(
+                    "design_outdoor_air_flow_rate".into(),
+                    json!(flow_rate.as_f64()),
+                );
             }
             (Some("in_duct"), Some("kitchen")) => {
                 todo!()
@@ -132,10 +137,10 @@ mod tests {
             .unwrap()
             .clone()
     }
-    
+
     #[rstest]
     #[case::in_ceiling_kitchen("decentralisedMev", "in_ceiling", "kitchen")]
-    // #[case::InCeilingKitchen("decentralisedMev", "in_ceiling", "other_wet_room")]
+    #[case::in_ceiling_other("decentralisedMevInRoomOtherWetRoom", "in_ceiling", "other_wet_room")]
     // #[case::InCeilingKitchen("decentralisedMev", "in_duct", "kitchen")]
     // #[case::InCeilingKitchen("decentralisedMev", "in_duct", "other_wet_room")]
     // #[case::InCeilingKitchen("decentralisedMev", "through_wall", "kitchen")]
@@ -161,5 +166,24 @@ mod tests {
 
         let expected_input = expected_transformed_input(product_reference);
         transformed_input_matches_expected(&mev_input, expected_input);
+    }
+
+    #[rstest]
+    fn test_transform_decentralised_mev_missing_configuration_error(
+        mechanical_ventilation_pcdb_products: HashMap<String, Product>,
+    ) {
+        let product_reference = "decentralisedMev";
+        let mut mev_input =
+            decentralised_mev_input(product_reference, "in_ceiling", "other_wet_room");
+        let pcdb_mev = mechanical_ventilation_pcdb_products
+            .get(product_reference)
+            .unwrap();
+
+        let result = transform(
+            mev_input.as_object_mut().unwrap(),
+            pcdb_mev,
+            product_reference,
+        );
+        assert!(result.is_err());
     }
 }
