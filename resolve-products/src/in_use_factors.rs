@@ -11,6 +11,7 @@ use aws_sdk_dynamodb::Client as DynamoDbClient;
 use aws_sdk_dynamodb::types::AttributeValue;
 use rust_decimal::Decimal;
 use serde::Deserialize;
+use serde::de::DeserializeOwned;
 use serde_dynamo::from_item;
 use serde_repr::Deserialize_repr;
 use std::sync::Arc;
@@ -41,9 +42,9 @@ impl TryFrom<&HotWaterOnlyInUseFactorEntry> for Option<HeatPumpVesselType> {
     }
 }
 
-impl InUseFactorsEntry<'_> for HotWaterOnlyInUseFactorEntry {
+impl InUseFactorsEntry for HotWaterOnlyInUseFactorEntry {
     fn entry_id() -> &'static str {
-        "HotWaterOnly"
+        "HotWaterOnlyInUseFactors"
     }
 }
 
@@ -56,9 +57,9 @@ pub struct MVInUseFactorEntry {
     installation: MechanicalVentilationInstallationType,
 }
 
-impl InUseFactorsEntry<'_> for MVInUseFactorEntry {
+impl InUseFactorsEntry for MVInUseFactorEntry {
     fn entry_id() -> &'static str {
-        "MV"
+        "MVInUseFactors"
     }
 }
 
@@ -72,12 +73,12 @@ pub enum MechanicalVentilationSystemType {
     DefaultData = 10,
 }
 
-pub trait InUseFactorsEntry<'de>: Deserialize<'de> {
+pub trait InUseFactorsEntry: DeserializeOwned {
     fn entry_id() -> &'static str;
 }
 
 pub trait InUseFactorsAccess {
-    async fn in_use_factors<'de, T: InUseFactorsEntry<'de>>(
+    async fn in_use_factors<'de, T: InUseFactorsEntry>(
         &self,
     ) -> Result<Vec<T>, InUseFactorsInaccessibleError>;
 }
@@ -87,7 +88,7 @@ pub struct DynamoDbBackedInUseFactorsAccess<'a> {
 }
 
 impl InUseFactorsAccess for DynamoDbBackedInUseFactorsAccess<'_> {
-    async fn in_use_factors<'a, T: InUseFactorsEntry<'a>>(
+    async fn in_use_factors<'a, T: InUseFactorsEntry>(
         &self,
     ) -> Result<Vec<T>, InUseFactorsInaccessibleError> {
         let data = self
@@ -125,3 +126,50 @@ impl From<InUseFactorsInaccessibleError> for ResolvePcdbProductsError {
 #[derive(Debug, Error)]
 #[error("Unmatchable vessel type")]
 pub struct UnmatchableVesselTypeError;
+
+#[cfg(test)]
+mod mocks {
+    use crate::in_use_factors::{
+        InUseFactorsAccess, InUseFactorsEntry, InUseFactorsInaccessibleError, MVInUseFactorEntry,
+        MechanicalVentilationSystemType,
+    };
+    use crate::products::{MechanicalVentilationDuctType, MechanicalVentilationInstallationType};
+    use std::collections::HashMap;
+    use std::sync::{Arc, LazyLock};
+
+    pub static IN_USE_FACTORS: LazyLock<HashMap<Arc<str>, serde_json::Value>> =
+        LazyLock::new(|| {
+            serde_json::from_str(include_str!("../test/in_use_factors.json")).unwrap()
+        });
+
+    pub struct FixtureBackedInUseFactorsAccess;
+
+    impl InUseFactorsAccess for FixtureBackedInUseFactorsAccess {
+        async fn in_use_factors<'de, T: InUseFactorsEntry>(
+            &self,
+        ) -> Result<Vec<T>, InUseFactorsInaccessibleError> {
+            let in_use_factors_json = IN_USE_FACTORS.get(T::entry_id()).ok_or(())?;
+
+            Ok(serde_json::from_value(in_use_factors_json.clone()).map_err(|_| ())?)
+        }
+    }
+
+    #[tokio::test]
+    async fn test_can_access_mock() {
+        let fixture_access = FixtureBackedInUseFactorsAccess;
+        let result = fixture_access.in_use_factors::<MVInUseFactorEntry>().await;
+        assert!(result.is_ok());
+        assert_eq!(
+            result
+                .unwrap()
+                .into_iter()
+                .find(|entry| entry.system_type
+                    == MechanicalVentilationSystemType::PositiveInputVentilation
+                    && entry.duct_type == MechanicalVentilationDuctType::Flexible
+                    && entry.installation == MechanicalVentilationInstallationType::InDuct)
+                .unwrap()
+                .sfp_in_use_factor,
+            1.6
+        );
+    }
+}

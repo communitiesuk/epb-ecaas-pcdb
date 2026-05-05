@@ -1,0 +1,220 @@
+{
+  "HotWaterOnlyInUseFactors": [
+    {
+      "in_use_factor_mismatch": 0.95,
+      "vessel_type": "Integral",
+      "ID": 1
+    },
+    {
+      "in_use_factor_mismatch": 0.95,
+      "vessel_type": "Separate fixed characteristics",
+      "ID": 2
+    },
+    {
+      "in_use_factor_mismatch": 0.95,
+      "vessel_type": "Separate limiting characteristics",
+      "ID": 3
+    },
+    {
+      "in_use_factor_mismatch": 0.6,
+      "vessel_type": "Separate but does not meet criteria ",
+      "ID": 4
+    },
+    {
+      "in_use_factor_mismatch": 0.6,
+      "vessel_type": "Unspecified",
+      "ID": 5
+    }
+  ],
+  "MVInUseFactors": [
+    {
+      "SFP_in_use_factor": 1.7,
+      "system_type": 1,
+      "duct_type": 1,
+      "installation": 1,
+      "ID": 1
+    },
+    {
+      "SFP_in_use_factor": 1.4,
+      "system_type": 1,
+      "duct_type": 2,
+      "installation": 1,
+      "ID": 2
+    },
+    {
+      "SFP_in_use_factor": 1.6,
+      "system_type": 1,
+      "duct_type": 1,
+      "installation": 2,
+      "ID": 3
+    },
+    {
+      "SFP_in_use_factor": 1.3,
+      "system_type": 1,
+      "duct_type": 2,
+      "installation": 2,
+      "ID": 4
+    },
+    {
+      "SFP_in_use_factor": 1.3,
+      "system_type": 2,
+      "duct_type": 2,
+      "installation": 1,
+      "ID": 6
+    },
+    {
+      "SFP_in_use_factor": 1.3,
+      "system_type": 2,
+      "duct_type": 2,
+      "installation": 2,
+      "ID": 9
+    },
+    {
+      "SFP_in_use_factor": 1.7,
+      "system_type": 3,
+      "duct_type": 1,
+      "installation": 1,
+      "ID": 11
+    },
+    {
+      "SFP_in_use_factor": 1.4,
+      "system_type": 3,
+      "duct_type": 2,
+      "installation": 1,
+      "ID": 12
+    },
+    {
+      "SFP_in_use_factor": 1.6,
+      "system_type": 3,
+      "duct_type": 1,
+      "installation": 2,
+      "ID": 13
+    },
+    {
+      "SFP_in_use_factor": 1.25,
+      "system_type": 3,
+      "duct_type": 2,
+      "installation": 2,
+      "ID": 14
+    },
+    {
+      "SFP_in_use_factor": 1.1,
+      "system_type": 3,
+      "duct_type": 1,
+      "installation": 3,
+      "ID": 15
+    },
+    {
+      "SFP_in_use_factor": 1.1,
+      "system_type": 3,
+      "duct_type": 2,
+      "installation": 3,
+      "ID": 16
+    },
+    {
+      "SFP_in_use_factor": 1.7,
+      "system_type": 5,
+      "duct_type": 1,
+      "installation": 1,
+      "ID": 17
+    },
+    {
+      "SFP_in_use_factor": 1.4,
+      "system_type": 5,
+      "duct_type": 2,
+      "installation": 1,
+      "ID": 18
+    },
+    {
+      "SFP_in_use_factor": 1.6,
+      "system_type": 5,
+      "duct_type": 1,
+      "installation": 2,
+      "ID": 19
+    },
+    {
+      "SFP_in_use_factor": 1.25,
+      "system_type": 5,
+      "duct_type": 2,
+      "installation": 2,
+      "ID": 20
+    },
+    {
+      "SFP_in_use_factor": 1.1,
+      "system_type": 5,
+      "duct_type": 1,
+      "installation": 3,
+      "ID": 21
+    },
+    {
+      "SFP_in_use_factor": 1.1,
+      "system_type": 5,
+      "duct_type": 2,
+      "installation": 3,
+      "ID": 22
+    },
+    {
+      "SFP_in_use_factor": 2.5,
+      "system_type": 10,
+      "duct_type": 1,
+      "installation": 1,
+      "ID": 23
+    },
+    {
+      "SFP_in_use_factor": 2.5,
+      "system_type": 10,
+      "duct_type": 2,
+      "installation": 1,
+      "ID": 24
+    },
+    {
+      "SFP_in_use_factor": 2.5,
+      "system_type": 10,
+      "duct_type": 3,
+      "installation": 1,
+      "ID": 25
+    },
+    {
+      "SFP_in_use_factor": 2.5,
+      "system_type": 10,
+      "duct_type": 1,
+      "installation": 2,
+      "ID": 26
+    },
+    {
+      "SFP_in_use_factor": 2.5,
+      "system_type": 10,
+      "duct_type": 2,
+      "installation": 2,
+      "ID": 27
+    },
+    {
+      "SFP_in_use_factor": 2.5,
+      "system_type": 10,
+      "duct_type": 3,
+      "installation": 2,
+      "ID": 28
+    },
+    {
+      "SFP_in_use_factor": 2.5,
+      "system_type": 10,
+      "duct_type": 1,
+      "installation": 3,
+      "ID": 29
+    },
+    {
+      "SFP_in_use_factor": 2.5,
+      "system_type": 10,
+      "duct_type": 2,
+      "installation": 3,
+      "ID": 30
+    },
+    {
+      "SFP_in_use_factor": 2.5,
+      "system_type": 10,
+      "duct_type": 3,
+      "installation": 3,
+      "ID": 31
+    }
+  ]
+}
