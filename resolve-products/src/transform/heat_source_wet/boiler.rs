@@ -66,8 +66,7 @@ pub fn transform(
             BoilerLocation::Unknown => {
                 let specified_location = boiler
                     .get("specified_location")
-                    .ok_or(Err("Expected location for boiler to be specified as boiler location from PCDB is unknown"))
-                    .map_err(|_: Result<(), &_>| ResolvePcdbProductsError::InvalidCombination)?;
+                    .ok_or_else(|| ResolvePcdbProductsError::InvalidCombination("Expected location for boiler to be specified as boiler location from PCDB is unknown".into()))?;
 
                 boiler.insert("boiler_location".into(), specified_location.as_str().into());
             }

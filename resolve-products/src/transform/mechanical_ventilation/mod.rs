@@ -1,0 +1,86 @@
+pub mod decentralised_mev;
+
+use crate::PRODUCT_REFERENCE_FIELD;
+use crate::products::Product;
+use crate::transform::{ResolveProductsResult, product_reference_from_json_object};
+use serde_json::Value as JsonValue;
+use smartstring::alias::String as SmartString;
+use std::collections::HashMap;
+
+pub fn transform(
+    json: &mut JsonValue,
+    products: &HashMap<SmartString, Product>,
+) -> ResolveProductsResult<()> {
+    let mechanical_ventilation = match json.pointer_mut("/MechanicalVentilation") {
+        Some(node) if node.is_object() => node.as_object_mut().unwrap(),
+        _ => return Ok(()),
+    };
+
+    for mech_vent in mechanical_ventilation.values_mut() {
+        if let JsonValue::Object(mech_vent_object) = mech_vent {
+            if let Some(vent_type) = mech_vent_object.get("vent_type").and_then(|v| v.as_str()) {
+                match vent_type {
+                    "Decentralised continuous MEV"
+                        if mech_vent_object.contains_key(PRODUCT_REFERENCE_FIELD) =>
+                    {
+                        let product_reference =
+                            product_reference_from_json_object(mech_vent_object)?;
+
+                        decentralised_mev::transform(
+                            mech_vent_object,
+                            &products[&product_reference],
+                            &product_reference,
+                        )?
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rstest::{fixture, rstest};
+    use serde_json::json;
+
+    #[fixture]
+    fn mechanical_ventilation_pcdb_products() -> HashMap<SmartString, Product> {
+        serde_json::from_str(include_str!(
+            "../../../test/test_mechanical_ventilation_pcdb.json"
+        ))
+        .unwrap()
+    }
+
+    fn mechanical_ventilation_input() -> JsonValue {
+        json!({
+            "MechanicalVentilation": {
+                "decentralisedMev": {
+                    "vent_type": "Decentralised continuous MEV",
+                    "EnergySupply": "mains elec",
+                    "product_reference": "decentralisedMev",
+                    "installed_under_approved_scheme": true,
+                    "installation_type": "in_ceiling",
+                    "installation_location": "kitchen",
+                    "mid_height_air_flow_path": 2,
+                    "orientation360": 0,
+                    "pitch": 90
+                }
+            }
+        })
+    }
+
+    #[rstest]
+    fn test_transform_mechanical_ventilation_products(
+        mechanical_ventilation_pcdb_products: HashMap<SmartString, Product>,
+    ) {
+        let mut mechanical_ventilation_input = mechanical_ventilation_input();
+        let result = transform(
+            &mut mechanical_ventilation_input,
+            &mechanical_ventilation_pcdb_products,
+        );
+        assert!(result.is_ok());
+    }
+}

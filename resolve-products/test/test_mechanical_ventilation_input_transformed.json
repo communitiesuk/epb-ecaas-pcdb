@@ -1,0 +1,13 @@
+{
+  "MechanicalVentilation": {
+    "decentralisedMev": {
+      "vent_type": "Decentralised continuous MEV",
+      "EnergySupply": "mains elec",
+      "design_outdoor_air_flow_rate": 50.0,
+      "SFP": 0.11,
+      "mid_height_air_flow_path": 2,
+      "orientation360": 0,
+      "pitch": 90
+    }
+  }
+}

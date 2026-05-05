@@ -216,6 +216,7 @@ pub(crate) enum Technology {
         #[serde(rename = "testData")]
         test_data: Vec<CentralisedMvhrTestDatum>,
     },
+    #[serde(alias = "DecentralisedMev")]
     DecentralisedMev {
         #[serde(rename = "testData")]
         test_data: Vec<DecentralisedMevTestDatum>,
@@ -445,20 +446,32 @@ pub(crate) enum MechanicalVentilationDuctType {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct DecentralisedMevTestDatum {
-    configuration: DecentralisedMevInstallationType,
+    pub(crate) configuration: DecentralisedMevInstallationConfiguration,
     /// Specific fan power in watts per (litre per second) in minimum flow rate test
-    sfp: Decimal,
+    pub(crate) sfp: Decimal,
     /// Specific fan power in watts per (litre per second) in minimum flow rate test (second option)
-    sfp2: Decimal,
+    pub(crate) sfp2: Decimal,
+    /// Specific fan power in watts per (litre per second) in minimum flow rate test. Only populated for default product
+    pub(crate) sfp3: Option<Decimal>,
+    /// Test flow rate in litres/sec
+    pub(crate) flow_rate: Decimal,
+    /// Test flow rate in litres/sec
+    pub(crate) flow_rate2: Decimal,
+    /// Test flow rate in litres/sec. Only populated for default product
+    pub(crate) flow_rate3: Option<Decimal>,
 }
 
 #[derive(Debug, Deserialize_repr, PartialEq)]
 #[repr(u8)]
-pub(crate) enum DecentralisedMevInstallationType {
-    InCeiling = 1,
-    InDuct = 2,
-    ThroughWall = 3,
+pub(crate) enum DecentralisedMevInstallationConfiguration {
+    InRoomFanKitchen = 1,
+    InRoomFanOtherWetRoom = 2,
+    InDuctFanKitchen = 3,
+    InDuctFanOtherWetRoom = 4,
+    ThroughWallFanKitchen = 5,
+    ThroughWallFanOtherWetRoom = 6,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, PartialEq)]

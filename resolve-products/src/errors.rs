@@ -19,8 +19,8 @@ pub enum ResolvePcdbProductsError {
         "Request was considered invalid due to error encountered after initial check against JSON schema: {0}"
     )]
     InvalidRequestEncounteredAfterSchemaCheck(&'static str),
-    #[error("Request was considered invalid due to combination of input and PCDB data")]
-    InvalidCombination,
+    #[error("Request was considered invalid due to combination of input and PCDB data: {0:?}")]
+    InvalidCombination(String),
     #[error("Could not extract product references: {0:?}")]
     CouldNotExtractProductReferences(#[from] JsonPathError),
     #[error(
