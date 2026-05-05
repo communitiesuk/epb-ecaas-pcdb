@@ -1,7 +1,8 @@
 use crate::PRODUCT_REFERENCE_FIELD;
-use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, Technology};
-use crate::transform::{ResolveProductsResult, product_reference_from_json_object};
+use crate::transform::{
+    InvalidProductCategoryError, ResolveProductsResult, product_reference_from_json_object,
+};
 use serde_json::Value as JsonValue;
 use smartstring::alias::String;
 use std::collections::HashMap;
@@ -21,23 +22,18 @@ pub fn _transform(
                 if matches!(heat_source_type, "HeatPump_HWOnly")
                     && heat_source.contains_key(PRODUCT_REFERENCE_FIELD)
                 {
-                    let product_ref = product_reference_from_json_object(heat_source)?;
-                    let product = &products[&product_ref];
-                    let mut category_mismatches = vec![];
+                    let product_reference = product_reference_from_json_object(heat_source)?;
+                    let product = &products[&product_reference];
 
                     if let Technology::HeatPumpHotWaterOnly { .. } = &product.technology {
                         // now remove product reference
                         heat_source.remove(PRODUCT_REFERENCE_FIELD);
                     } else {
-                        category_mismatches.push(format!(
-                        "Product reference '{product_ref}' does not relate to a hot water only heat pump."
-                    ));
-                    }
-
-                    if !category_mismatches.is_empty() {
-                        return Err(ResolvePcdbProductsError::ProductCategoryMismatches(
-                            category_mismatches,
-                        ));
+                        return Err(InvalidProductCategoryError::from((
+                            product_reference,
+                            "hot water only heat pump",
+                        ))
+                        .into());
                     }
                 }
             }
@@ -111,7 +107,7 @@ mod tests {
             result
                 .unwrap_err()
                 .to_string()
-                .contains("Product reference 'hp' does not relate to a hot water only heat pump.")
+                .contains("hot water only heat pump")
         );
     }
 }
