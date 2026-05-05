@@ -11,7 +11,7 @@ pub fn _transform(
     json: &mut JsonValue,
     products: &HashMap<String, Product>,
 ) -> ResolveProductsResult<()> {
-    let heat_sources = match json.pointer_mut("/HeatSource") {
+    let heat_sources = match json.pointer_mut("/HotWaterSource/hw cylinder/HeatSource") {
         Some(node) if node.is_object() => node.as_object_mut().unwrap(),
         _ => return Ok(()),
     };
@@ -101,12 +101,16 @@ mod tests {
 
     fn input(product_reference: &str) -> JsonValue {
         json!({
-            "HeatSource": {
-                "hw_only_hp": {
-                    "type": "HeatPump_HWOnly",
-                    "heater_position": 0.1,
-                    "EnergySupply": "mains elec",
-                    "product_reference": product_reference,
+            "HotWaterSource": {
+                "hw cylinder": {
+                    "HeatSource": {
+                        "hw_only_hp": {
+                            "type": "HeatPump_HWOnly",
+                            "heater_position": 0.1,
+                            "EnergySupply": "mains elec",
+                            "product_reference": product_reference,
+                        }
+                    }
                 }
             }
         })
