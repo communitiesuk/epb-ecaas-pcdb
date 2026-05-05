@@ -78,7 +78,7 @@ pub trait InUseFactorsEntry: DeserializeOwned {
 }
 
 pub trait InUseFactorsAccess {
-    async fn in_use_factors<'de, T: InUseFactorsEntry>(
+    async fn in_use_factors<T: InUseFactorsEntry>(
         &self,
     ) -> Result<Vec<T>, InUseFactorsInaccessibleError>;
 }
@@ -88,7 +88,7 @@ pub struct DynamoDbBackedInUseFactorsAccess<'a> {
 }
 
 impl InUseFactorsAccess for DynamoDbBackedInUseFactorsAccess<'_> {
-    async fn in_use_factors<'a, T: InUseFactorsEntry>(
+    async fn in_use_factors<T: InUseFactorsEntry>(
         &self,
     ) -> Result<Vec<T>, InUseFactorsInaccessibleError> {
         let data = self
@@ -145,7 +145,7 @@ mod mocks {
     pub struct FixtureBackedInUseFactorsAccess;
 
     impl InUseFactorsAccess for FixtureBackedInUseFactorsAccess {
-        async fn in_use_factors<'de, T: InUseFactorsEntry>(
+        async fn in_use_factors<T: InUseFactorsEntry>(
             &self,
         ) -> Result<Vec<T>, InUseFactorsInaccessibleError> {
             let in_use_factors_json = IN_USE_FACTORS.get(T::entry_id()).ok_or(())?;
