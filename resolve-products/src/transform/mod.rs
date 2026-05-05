@@ -1,5 +1,6 @@
 mod heat_pump_hw_only;
 pub mod heat_source_wet;
+mod hot_water_source;
 mod mechanical_ventilation;
 mod space_heat_system;
 mod wwhrs;
