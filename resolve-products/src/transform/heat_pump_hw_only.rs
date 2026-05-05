@@ -7,7 +7,7 @@ use serde_json::{Value as JsonValue, json};
 use smartstring::alias::String;
 use std::collections::HashMap;
 
-pub fn _transform(
+pub fn transform(
     json: &mut JsonValue,
     products: &HashMap<String, Product>,
 ) -> ResolveProductsResult<()> {
@@ -125,7 +125,7 @@ mod tests {
         let pcdb_hp_hw_only: Product =
             from_str(include_str!("../../test/hp_hw_only_pcdb.json")).unwrap();
 
-        let result = _transform(
+        let result = transform(
             &mut input,
             &HashMap::from([(product_reference.into(), pcdb_hp_hw_only)]),
         );
@@ -147,7 +147,7 @@ mod tests {
         let pcdb_hps: HashMap<String, Product> =
             from_str(include_str!("../../test/test_heat_pump_pcdb.json")).unwrap();
 
-        let result = _transform(&mut input, &pcdb_hps);
+        let result = transform(&mut input, &pcdb_hps);
 
         assert!(result.is_err());
         assert!(
