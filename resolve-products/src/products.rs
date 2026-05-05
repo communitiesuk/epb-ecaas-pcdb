@@ -448,7 +448,11 @@ pub(crate) enum MechanicalVentilationDuctType {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct DecentralisedMevTestDatum {
+<<<<<<< Updated upstream
     pub(crate) configuration: DecentralisedMevInstallationConfiguration,
+=======
+    configuration: MechanicalVentilationInstallationType,
+>>>>>>> Stashed changes
     /// Specific fan power in watts per (litre per second) in minimum flow rate test
     pub(crate) sfp: Decimal,
     /// Specific fan power in watts per (litre per second) in minimum flow rate test (second option)
@@ -465,6 +469,7 @@ pub(crate) struct DecentralisedMevTestDatum {
 
 #[derive(Debug, Deserialize_repr, PartialEq)]
 #[repr(u8)]
+<<<<<<< Updated upstream
 pub(crate) enum DecentralisedMevInstallationConfiguration {
     InRoomFanKitchen = 1,
     InRoomFanOtherWetRoom = 2,
@@ -472,9 +477,15 @@ pub(crate) enum DecentralisedMevInstallationConfiguration {
     InDuctFanOtherWetRoom = 4,
     ThroughWallFanKitchen = 5,
     ThroughWallFanOtherWetRoom = 6,
+=======
+pub(crate) enum MechanicalVentilationInstallationType {
+    InCeiling = 1,
+    InDuct = 2,
+    ThroughWall = 3,
+>>>>>>> Stashed changes
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize_enum_str, PartialEq)]
 pub(crate) enum HeatPumpVesselType {
     Integral,
     #[serde(rename = "Separate limiting characteristics")]

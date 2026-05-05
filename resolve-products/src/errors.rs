@@ -50,6 +50,8 @@ pub enum ResolvePcdbProductsError {
     UnsupportedProductAtMapping,
     #[error("No energy supply provided for fuel type '{0}' to be mapped to")]
     NoEnergySupplyProvidedForFuelType(FuelType),
+    #[error("The standing in use factors data was needed for a calculation, but was inaccessible")]
+    InUseFactorsInaccessibleError,
 }
 
 #[derive(Debug, Error)]
