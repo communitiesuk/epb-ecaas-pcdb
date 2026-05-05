@@ -52,6 +52,10 @@ pub enum ResolvePcdbProductsError {
     NoEnergySupplyProvidedForFuelType(FuelType),
     #[error("The standing in use factors data was needed for a calculation, but was inaccessible")]
     InUseFactorsInaccessibleError,
+    #[error(
+        "The standing in use factors data did not contain an entry for a valid combination of attributes"
+    )]
+    InUseFactorEntryMissingError,
 }
 
 #[derive(Debug, Error)]
