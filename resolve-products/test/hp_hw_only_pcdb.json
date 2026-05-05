@@ -42,6 +42,6 @@
   "modelName": "Modul-AIR Aqua",
   "vesselType": "Separate limiting characteristics",
   "testVesselVolume": 200,
-  "tankVolumeDeclared": 150,
-  "hwVesselLossDaily": 1.867
+  "tankVolumeDeclared": 100,
+  "hwVesselLossDaily": 1.0
 }

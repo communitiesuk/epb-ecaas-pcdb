@@ -10,31 +10,35 @@ pub fn _transform(
     json: &mut JsonValue,
     products: &HashMap<String, Product>,
 ) -> ResolveProductsResult<()> {
-    let heat_pumps = match json.pointer_mut("/HeatPump_HWOnly") {
+    let heat_sources = match json.pointer_mut("/HeatSource") {
         Some(node) if node.is_object() => node.as_object_mut().unwrap(),
         _ => return Ok(()),
     };
 
-    for value in heat_pumps.values_mut() {
-        if let JsonValue::Object(heat_pump) = value {
-            if heat_pump.contains_key(PRODUCT_REFERENCE_FIELD) {
-                let product_ref = product_reference_from_json_object(heat_pump)?;
-                let product = &products[&product_ref];
-                let mut category_mismatches = vec![];
+    for value in heat_sources.values_mut() {
+        if let JsonValue::Object(heat_source) = value {
+            if let Some(heat_source_type) = heat_source.get("type").and_then(|v| v.as_str()) {
+                if matches!(heat_source_type, "HeatPump_HWOnly")
+                    && heat_source.contains_key(PRODUCT_REFERENCE_FIELD)
+                {
+                    let product_ref = product_reference_from_json_object(heat_source)?;
+                    let product = &products[&product_ref];
+                    let mut category_mismatches = vec![];
 
-                if let Technology::HeatPumpHotWaterOnly { .. } = &product.technology {
-                    // now remove product reference
-                    heat_pump.remove(PRODUCT_REFERENCE_FIELD);
-                } else {
-                    category_mismatches.push(format!(
-                        "Product reference '{product_ref}' does not relate to a heat pump hot water only."
+                    if let Technology::HeatPumpHotWaterOnly { .. } = &product.technology {
+                        // now remove product reference
+                        heat_source.remove(PRODUCT_REFERENCE_FIELD);
+                    } else {
+                        category_mismatches.push(format!(
+                        "Product reference '{product_ref}' does not relate to a hot water only heat pump."
                     ));
-                }
+                    }
 
-                if !category_mismatches.is_empty() {
-                    return Err(ResolvePcdbProductsError::ProductCategoryMismatches(
-                        category_mismatches,
-                    ));
+                    if !category_mismatches.is_empty() {
+                        return Err(ResolvePcdbProductsError::ProductCategoryMismatches(
+                            category_mismatches,
+                        ));
+                    }
                 }
             }
         }
@@ -50,11 +54,15 @@ mod tests {
     use std::collections::HashMap;
 
     fn input(product_reference: &str) -> JsonValue {
-        json!({"HeatPump_HWOnly": {
-                product_reference: {
+        json!({
+            "HeatSource": {
+                "hw_only_hp": {
+                    "type": "HeatPump_HWOnly",
+                    "heater_position": 0.1,
                     "EnergySupply": "mains elec",
                     "product_reference": product_reference,
-                }}
+                }
+            }
         })
     }
 
@@ -103,7 +111,7 @@ mod tests {
             result
                 .unwrap_err()
                 .to_string()
-                .contains("Product reference 'hp' does not relate to a heat pump hot water only.")
+                .contains("Product reference 'hp' does not relate to a hot water only heat pump.")
         );
     }
 }
