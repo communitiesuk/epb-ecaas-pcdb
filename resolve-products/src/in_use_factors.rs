@@ -166,7 +166,8 @@ mod mocks {
                 .find(|entry| entry.system_type
                     == MechanicalVentilationSystemType::PositiveInputVentilation
                     && entry.duct_type == MechanicalVentilationDuctType::Flexible
-                    && entry.installation == MechanicalVentilationInstallationType::InDuct)
+                    && entry.installation
+                        == MechanicalVentilationInstallationType::InstalledUnderApprovedScheme)
                 .unwrap()
                 .sfp_in_use_factor,
             1.6

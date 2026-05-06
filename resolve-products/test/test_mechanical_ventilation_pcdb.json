@@ -70,36 +70,6 @@
         "id": 3,
         "productID": 111,
         "parentID": 1
-      },
-      {
-        "configuration": 4,
-        "sfp": 0.04,
-        "sfp2": 0.14,
-        "flowRate": 40,
-        "flowRate2": 4,
-        "id": 4,
-        "productID": 111,
-        "parentID": 1
-      },
-      {
-        "configuration": 5,
-        "sfp": 0.05,
-        "sfp2": 0.15,
-        "flowRate": 50,
-        "flowRate2": 5,
-        "id": 5,
-        "productID": 111,
-        "parentID": 1
-      },
-      {
-        "configuration": 6,
-        "sfp": 0.06,
-        "sfp2": 0.16,
-        "flowRate": 60,
-        "flowRate2": 6,
-        "id": 6,
-        "productID": 111,
-        "parentID": 1
       }
     ]
   }

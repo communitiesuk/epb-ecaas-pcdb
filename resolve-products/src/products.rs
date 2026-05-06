@@ -462,20 +462,17 @@ pub(crate) struct DecentralisedMevTestDatum {
 #[derive(Debug, Deserialize_repr, PartialEq, Copy, Clone)]
 #[repr(u8)]
 pub(crate) enum DecentralisedMevInstallationConfiguration {
-    InRoomFanKitchen = 1,
-    InRoomFanOtherWetRoom = 2,
-    InDuctFanKitchen = 3,
-    InDuctFanOtherWetRoom = 4,
-    ThroughWallFanKitchen = 5,
-    ThroughWallFanOtherWetRoom = 6,
+    InCeiling = 1,
+    InDuct = 2,
+    ThroughWall = 3,
 }
 
 #[derive(Debug, Deserialize_repr, PartialEq)]
 #[repr(u8)]
 pub(crate) enum MechanicalVentilationInstallationType {
-    InCeiling = 1,
-    InDuct = 2,
-    ThroughWall = 3,
+    NotInstalledUnderApprovedScheme = 1,
+    InstalledUnderApprovedScheme = 2,
+    MeasuredSfpUsed = 3,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize_enum_str, PartialEq)]
