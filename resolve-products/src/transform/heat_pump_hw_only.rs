@@ -3,7 +3,8 @@ use crate::errors::ResolvePcdbProductsError;
 use crate::in_use_factors::{HotWaterOnlyInUseFactorEntry, InUseFactorsAccess};
 use crate::products::{HeatPumpVesselType, Product, TappingProfile, Technology};
 use crate::transform::{
-    InvalidProductCategoryError, ResolveProductsResult, product_reference_from_json_object,
+    EnergySupplies, InvalidProductCategoryError, ResolveProductsResult,
+    product_reference_from_json_object,
 };
 use serde_json::{Value as JsonValue, json};
 use smartstring::alias::String;
@@ -13,6 +14,7 @@ pub async fn transform(
     json: &mut JsonValue,
     products: &HashMap<String, Product>,
     in_use_factors_access: &impl InUseFactorsAccess,
+    energy_supplies: &EnergySupplies,
 ) -> ResolveProductsResult<()> {
     let heat_sources = match json.pointer_mut("/HotWaterSource/hw cylinder/HeatSource") {
         Some(node) if node.is_object() => node.as_object_mut().unwrap(),
@@ -36,9 +38,14 @@ pub async fn transform(
                         test_data,
                         hw_vessel_loss_daily,
                         vessel_type,
+                        fuel,
                         ..
                     } = &product.technology
                     {
+                        let energy_supply = energy_supplies
+                            .get(fuel)
+                            .ok_or_else(|| ResolvePcdbProductsError::from(fuel))?;
+                        heat_source.insert("EnergySupply".into(), json!(energy_supply.as_ref()));
                         heat_source.insert("power_max".into(), power_max.as_f64().into());
                         heat_source.insert(
                             "tank_volume_declared".into(),
@@ -121,6 +128,7 @@ pub async fn transform(
 mod tests {
     use super::*;
     use crate::in_use_factors::mocks::FixtureBackedInUseFactorsAccess;
+    use crate::transform::catalogue::mock_energy_supplies;
     use rstest::*;
     use serde_json::{from_str, json};
     use std::collections::HashMap;
@@ -128,6 +136,11 @@ mod tests {
     #[fixture]
     fn in_use_factors_access() -> impl InUseFactorsAccess {
         FixtureBackedInUseFactorsAccess
+    }
+
+    #[fixture]
+    fn energy_supplies() -> EnergySupplies {
+        mock_energy_supplies()
     }
 
     fn input(product_reference: &str) -> JsonValue {
@@ -138,7 +151,6 @@ mod tests {
                         "hw_only_hp": {
                             "type": "HeatPump_HWOnly",
                             "heater_position": 0.1,
-                            "EnergySupply": "mains elec",
                             "product_reference": product_reference,
                         }
                     }
@@ -149,7 +161,10 @@ mod tests {
 
     #[tokio::test]
     #[rstest]
-    async fn test_transform_heat_pump_hw_only(in_use_factors_access: impl InUseFactorsAccess) {
+    async fn test_transform_heat_pump_hw_only(
+        in_use_factors_access: impl InUseFactorsAccess,
+        energy_supplies: EnergySupplies,
+    ) {
         let product_reference = "62";
         let mut input = input(product_reference);
         let expected: JsonValue =
@@ -161,6 +176,7 @@ mod tests {
             &mut input,
             &HashMap::from([(product_reference.into(), pcdb_hp_hw_only)]),
             &in_use_factors_access,
+            &energy_supplies,
         )
         .await;
 
@@ -178,13 +194,20 @@ mod tests {
     #[rstest]
     async fn test_transform_heat_pump_hw_only_errors_when_product_type_mismatch(
         in_use_factors_access: impl InUseFactorsAccess,
+        energy_supplies: EnergySupplies,
     ) {
         let product_reference = "hp";
         let mut input = input(product_reference);
         let pcdb_hps: HashMap<String, Product> =
             from_str(include_str!("../../test/test_heat_pump_pcdb.json")).unwrap();
 
-        let result = transform(&mut input, &pcdb_hps, &in_use_factors_access).await;
+        let result = transform(
+            &mut input,
+            &pcdb_hps,
+            &in_use_factors_access,
+            &energy_supplies,
+        )
+        .await;
 
         assert!(result.is_err());
         assert!(

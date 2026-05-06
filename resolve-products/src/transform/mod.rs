@@ -56,7 +56,7 @@ pub async fn transform_json(
     heat_source_wet::transform(json, &products, &product_catalogue, &energy_supplies).await?;
     space_heat_system::transform(json, &products, &energy_supplies)?;
     wwhrs::transform(json, &products)?;
-    heat_pump_hw_only::transform(json, &products, &in_use_factors_access).await?;
+    heat_pump_hw_only::transform(json, &products, &in_use_factors_access, &energy_supplies).await?;
 
     Ok(())
 }
