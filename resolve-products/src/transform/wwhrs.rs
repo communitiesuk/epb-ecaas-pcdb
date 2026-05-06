@@ -1,7 +1,9 @@
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, Technology, WwhrsSystemType};
-use crate::transform::{ResolveProductsResult, product_reference_from_json_object};
+use crate::transform::{
+    InvalidProductCategoryError, ResolveProductsResult, product_reference_from_json_object,
+};
 use itertools::Itertools;
 use serde_json::Value as JsonValue;
 use smartstring::alias::String;
@@ -19,9 +21,8 @@ pub fn transform(
     for value in wwhrs_systems.values_mut() {
         if let JsonValue::Object(wwhrs) = value {
             if wwhrs.contains_key(PRODUCT_REFERENCE_FIELD) {
-                let product_ref = product_reference_from_json_object(wwhrs)?;
-                let product = &products[&product_ref];
-                let mut category_mismatches = vec![];
+                let product_reference = product_reference_from_json_object(wwhrs)?;
+                let product = &products[&product_reference];
 
                 if let Technology::Wwhrs {
                     test_data,
@@ -35,7 +36,7 @@ pub fn transform(
                         .first()
                         .ok_or_else(|| {
                             ResolvePcdbProductsError::InvalidProduct(
-                                product_ref.to_string(),
+                                product_reference.to_string(),
                                 "WWHRS test data was not expected to be empty",
                             )
                         })?
@@ -74,15 +75,9 @@ pub fn transform(
                     // now remove product reference
                     wwhrs.remove(PRODUCT_REFERENCE_FIELD);
                 } else {
-                    category_mismatches.push(format!(
-                        "Product reference '{product_ref}' does not relate to a WWHRS."
-                    ));
-                }
-
-                if !category_mismatches.is_empty() {
-                    return Err(ResolvePcdbProductsError::ProductCategoryMismatches(
-                        category_mismatches,
-                    ));
+                    return Err(
+                        InvalidProductCategoryError::from((product_reference, "WWHRS")).into(),
+                    );
                 }
             }
         }
@@ -151,11 +146,6 @@ mod tests {
         let result = transform(&mut input, &pcdb_hps);
 
         assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .to_string()
-                .contains("Product reference 'hp' does not relate to a WWHRS.")
-        );
+        assert!(result.unwrap_err().to_string().contains("WWHRS"));
     }
 }
