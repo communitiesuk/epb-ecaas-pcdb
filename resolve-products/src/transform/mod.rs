@@ -40,6 +40,7 @@ pub async fn transform_json(
                 | Technology::FanCoil { .. }
                 | Technology::Wwhrs { .. }
                 | Technology::HeatPumpHotWaterOnly { .. }
+                | Technology::SmartHotWaterTank { .. }
         )
     }) {
         return Err(ResolvePcdbProductsError::UnsupportedProductAtMapping);
@@ -57,6 +58,7 @@ pub async fn transform_json(
     space_heat_system::transform(json, &products, &energy_supplies)?;
     wwhrs::transform(json, &products)?;
     heat_pump_hw_only::transform(json, &products, &in_use_factors_access, &energy_supplies).await?;
+    hot_water_source::transform(json, &products)?;
 
     Ok(())
 }

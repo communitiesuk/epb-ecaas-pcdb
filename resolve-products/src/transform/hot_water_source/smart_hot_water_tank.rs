@@ -3,7 +3,7 @@ use crate::products::{Product, Technology};
 use crate::transform::{InvalidProductCategoryError, TransformResult};
 use serde_json::{Map, Value as JsonValue};
 
-pub fn _transform(
+pub fn transform(
     smart_hot_water_tank: &mut Map<String, JsonValue>,
     product: &Product,
     product_reference: &str,
@@ -43,9 +43,9 @@ mod tests {
     use super::*;
     use crate::products::Product;
     use crate::transform::catalogue::transformed_input_matches_expected;
+    use crate::transform::hot_water_source::tests::HOT_WATER_SOURCE_PCDB_PRODUCTS;
     use serde_json::{Value, from_str, json};
     use std::collections::HashMap;
-    use std::sync::LazyLock;
 
     fn input(product_reference: &str) -> JsonValue {
         json!({
@@ -63,12 +63,6 @@ mod tests {
         })
     }
 
-    pub(crate) static HOT_WATER_SOURCE_PCDB_PRODUCTS: LazyLock<
-        HashMap<smartstring::alias::String, Product>,
-    > = LazyLock::new(|| {
-        from_str(include_str!("../../../test/hot_water_source_pcdb.json")).unwrap()
-    });
-
     #[test]
     fn test_transform_smart_hot_water_tank() {
         let product_reference = "smart_tank";
@@ -76,7 +70,7 @@ mod tests {
         let expected: Map<String, Value> =
             from_str(include_str!("../../../test/smart_hw_tank_transformed.json")).unwrap();
 
-        let result = _transform(
+        let result = transform(
             input.as_object_mut().unwrap(),
             HOT_WATER_SOURCE_PCDB_PRODUCTS
                 .get(product_reference)
@@ -95,7 +89,7 @@ mod tests {
         let pcdb_hps: HashMap<String, Product> =
             from_str(include_str!("../../../test/test_heat_pump_pcdb.json")).unwrap();
 
-        let result = _transform(
+        let result = transform(
             input.as_object_mut().unwrap(),
             pcdb_hps.get(product_reference).unwrap(),
             product_reference,
