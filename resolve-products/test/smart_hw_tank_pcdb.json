@@ -1,0 +1,16 @@
+{
+  "id": "smart_tank",
+  "technologyType": "SmartHotWaterTank",
+  "volume": 250,
+  "modelName": "TEST 250",
+  "dailyLosses": 1,
+  "brandName": "Mixergy",
+  "maxFlowRatePumpLPerMin": 19,
+  "productID": "smart_tank",
+  "heaterPosition": 0.1,
+  "dataType": "listed_product",
+  "powerPumpKW": 0.025,
+  "tempUsable": 40,
+  "finalYearOfManufacture": "current",
+  "heatSource": "Main Heating System"
+}
