@@ -1,6 +1,6 @@
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
-use crate::products::{CentralisedMevTestDatum, Product, Technology};
+use crate::products::{Product, Technology};
 use crate::transform::ResolveProductsResult;
 use serde_json::{Map, Value as JsonValue, json};
 
@@ -11,12 +11,26 @@ pub(crate) fn transform(
     number_of_wetrooms: usize,
 ) -> ResolveProductsResult<()> {
     if let Technology::CentralisedMev { test_data, .. } = &product.technology {
-        let test_datum: &CentralisedMevTestDatum = test_data
+        let test_data_matching_number_of_wet_rooms: Vec<_> = test_data
             .iter()
-            .find(|a|
-                a.configuration == number_of_wetrooms
-            )
-            .ok_or_else(|| ResolvePcdbProductsError::InvalidCombination(format!("Centralised Mev product {} from PCDB has no configuration for specified number of wet rooms ({:?})", product_reference, number_of_wetrooms)))?;
+            .filter(|a| a.configuration == number_of_wetrooms)
+            .collect();
+
+        let test_datum = match test_data_matching_number_of_wet_rooms.as_slice() {
+            [one] => one,
+            [] => {
+                return Err(ResolvePcdbProductsError::InvalidCombination(format!(
+                    "Centralised MeV product {} from PCDB has no configuration for specified number of wet rooms ({:?})",
+                    product_reference, number_of_wetrooms
+                )));
+            }
+            _ => {
+                return Err(ResolvePcdbProductsError::InvalidProduct(
+                    product_reference.to_string(),
+                    "Centralised MeV product from PCDB has ambiguous test data",
+                ));
+            }
+        };
 
         mech_vent.insert("SFP".into(), json!(test_datum.sfp.as_f64()));
         mech_vent.remove("installed_under_approved_scheme"); // TODO: review
@@ -60,7 +74,7 @@ mod tests {
     #[case::one_wet_room("centralisedMev1WetRoom", 1)]
     #[case::two_wet_rooms("centralisedMev2WetRooms", 2)]
     #[case::eleven_wet_rooms("centralisedMev6WetRooms", 6)]
-    fn test_transform_decentralised_mev(
+    fn test_transform_centralised_mev(
         pcdb_products: HashMap<String, Product>,
         #[case] product_reference: &str,
         #[case] number_of_wet_rooms: usize,
@@ -81,7 +95,7 @@ mod tests {
     }
 
     #[rstest]
-    fn test_transform_decentralised_mev_errors_given_unsupported_number_of_wet_rooms(
+    fn test_transform_centralised_mev_errors_given_unsupported_number_of_wet_rooms(
         pcdb_products: HashMap<String, Product>,
     ) {
         let product_reference = "centralisedMev";
@@ -93,6 +107,23 @@ mod tests {
             pcdb_mev,
             product_reference,
             7,
+        );
+        assert!(result.is_err());
+    }
+
+    #[rstest]
+    fn test_transform_decentralised_mev_errors_given_ambiguous_configuration_from_pcdb(
+        pcdb_products: HashMap<String, Product>,
+    ) {
+        let product_reference = "centralisedMevWithTwoEntriesForTheSameConfiguration";
+        let mut mev_input = centralised_mev_input(product_reference);
+        let pcdb_mev = pcdb_products.get(product_reference).unwrap();
+
+        let result = transform(
+            mev_input.as_object_mut().unwrap(),
+            pcdb_mev,
+            product_reference,
+            1,
         );
         assert!(result.is_err());
     }

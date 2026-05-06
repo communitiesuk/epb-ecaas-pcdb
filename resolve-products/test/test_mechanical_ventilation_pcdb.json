@@ -142,55 +142,38 @@
         "flowRate": 16,
         "sfp": 0.6,
         "parentID": 2
-      },
+      }
+    ],
+    "integralOnly": 0
+  },
+  "centralisedMevWithTwoEntriesForTheSameConfiguration": {
+    "id": "centralisedMev",
+    "productID": 333,
+    "technologyType": "CentralisedMev",
+    "brandName": "Acme Inc.",
+    "modelName": "Acme model",
+    "firstYearOfManufacture": "2022",
+    "finalYearOfManufacture": "current",
+    "dataType": "listed_product",
+    "testData": [
       {
-        "id": 7,
+        "id": 1,
         "productID": 333,
         "configuration": 1,
+        "ductSize": 1,
         "ductType": 2,
+        "flowRate": 11,
+        "sfp": 0.1,
+        "parentID": 2
+      },
+      {
+        "id": 2,
+        "productID": 333,
+        "configuration": 1,
         "ductSize": 2,
+        "ductType": 2,
         "flowRate": 17,
         "sfp": 0.11,
-        "parentID": 2
-      },
-      {
-        "id": 8,
-        "productID": 333,
-        "configuration": 2,
-        "ductType": 2,
-        "ductSize": 2,
-        "flowRate": 18,
-        "sfp": 0.22,
-        "parentID": 2
-      },
-      {
-        "id": 9,
-        "productID": 333,
-        "configuration": 3,
-        "ductType": 2,
-        "ductSize": 2,
-        "flowRate": 19,
-        "sfp": 0.33,
-        "parentID": 2
-      },
-      {
-        "id": 10,
-        "productID": 333,
-        "configuration": 4,
-        "ductType": 2,
-        "ductSize": 2,
-        "flowRate": 20,
-        "sfp": 0.44,
-        "parentID": 2
-      },
-      {
-        "id": 11,
-        "productID": 333,
-        "configuration": 5,
-        "ductType": 2,
-        "ductSize": 2,
-        "flowRate": 21,
-        "sfp": 0.55,
         "parentID": 2
       }
     ],
