@@ -178,5 +178,96 @@
       }
     ],
     "integralOnly": 0
+  },
+  "centralisedMvhr": {
+    "brandName": "Acme Inc.",
+    "modelName": "Acme model",
+    "id": "centralisedMvhr",
+    "productID": 111,
+    "dataType": "listed_product",
+    "finalYearOfManufacture": "current",
+    "firstYearOfManufacture": "2023",
+    "technologyType": "CentralisedMvhr",
+    "testData": [
+      {
+        "configuration": 1,
+        "mvhrEff": 0.1,
+        "sfp": 0.11,
+        "flowRate": 11,
+        "ductSize": 1,
+        "ductType": 2,
+        "id": 1,
+        "productID": 111,
+        "parentID": 2
+      },
+      {
+        "configuration": 2,
+        "mvhrEff": 0.2,
+        "sfp": 0.22,
+        "flowRate": 22,
+        "ductSize": 1,
+        "ductType": 2,
+        "id": 2,
+        "productID": 111,
+        "parentID": 2
+      },
+      {
+        "configuration": 3,
+        "mvhrEff": 0.3,
+        "sfp": 0.33,
+        "flowRate": 33,
+        "ductSize": 1,
+        "ductType": 2,
+        "id": 3,
+        "productID": 111,
+        "parentID": 2
+      },
+      {
+        "configuration": 4,
+        "mvhrEff": 0.4,
+        "sfp": 0.44,
+        "flowRate": 44,
+        "ductSize": 1,
+        "ductType": 2,
+        "id": 4,
+        "productID": 111,
+        "parentID": 2
+      },
+      {
+        "configuration": 5,
+        "mvhrEff": 0.5,
+        "sfp": 0.55,
+        "flowRate": 55,
+        "ductSize": 1,
+        "ductType": 2,
+        "id": 5,
+        "productID": 111,
+        "parentID": 2
+      },
+      {
+        "configuration": 6,
+        "mvhrEff": 0.6,
+        "sfp": 0.66,
+        "flowRate": 66,
+        "ductSize": 1,
+        "ductType": 2,
+        "id": 6,
+        "productID": 111,
+        "parentID": 2
+      },
+      {
+        "configuration": 7,
+        "mvhrEff": 0.7,
+        "sfp": 0.77,
+        "flowRate": 77,
+        "ductSize": 1,
+        "ductType": 2,
+        "id": 7,
+        "productID": 111,
+        "parentID": 2
+      }
+    ],
+    "integralOnly": 0,
+    "summerBypass": 3
   }
 }

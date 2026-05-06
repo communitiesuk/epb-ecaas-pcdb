@@ -1,4 +1,5 @@
 pub mod centralised_mev;
+pub mod centralised_mvhr;
 pub mod decentralised_mev;
 
 use crate::PRODUCT_REFERENCE_FIELD;
@@ -62,6 +63,17 @@ pub fn transform(
                             number_of_wetrooms as usize,
                         )?
                     }
+                    "MVHR" if mech_vent_object.contains_key(PRODUCT_REFERENCE_FIELD) => {
+                        let product_reference =
+                            product_reference_from_json_object(mech_vent_object)?;
+
+                        centralised_mvhr::transform(
+                            mech_vent_object,
+                            &products[&product_reference],
+                            &product_reference,
+                            number_of_wetrooms as usize,
+                        )?
+                    }
                     _ => {}
                 }
             }
@@ -111,6 +123,25 @@ mod tests {
                     "mid_height_air_flow_path": 1.5,
                     "orientation360": 90,
                     "pitch": 60
+                },
+                "centralisedMvhr": {
+                    "vent_type": "MVHR",
+                    "EnergySupply": "mains elec",
+                    "product_reference": "centralisedMvhr",
+                    "design_outdoor_air_flow_rate": 80,
+                    "installed_under_approved_scheme": true,
+                    "mvhr_location": "inside",
+                    "ductwork": [],
+                    "position_intake": {
+                        "mid_height_air_flow_path": 1.5,
+                        "orientation360": 90,
+                        "pitch": 60
+                    },
+                    "position_exhaust": {
+                        "mid_height_air_flow_path": 1.6,
+                        "orientation360": 90,
+                        "pitch": 60
+                    }
                 }
             }
         })
@@ -130,6 +161,7 @@ mod tests {
         let pointers = [
             "/MechanicalVentilation/decentralisedMev",
             "/MechanicalVentilation/centralisedMev",
+            "/MechanicalVentilation/centralisedMvhr",
         ];
 
         for pointer in pointers {
