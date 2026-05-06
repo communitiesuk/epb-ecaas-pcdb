@@ -178,7 +178,7 @@ mod tests {
                 heat_source_wet_input
                     .pointer(&format!("{pointer}/product_reference"))
                     .is_none(),
-                "heat_source_wet_input still has a product_references at pointer {pointer}"
+                "heat_source_wet_input still has a product_reference at pointer {pointer}"
             );
         }
     }

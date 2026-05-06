@@ -61,6 +61,7 @@ mod tests {
                     "vent_type": "Decentralised continuous MEV",
                     "EnergySupply": "mains elec",
                     "product_reference": "decentralisedMev",
+                    "design_outdoor_air_flow_rate": 80,
                     "installed_under_approved_scheme": true,
                     "installation_type": "in_ceiling",
                     "installation_location": "kitchen",
@@ -82,5 +83,19 @@ mod tests {
             &mechanical_ventilation_pcdb_products,
         );
         assert!(result.is_ok());
+
+        let pointers = [
+            "/MechanicalVentilation/decentralisedMev",
+        ];
+
+        for pointer in pointers {
+            assert!(mechanical_ventilation_input.pointer(pointer).is_some());
+            assert!(
+                mechanical_ventilation_input
+                    .pointer(&format!("{pointer}/product_reference"))
+                    .is_none(),
+                "mechanical_ventilation_input still has a product_reference at pointer {pointer}"
+            );
+        }
     }
 }
