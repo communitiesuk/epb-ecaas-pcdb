@@ -206,6 +206,7 @@ pub(crate) enum Technology {
         frac_convective: Decimal,
         test_data: Vec<FanCoilTestDatum>,
     },
+    #[serde(alias = "CentralisedMev")]
     CentralisedMev {
         #[serde(rename = "testData")]
         test_data: Vec<CentralisedMevTestDatum>,
@@ -421,9 +422,9 @@ pub(crate) struct CentralisedMevTestDatum {
     /// Whether tested using flexible, rigid ducting or semi-rigid, coded as 1,2 and 3 respectively. Semi-rigid have the same in use factors as rigid.
     duct_type: MechanicalVentilationDuctType,
     /// Number of additional wet rooms (i.e. in addition to the kitchen)
-    configuration: usize,
+    pub(crate) configuration: usize,
     /// Specific fan power in watts per (litre per second)
-    sfp: Decimal,
+    pub(crate) sfp: Decimal,
 }
 
 #[derive(Debug, Deserialize)]

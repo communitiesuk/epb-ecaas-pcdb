@@ -86,16 +86,16 @@ enum InstallationLocation {
 mod tests {
     use super::*;
     use crate::transform::catalogue::transformed_input_matches_expected;
+    use crate::transform::mechanical_ventilation::{
+        expected_transformed_mech_vent_input, mechanical_ventilation_pcdb_products,
+    };
     use rstest::{fixture, rstest};
     use serde_json::{Value, json};
     use std::collections::HashMap;
 
     #[fixture]
-    fn mechanical_ventilation_pcdb_products() -> HashMap<String, Product> {
-        serde_json::from_str(include_str!(
-            "../../../test/test_mechanical_ventilation_pcdb.json"
-        ))
-        .unwrap()
+    fn pcdb_products() -> HashMap<String, Product> {
+        mechanical_ventilation_pcdb_products()
     }
 
     fn decentralised_mev_input(
@@ -117,20 +117,6 @@ mod tests {
         })
     }
 
-    fn expected_transformed_input(product_reference: &str) -> Map<String, JsonValue> {
-        let expected_mechanical_ventilation: JsonValue = serde_json::from_str(include_str!(
-            "../../../test/test_mechanical_ventilation_input_transformed.json"
-        ))
-        .unwrap();
-
-        expected_mechanical_ventilation
-            .pointer(&format!("/MechanicalVentilation/{}", product_reference))
-            .unwrap()
-            .as_object()
-            .unwrap()
-            .clone()
-    }
-
     #[rstest]
     #[case::in_ceiling_kitchen("decentralisedMev", "in_ceiling", "kitchen")]
     #[case::in_ceiling_other("decentralisedMevInCeilingOther", "in_ceiling", "other_wet_room")]
@@ -143,14 +129,14 @@ mod tests {
         "other_wet_room"
     )]
     fn test_transform_decentralised_mev(
-        mechanical_ventilation_pcdb_products: HashMap<String, Product>,
+        pcdb_products: HashMap<String, Product>,
         #[case] product_reference: &str,
         #[case] installation_type: &str,
         #[case] installation_location: &str,
     ) {
         let mut mev_input =
             decentralised_mev_input(product_reference, installation_type, installation_location);
-        let pcdb_mev = mechanical_ventilation_pcdb_products
+        let pcdb_mev = pcdb_products
             .get("decentralisedMevWithAllConfigurations")
             .unwrap();
 
@@ -161,19 +147,17 @@ mod tests {
         );
         assert!(result.is_ok());
 
-        let expected_input = expected_transformed_input(product_reference);
+        let expected_input = expected_transformed_mech_vent_input(product_reference);
         transformed_input_matches_expected(&mev_input, expected_input);
     }
 
     #[rstest]
     fn test_transform_decentralised_mev_missing_configuration_error(
-        mechanical_ventilation_pcdb_products: HashMap<String, Product>,
+        pcdb_products: HashMap<String, Product>,
     ) {
         let product_reference = "decentralisedMev";
         let mut mev_input = decentralised_mev_input(product_reference, "in_duct", "other_wet_room");
-        let pcdb_mev = mechanical_ventilation_pcdb_products
-            .get(product_reference)
-            .unwrap();
+        let pcdb_mev = pcdb_products.get(product_reference).unwrap();
 
         let result = transform(
             mev_input.as_object_mut().unwrap(),

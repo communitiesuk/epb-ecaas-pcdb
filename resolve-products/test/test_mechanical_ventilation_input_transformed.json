@@ -53,6 +53,48 @@
       "mid_height_air_flow_path": 2,
       "orientation360": 0,
       "pitch": 90
+    },
+    "centralisedMev1WetRoom": {
+      "vent_type": "Centralised continuous MEV",
+      "EnergySupply": "mains elec",
+      "SFP": 0.1,
+      "measured_fan_power": 12.26,
+      "measured_air_flow_rate": 37,
+      "mid_height_air_flow_path": 1.5,
+      "orientation360": 90,
+      "pitch": 60,
+      "design_outdoor_air_flow_rate": 80
+    },
+    "centralisedMev2WetRooms": {
+      "vent_type": "Centralised continuous MEV",
+      "EnergySupply": "mains elec",
+      "SFP": 0.2,
+      "measured_fan_power": 12.26,
+      "measured_air_flow_rate": 37,
+      "mid_height_air_flow_path": 1.5,
+      "orientation360": 90,
+      "pitch": 60,
+      "design_outdoor_air_flow_rate": 80
+    },
+    "centralisedMev6WetRooms": {
+      "vent_type": "Centralised continuous MEV",
+      "EnergySupply": "mains elec",
+      "SFP": 0.6,
+      "measured_fan_power": 12.26,
+      "measured_air_flow_rate": 37,
+      "mid_height_air_flow_path": 1.5,
+      "orientation360": 90,
+      "pitch": 60,
+      "design_outdoor_air_flow_rate": 80
+    },
+    "centralisedMevSFPProvided": {
+      "vent_type": "Centralised continuous MEV",
+      "EnergySupply": "mains elec",
+      "SFP": 3,
+      "mid_height_air_flow_path": 1.5,
+      "orientation360": 90,
+      "pitch": 60,
+      "design_outdoor_air_flow_rate": 80
     }
   }
 }

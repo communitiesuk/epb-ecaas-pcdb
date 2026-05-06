@@ -1,16 +1,32 @@
+pub mod centralised_mev;
 pub mod decentralised_mev;
 
 use crate::PRODUCT_REFERENCE_FIELD;
+use crate::errors::ResolvePcdbProductsError;
 use crate::products::Product;
 use crate::transform::{ResolveProductsResult, product_reference_from_json_object};
-use serde_json::Value as JsonValue;
+use serde_json::{Value as JsonValue};
 use smartstring::alias::String as SmartString;
 use std::collections::HashMap;
+#[cfg(test)]
+use serde_json::{Map};
 
 pub fn transform(
     json: &mut JsonValue,
     products: &HashMap<SmartString, Product>,
 ) -> ResolveProductsResult<()> {
+    let number_of_wetrooms_including_kitchen = match json.pointer_mut("/NumberOfWetRooms") {
+        Some(node) if node.is_u64() => node.as_u64().unwrap(),
+        _ => {
+            return Err(
+                ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck(
+                    "NumberOfWetRooms was expected to be set as a positive integer",
+                ),
+            );
+        }
+    };
+    let number_of_wetrooms = number_of_wetrooms_including_kitchen - 1;
+
     let mechanical_ventilation = match json.pointer_mut("/MechanicalVentilation") {
         Some(node) if node.is_object() => node.as_object_mut().unwrap(),
         _ => return Ok(()),
@@ -30,6 +46,19 @@ pub fn transform(
                             mech_vent_object,
                             &products[&product_reference],
                             &product_reference,
+                        )?
+                    }
+                    "Centralised continuous MEV"
+                        if mech_vent_object.contains_key(PRODUCT_REFERENCE_FIELD) =>
+                    {
+                        let product_reference =
+                            product_reference_from_json_object(mech_vent_object)?;
+
+                        centralised_mev::transform(
+                            mech_vent_object,
+                            &products[&product_reference],
+                            &product_reference,
+                            number_of_wetrooms as usize,
                         )?
                     }
                     _ => {}
@@ -56,6 +85,7 @@ mod tests {
 
     fn mechanical_ventilation_input() -> JsonValue {
         json!({
+            "NumberOfWetRooms": 2,
             "MechanicalVentilation": {
                 "decentralisedMev": {
                     "vent_type": "Decentralised continuous MEV",
@@ -68,6 +98,18 @@ mod tests {
                     "mid_height_air_flow_path": 2,
                     "orientation360": 0,
                     "pitch": 90
+                },
+                "centralisedMev": {
+                    "vent_type": "Centralised continuous MEV",
+                    "EnergySupply": "mains elec",
+                    "product_reference": "centralisedMev",
+                    "design_outdoor_air_flow_rate": 80,
+                    "installed_under_approved_scheme": true,
+                    "measured_fan_power": 12.26,
+                    "measured_air_flow_rate": 37,
+                    "mid_height_air_flow_path": 1.5,
+                    "orientation360": 90,
+                    "pitch": 60
                 }
             }
         })
@@ -86,6 +128,7 @@ mod tests {
 
         let pointers = [
             "/MechanicalVentilation/decentralisedMev",
+            "/MechanicalVentilation/centralisedMev",
         ];
 
         for pointer in pointers {
@@ -98,4 +141,27 @@ mod tests {
             );
         }
     }
+}
+
+#[cfg(test)]
+fn mechanical_ventilation_pcdb_products() -> HashMap<String, Product> {
+    serde_json::from_str(include_str!(
+        "../../../test/test_mechanical_ventilation_pcdb.json"
+    ))
+    .unwrap()
+}
+
+#[cfg(test)]
+fn expected_transformed_mech_vent_input(product_reference: &str) -> Map<String, JsonValue> {
+    let expected_mechanical_ventilation: JsonValue = serde_json::from_str(include_str!(
+        "../../../test/test_mechanical_ventilation_input_transformed.json"
+    ))
+    .unwrap();
+
+    expected_mechanical_ventilation
+        .pointer(&format!("/MechanicalVentilation/{}", product_reference))
+        .unwrap()
+        .as_object()
+        .unwrap()
+        .clone()
 }
