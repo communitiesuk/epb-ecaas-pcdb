@@ -220,13 +220,19 @@ pub(crate) enum Technology {
         #[serde(rename = "testData")]
         test_data: Vec<DecentralisedMevTestDatum>,
     },
+    #[serde(alias = "SmartHotWaterTank")]
     SmartHotWaterTank {
         /// Usable temperature (unit: degree Celsius)
         temp_usable: Decimal,
         /// Maximum flow rate of the pump (unit: litre/minute)
         max_flow_rate_pump_l_per_min: Decimal,
         /// Pump power (unit: kW)
+        #[serde(rename = "powerPumpKW")]
         power_pump_kw: Decimal,
+        /// Daily standby losses due to tank insulation at standardised conditions (unit: kWh/24h)
+        daily_losses: Decimal,
+        /// Total volume of tank (unit: litre)
+        volume: Decimal,
     },
     #[serde(rename = "HotWaterOnlyHeatPump")]
     HeatPumpHotWaterOnly {

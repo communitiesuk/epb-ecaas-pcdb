@@ -1,0 +1,17 @@
+{
+  "type": "SmartHotWaterTank",
+  "EnergySupply_pump": "mains elec",
+  "max_flow_rate_pump_l_per_min": 19.0,
+  "power_pump_kW": 0.025,
+  "temp_usable": 40.0,
+  "HeatSource": {
+    "regularBoiler": {
+      "heater_position": 0.1,
+      "name": "regularBoiler",
+      "type": "HeatSourceWet"
+    }
+  },
+  "volume": 250.0,
+  "daily_losses": 1.0,
+  "ColdWaterSource": "mains water"
+}
