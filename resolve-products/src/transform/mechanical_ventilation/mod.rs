@@ -5,12 +5,13 @@ use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::Product;
 use crate::transform::{ResolveProductsResult, product_reference_from_json_object};
-use serde_json::{Value as JsonValue};
+#[cfg(test)]
+use serde_json::Map;
+use serde_json::Value as JsonValue;
 use smartstring::alias::String as SmartString;
 use std::collections::HashMap;
-#[cfg(test)]
-use serde_json::{Map};
 
+#[allow(dead_code)]
 pub fn transform(
     json: &mut JsonValue,
     products: &HashMap<SmartString, Product>,

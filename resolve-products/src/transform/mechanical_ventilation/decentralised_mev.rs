@@ -7,7 +7,6 @@ use crate::transform::{InvalidProductCategoryError, ResolveProductsResult};
 use serde::Deserialize;
 use serde_json::{Map, Value as JsonValue, json};
 
-#[allow(dead_code)]
 pub(crate) fn transform(
     mech_vent: &mut Map<String, JsonValue>,
     product: &Product,
