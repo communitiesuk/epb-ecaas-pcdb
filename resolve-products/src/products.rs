@@ -258,6 +258,7 @@ pub(crate) enum Technology {
         has_booster_heat_pump: bool,
         /// The temperature distribution for the community network. Required for a 5th generation heat network, blank if not
         temp_distribution_heat_network: Option<Decimal>,
+        community_heat_network_name: String,
         #[serde(rename = "testData")] // (sic)
         sub_heat_networks: Vec<SubHeatNetwork>,
     },
@@ -514,13 +515,13 @@ pub(crate) struct HeatPumpHotWaterOnlyTestDatum {
 #[derive(Debug, Deserialize)]
 pub(crate) struct SubHeatNetwork {
     #[serde(rename = "subheatNetworkName")]
-    name: String,
-    #[serde(rename = "EmissionsFactorkgCO2ekWh")]
-    emissions_factor: Decimal,
-    #[serde(rename = "EmissionsFactorkgCO2ekWhincludingOutOfScopeEmissions")]
-    emissions_factor_including_out_of_scope: Decimal,
-    #[serde(rename = "PrimaryEnergyFactorkWhkWhDelivered")]
-    primary_energy_factor: Decimal,
+    pub(crate) name: String,
+    #[serde(rename = "emissionsFactorkgCO2ekWh")]
+    pub(crate) emissions_factor: Decimal,
+    #[serde(rename = "emissionsFactorkgCO2ekWhincludingOutOfScopeEmissions")]
+    pub(crate) emissions_factor_including_out_of_scope: Decimal,
+    #[serde(rename = "primaryEnergyFactorkWhkWhDelivered")]
+    pub(crate) primary_energy_factor: Decimal,
 }
 
 pub(crate) trait ProductCatalogue {

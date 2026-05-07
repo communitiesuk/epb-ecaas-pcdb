@@ -1,0 +1,24 @@
+{
+  "heatNetworkThomas": {
+    "EnergySupply": {
+      "name": "The Island of Sodor - Thomas's Shed",
+      "is_export_capable": false,
+      "factor": {
+        "Emissions Factor kgCO2e/kWh": 0.414,
+        "Emissions Factor kgCO2e/kWh including out-of-scope emissions": 0.415,
+        "Primary Energy Factor kWh/kWh delivered": 1.89
+      }
+    }
+  },
+  "heatNetworkFatController": {
+    "EnergySupply": {
+      "name": "The Island of Sodor - Chez the Fat Controller",
+      "is_export_capable": false,
+      "factor": {
+        "Emissions Factor kgCO2e/kWh": 0.327,
+        "Emissions Factor kgCO2e/kWh including out-of-scope emissions": 0.329,
+        "Primary Energy Factor kWh/kWh delivered": 1.49
+      }
+    }
+  }
+}

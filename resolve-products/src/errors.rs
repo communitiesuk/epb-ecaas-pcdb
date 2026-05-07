@@ -56,6 +56,8 @@ pub enum ResolvePcdbProductsError {
         "The standing in use factors data did not contain an entry for a valid combination of attributes"
     )]
     InUseFactorEntryMissingError,
+    #[error("Sub heat network with name '{0}' not found for heat network with ID '{1}'")]
+    SubHeatNetworkNotFoundError(String, String),
 }
 
 #[derive(Debug, Error)]

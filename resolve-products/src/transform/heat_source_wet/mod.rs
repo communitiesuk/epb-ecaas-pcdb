@@ -1,6 +1,7 @@
 mod boiler;
 mod heat_battery_dry_core;
 mod heat_battery_pcm;
+pub mod heat_network;
 mod heat_pump;
 
 use crate::PRODUCT_REFERENCE_FIELD;
