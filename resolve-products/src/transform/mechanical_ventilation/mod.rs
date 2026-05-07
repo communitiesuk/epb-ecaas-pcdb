@@ -109,15 +109,38 @@ async fn resolve_sfp_in_use_factor(
         MechanicalVentilationInstallationType::NotInstalledUnderApprovedScheme
     };
 
-    Ok(in_use_factors
+    in_use_factors
         .iter()
         .find_map(|entry| {
             (entry.system_type == *system_type
                 && entry.duct_type == *duct_type
                 && entry.installation == installation_type)
-                .then(|| entry.sfp_in_use_factor)
+                .then_some(entry.sfp_in_use_factor)
         })
-        .ok_or(ResolvePcdbProductsError::InUseFactorEntryMissingError)?)
+        .ok_or(ResolvePcdbProductsError::InUseFactorEntryMissingError)
+}
+
+#[cfg(test)]
+fn mechanical_ventilation_pcdb_products() -> HashMap<String, Product> {
+    serde_json::from_str(include_str!(
+        "../../../test/test_mechanical_ventilation_pcdb.json"
+    ))
+    .unwrap()
+}
+
+#[cfg(test)]
+fn expected_transformed_mech_vent_input(product_reference: &str) -> Map<String, JsonValue> {
+    let expected_mechanical_ventilation: JsonValue = serde_json::from_str(include_str!(
+        "../../../test/test_mechanical_ventilation_input_transformed.json"
+    ))
+    .unwrap();
+
+    expected_mechanical_ventilation
+        .pointer(&format!("/MechanicalVentilation/{}", product_reference))
+        .unwrap()
+        .as_object()
+        .unwrap()
+        .clone()
 }
 
 #[cfg(test)]
@@ -232,27 +255,4 @@ mod tests {
             1.6
         );
     }
-}
-
-#[cfg(test)]
-fn mechanical_ventilation_pcdb_products() -> HashMap<String, Product> {
-    serde_json::from_str(include_str!(
-        "../../../test/test_mechanical_ventilation_pcdb.json"
-    ))
-    .unwrap()
-}
-
-#[cfg(test)]
-fn expected_transformed_mech_vent_input(product_reference: &str) -> Map<String, JsonValue> {
-    let expected_mechanical_ventilation: JsonValue = serde_json::from_str(include_str!(
-        "../../../test/test_mechanical_ventilation_input_transformed.json"
-    ))
-    .unwrap();
-
-    expected_mechanical_ventilation
-        .pointer(&format!("/MechanicalVentilation/{}", product_reference))
-        .unwrap()
-        .as_object()
-        .unwrap()
-        .clone()
 }
