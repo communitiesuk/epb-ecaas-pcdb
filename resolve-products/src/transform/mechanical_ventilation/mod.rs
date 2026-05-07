@@ -69,7 +69,9 @@ pub async fn transform(
                             &products[&product_reference],
                             &product_reference,
                             number_of_wetrooms as usize,
-                        )?
+                            in_use_factors_access,
+                        )
+                        .await?
                     }
                     "MVHR" if mech_vent_object.contains_key(PRODUCT_REFERENCE_FIELD) => {
                         let product_reference =

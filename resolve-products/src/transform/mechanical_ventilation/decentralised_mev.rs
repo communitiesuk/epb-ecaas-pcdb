@@ -72,7 +72,7 @@ pub(crate) async fn transform(
         {
             // assuming a rigid duct type for all Decentralised MeVs
             let duct_type = MechanicalVentilationDuctType::RigidDucting;
-            let installed_under_approved_scheme = mech_vent.get("installed_under_approved_scheme").and_then(JsonValue::as_bool).ok_or_else(|| { ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck("Decentralised MeV input was expected to have a installed_under_approved_scheme field that is a boolean")})?;
+            let installed_under_approved_scheme = mech_vent.get("installed_under_approved_scheme").and_then(JsonValue::as_bool).ok_or_else(|| { ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck("Decentralised MeV input was expected to have an installed_under_approved_scheme field that is a boolean")})?;
             let sfp_in_use_factor = resolve_sfp_in_use_factor(
                 in_use_factors_access,
                 &MechanicalVentilationSystemType::DecentralisedMev,
