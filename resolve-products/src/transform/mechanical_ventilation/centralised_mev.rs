@@ -23,19 +23,23 @@ pub(crate) async fn transform(
             [one] => one,
             [] => {
                 return Err(ResolvePcdbProductsError::InvalidCombination(format!(
-                    "Centralised MeV product {} from PCDB has no configuration for specified number of wet rooms ({:?})",
+                    "Centralised MEV product {} from PCDB has no configuration for specified number of wet rooms ({:?})",
                     product_reference, number_of_wetrooms
                 )));
             }
             _ => {
                 return Err(ResolvePcdbProductsError::InvalidProduct(
                     product_reference.to_string(),
-                    "Centralised MeV product from PCDB has ambiguous test data",
+                    "Centralised MEV product from PCDB has ambiguous test data",
                 ));
             }
         };
 
-        mech_vent.insert("SFP".into(), json!(test_datum.sfp.as_f64()));
+        if !mech_vent.contains_key("measured_fan_power")
+            || !mech_vent.contains_key("measured_air_flow_rate")
+        {
+            mech_vent.insert("SFP".into(), json!(test_datum.sfp.as_f64()));
+        }
 
         let duct_type = &test_datum.duct_type;
         let installed_under_approved_scheme = mech_vent.get("installed_under_approved_scheme").and_then(JsonValue::as_bool).ok_or_else(|| { ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck("Centralised MeV input was expected to have an 'installed_under_approved_scheme' field that is a boolean")})?;
@@ -86,8 +90,6 @@ mod tests {
             "product_reference": product_reference,
             "design_outdoor_air_flow_rate": 80,
             "installed_under_approved_scheme": true,
-            "measured_fan_power": 12.26,
-            "measured_air_flow_rate": 37,
             "mid_height_air_flow_path": 1.5,
             "orientation360": 90,
             "pitch": 60
@@ -98,7 +100,7 @@ mod tests {
     #[rstest]
     #[case::one_wet_room("centralisedMev1WetRoom", 1)]
     #[case::two_wet_rooms("centralisedMev2WetRooms", 2)]
-    #[case::eleven_wet_rooms("centralisedMev6WetRooms", 6)]
+    #[case::six_wet_rooms("centralisedMev6WetRooms", 6)]
     async fn test_transform_centralised_mev(
         pcdb_products: HashMap<String, Product>,
         in_use_factor_access: impl InUseFactorsAccess,
@@ -113,6 +115,36 @@ mod tests {
             pcdb_mev,
             product_reference,
             number_of_wet_rooms,
+            &in_use_factor_access,
+        )
+        .await;
+        assert!(result.is_ok());
+
+        let expected_input = expected_transformed_mech_vent_input(product_reference);
+        transformed_input_matches_expected(&mev_input, expected_input);
+    }
+
+    #[tokio::test]
+    #[rstest]
+    async fn test_transform_centralised_mev_with_measured_fields_provided(
+        pcdb_products: HashMap<String, Product>,
+        in_use_factor_access: impl InUseFactorsAccess,
+    ) {
+        let product_reference = "centralisedMevWithMeasuredFieldsProvided";
+        let mut mev_input = centralised_mev_input(product_reference);
+        let pcdb_mev = pcdb_products.get("centralisedMev").unwrap();
+
+        {
+            let mvhr_object = mev_input.as_object_mut().unwrap();
+            mvhr_object.insert("measured_fan_power".to_string(), json!(12.26));
+            mvhr_object.insert("measured_air_flow_rate".to_string(), json!(37));
+        }
+
+        let result = transform(
+            mev_input.as_object_mut().unwrap(),
+            pcdb_mev,
+            product_reference,
+            6,
             &in_use_factor_access,
         )
         .await;

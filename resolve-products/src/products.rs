@@ -435,7 +435,7 @@ pub(crate) struct CentralisedMvhrTestDatum {
     /// Number of additional wet rooms (i.e. in addition to the kitchen)
     pub(crate) configuration: usize,
     /// Specific fan power in watts per (litre per second)
-    sfp: Decimal,
+    pub(crate) sfp: Decimal,
     /// Heat exchanger efficiency
     pub(crate) mvhr_eff: Decimal,
 }

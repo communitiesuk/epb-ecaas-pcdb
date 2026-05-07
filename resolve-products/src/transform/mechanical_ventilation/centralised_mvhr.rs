@@ -35,6 +35,13 @@ pub(crate) async fn transform(
             }
         };
 
+        // if measured_fan_power and measured_air_flow_rate are not present, we need to fetch and add the SFP
+        if !mech_vent.contains_key("measured_fan_power")
+            || !mech_vent.contains_key("measured_air_flow_rate")
+        {
+            mech_vent.insert("SFP".into(), test_datum.sfp.as_f64().into());
+        }
+
         mech_vent.insert("mvhr_eff".into(), json!(test_datum.mvhr_eff.as_f64()));
 
         let duct_type = &test_datum.duct_type;
@@ -128,6 +135,36 @@ mod tests {
 
         let expected_input = expected_transformed_mech_vent_input(product_reference);
         transformed_input_matches_expected(&mvhr_input, expected_input);
+    }
+
+    #[tokio::test]
+    #[rstest]
+    async fn test_transform_centralised_mvhr_with_measured_fields_supplied(
+        pcdb_products: HashMap<String, Product>,
+        in_use_factor_access: impl InUseFactorsAccess,
+    ) {
+        let product_reference = "centralisedMvhrWithMeasuredFanPowerAndAirFlowRate";
+        let mut mvhr_input_value = centralised_mvhr_input(product_reference);
+        let mvhr_input = mvhr_input_value.as_object_mut().unwrap();
+
+        // add measured_* fields
+        mvhr_input.insert("measured_fan_power".into(), json!(2.0));
+        mvhr_input.insert("measured_air_flow_rate".into(), json!(3.0));
+
+        let pcdb_mvhr = pcdb_products.get("centralisedMvhr").unwrap();
+
+        let result = transform(
+            mvhr_input,
+            pcdb_mvhr,
+            product_reference,
+            3,
+            &in_use_factor_access,
+        )
+        .await;
+        assert!(result.is_ok());
+
+        let expected_input = expected_transformed_mech_vent_input(product_reference);
+        transformed_input_matches_expected(&mvhr_input_value, expected_input);
     }
 
     #[tokio::test]
