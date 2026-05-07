@@ -269,5 +269,39 @@
     ],
     "integralOnly": 0,
     "summerBypass": 3
+  },
+  "centralisedMvhrWithTwoEntriesForTheSameConfiguration": {
+    "brandName": "Acme Inc.",
+    "modelName": "Acme model",
+    "id": "centralisedMvhr",
+    "productID": 111,
+    "dataType": "listed_product",
+    "finalYearOfManufacture": "current",
+    "firstYearOfManufacture": "2023",
+    "technologyType": "CentralisedMvhr",
+    "testData": [
+      {
+        "configuration": 1,
+        "mvhrEff": 0.1,
+        "sfp": 0.11,
+        "flowRate": 11,
+        "ductSize": 1,
+        "ductType": 2,
+        "id": 1,
+        "productID": 111,
+        "parentID": 2
+      },
+      {
+        "configuration": 1,
+        "mvhrEff": 0.1,
+        "sfp": 0.13,
+        "flowRate": 13,
+        "ductSize": 2,
+        "ductType": 2,
+        "id": 1,
+        "productID": 111,
+        "parentID": 2
+      }
+    ]
   }
 }

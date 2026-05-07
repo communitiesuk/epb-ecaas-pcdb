@@ -87,18 +87,52 @@ mod tests {
         #[case] product_reference: &str,
         #[case] number_of_wet_rooms: usize,
     ) {
-        let mut mev_input = centralised_mvhr_input(product_reference);
-        let pcdb_mev = pcdb_products.get("centralisedMvhr").unwrap();
+        let mut mvhr_input = centralised_mvhr_input(product_reference);
+        let pcdb_mvhr = pcdb_products.get("centralisedMvhr").unwrap();
 
         let result = transform(
-            mev_input.as_object_mut().unwrap(),
-            pcdb_mev,
+            mvhr_input.as_object_mut().unwrap(),
+            pcdb_mvhr,
             product_reference,
             number_of_wet_rooms,
         );
         assert!(result.is_ok());
 
         let expected_input = expected_transformed_mech_vent_input(product_reference);
-        transformed_input_matches_expected(&mev_input, expected_input);
+        transformed_input_matches_expected(&mvhr_input, expected_input);
+    }
+
+    #[rstest]
+    fn test_transform_centralised_mvhr_errors_given_unsupported_number_of_wet_rooms(
+        pcdb_products: HashMap<String, Product>,
+    ) {
+        let product_reference = "centralisedMvhr";
+        let mut mvhr_input = centralised_mvhr_input(product_reference);
+        let pcdb_mvhr = pcdb_products.get(product_reference).unwrap();
+
+        let result = transform(
+            mvhr_input.as_object_mut().unwrap(),
+            pcdb_mvhr,
+            product_reference,
+            8,
+        );
+        assert!(result.is_err());
+    }
+
+    #[rstest]
+    fn test_transform_decentralised_mvhr_errors_given_ambiguous_configuration_from_pcdb(
+        pcdb_products: HashMap<String, Product>,
+    ) {
+        let product_reference = "centralisedMvhrWithTwoEntriesForTheSameConfiguration";
+        let mut mvhr_input = centralised_mvhr_input(product_reference);
+        let pcdb_mvhr = pcdb_products.get(product_reference).unwrap();
+
+        let result = transform(
+            mvhr_input.as_object_mut().unwrap(),
+            pcdb_mvhr,
+            product_reference,
+            1,
+        );
+        assert!(result.is_err());
     }
 }
