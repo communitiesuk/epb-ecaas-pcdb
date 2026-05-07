@@ -117,6 +117,7 @@ async fn resolve_sfp_in_use_factor(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::in_use_factors::mocks::FixtureBackedInUseFactorsAccess;
     use rstest::{fixture, rstest};
     use serde_json::json;
 
@@ -208,9 +209,19 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore]
     async fn test_resolve_sfp_in_use_factor() {
-        //
+        assert_eq!(
+            resolve_sfp_in_use_factor(
+                &FixtureBackedInUseFactorsAccess,
+                &MechanicalVentilationSystemType::PositiveInputVentilation,
+                &MechanicalVentilationDuctType::Flexible,
+                true
+            )
+            .await
+            .unwrap()
+            .as_f64(),
+            1.6
+        );
     }
 }
 
