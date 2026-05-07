@@ -86,6 +86,60 @@
       "orientation360": 90,
       "pitch": 60,
       "design_outdoor_air_flow_rate": 80
+    },
+    "centralisedMvhr": {
+      "vent_type": "MVHR",
+      "EnergySupply": "mains elec",
+      "design_outdoor_air_flow_rate": 80,
+      "mvhr_location": "inside",
+      "ductwork": [],
+      "position_intake": {
+        "mid_height_air_flow_path": 1.5,
+        "orientation360": 90,
+        "pitch": 60
+      },
+      "position_exhaust": {
+        "mid_height_air_flow_path": 1.6,
+        "orientation360": 90,
+        "pitch": 60
+      },
+      "mvhr_eff": 0.1
+    },
+    "centralisedMvhr3WetRooms": {
+      "vent_type": "MVHR",
+      "EnergySupply": "mains elec",
+      "design_outdoor_air_flow_rate": 80,
+      "mvhr_location": "inside",
+      "ductwork": [],
+      "position_intake": {
+        "mid_height_air_flow_path": 1.5,
+        "orientation360": 90,
+        "pitch": 60
+      },
+      "position_exhaust": {
+        "mid_height_air_flow_path": 1.6,
+        "orientation360": 90,
+        "pitch": 60
+      },
+      "mvhr_eff": 0.3
+    },
+    "centralisedMvhr7WetRooms": {
+      "vent_type": "MVHR",
+      "EnergySupply": "mains elec",
+      "design_outdoor_air_flow_rate": 80,
+      "mvhr_location": "inside",
+      "ductwork": [],
+      "position_intake": {
+        "mid_height_air_flow_path": 1.5,
+        "orientation360": 90,
+        "pitch": 60
+      },
+      "position_exhaust": {
+        "mid_height_air_flow_path": 1.6,
+        "orientation360": 90,
+        "pitch": 60
+      },
+      "mvhr_eff": 0.7
     }
   }
 }

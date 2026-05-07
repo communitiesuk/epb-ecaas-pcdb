@@ -1,15 +1,41 @@
 use crate::PRODUCT_REFERENCE_FIELD;
-use crate::products::Product;
+use crate::errors::ResolvePcdbProductsError;
+use crate::products::{Product, Technology};
 use crate::transform::ResolveProductsResult;
-use serde_json::{Map, Value as JsonValue};
+use serde_json::{Map, Value as JsonValue, json};
 
 pub(crate) fn transform(
     mech_vent: &mut Map<String, JsonValue>,
-    _product: &Product,
-    _product_reference: &str,
-    _number_of_wetrooms: usize,
+    product: &Product,
+    product_reference: &str,
+    number_of_wetrooms: usize,
 ) -> ResolveProductsResult<()> {
-    mech_vent.remove(PRODUCT_REFERENCE_FIELD);
+    if let Technology::CentralisedMvhr { test_data, .. } = &product.technology {
+        let test_data_matching_number_of_wet_rooms: Vec<_> = test_data
+            .iter()
+            .filter(|a| a.configuration == number_of_wetrooms)
+            .collect();
+
+        let test_datum = match test_data_matching_number_of_wet_rooms.as_slice() {
+            [one] => one,
+            [] => {
+                return Err(ResolvePcdbProductsError::InvalidCombination(format!(
+                    "Centralised MVHR product {} from PCDB has no configuration for specified number of wet rooms ({:?})",
+                    product_reference, number_of_wetrooms
+                )));
+            }
+            _ => {
+                return Err(ResolvePcdbProductsError::InvalidProduct(
+                    product_reference.to_string(),
+                    "Centralised MVHR product from PCDB has ambiguous test data",
+                ));
+            }
+        };
+
+        mech_vent.insert("mvhr_eff".into(), json!(test_datum.mvhr_eff.as_f64()));
+        mech_vent.remove("installed_under_approved_scheme");
+        mech_vent.remove(PRODUCT_REFERENCE_FIELD);
+    }
     Ok(())
 }
 
@@ -17,7 +43,10 @@ pub(crate) fn transform(
 mod tests {
     use super::*;
     use crate::products::Product;
-    use crate::transform::mechanical_ventilation::mechanical_ventilation_pcdb_products;
+    use crate::transform::catalogue::transformed_input_matches_expected;
+    use crate::transform::mechanical_ventilation::{
+        expected_transformed_mech_vent_input, mechanical_ventilation_pcdb_products,
+    };
     use rstest::{fixture, rstest};
     use serde_json::{Value, json};
     use std::collections::HashMap;
@@ -50,11 +79,16 @@ mod tests {
     }
 
     #[rstest]
-    fn test_transform_centralised_mev(pcdb_products: HashMap<String, Product>) {
-        let product_reference = "centralisedMvhr";
-        let number_of_wet_rooms = 1;
+    #[case::one_wet_room("centralisedMvhr", 1)]
+    #[case::two_wet_rooms("centralisedMvhr3WetRooms", 3)]
+    #[case::eleven_wet_rooms("centralisedMvhr7WetRooms", 7)]
+    fn test_transform_centralised_mvhr(
+        pcdb_products: HashMap<String, Product>,
+        #[case] product_reference: &str,
+        #[case] number_of_wet_rooms: usize,
+    ) {
         let mut mev_input = centralised_mvhr_input(product_reference);
-        let pcdb_mev = pcdb_products.get(product_reference).unwrap();
+        let pcdb_mev = pcdb_products.get("centralisedMvhr").unwrap();
 
         let result = transform(
             mev_input.as_object_mut().unwrap(),
@@ -64,7 +98,7 @@ mod tests {
         );
         assert!(result.is_ok());
 
-        // let expected_input = expected_transformed_mech_vent_input(product_reference);
-        // transformed_input_matches_expected(&mev_input, expected_input);
+        let expected_input = expected_transformed_mech_vent_input(product_reference);
+        transformed_input_matches_expected(&mev_input, expected_input);
     }
 }

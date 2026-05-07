@@ -433,11 +433,11 @@ pub(crate) struct CentralisedMvhrTestDatum {
     /// Whether tested using flexible, rigid ducting or semi-rigid, coded as 1,2 and 3 respectively. Semi-rigid have the same in use factors as rigid.
     duct_type: MechanicalVentilationDuctType,
     /// Number of additional wet rooms (i.e. in addition to the kitchen)
-    configuration: usize,
+    pub(crate) configuration: usize,
     /// Specific fan power in watts per (litre per second)
     sfp: Decimal,
     /// Heat exchanger efficiency
-    mvhr_eff: Decimal,
+    pub(crate) mvhr_eff: Decimal,
 }
 
 #[derive(Debug, Deserialize_repr, PartialEq)]

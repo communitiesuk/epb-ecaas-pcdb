@@ -33,7 +33,7 @@ pub(crate) fn transform(
         };
 
         mech_vent.insert("SFP".into(), json!(test_datum.sfp.as_f64()));
-        mech_vent.remove("installed_under_approved_scheme"); // TODO: review
+        mech_vent.remove("installed_under_approved_scheme");
         mech_vent.remove(PRODUCT_REFERENCE_FIELD);
     }
     Ok(())
