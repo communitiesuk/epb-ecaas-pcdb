@@ -175,7 +175,8 @@ pub mod mocks {
                     && entry.installation
                         == MechanicalVentilationInstallationType::InstalledUnderApprovedScheme)
                 .unwrap()
-                .sfp_in_use_factor,
+                .sfp_in_use_factor
+                .as_f64(),
             1.6
         );
     }

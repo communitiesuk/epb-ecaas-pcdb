@@ -4,12 +4,6 @@ pub mod decentralised_mev;
 
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
-<<<<<<< Updated upstream
-use crate::products::Product;
-use crate::transform::{ResolveProductsResult, product_reference_from_json_object};
-#[cfg(test)]
-use serde_json::Map;
-=======
 use crate::in_use_factors::{
     InUseFactorsAccess, MVInUseFactorEntry, MechanicalVentilationSystemType,
 };
@@ -18,7 +12,8 @@ use crate::products::{
 };
 use crate::transform::{ResolveProductsResult, product_reference_from_json_object};
 use rust_decimal::Decimal;
->>>>>>> Stashed changes
+#[cfg(test)]
+use serde_json::Map;
 use serde_json::Value as JsonValue;
 use smartstring::alias::String as SmartString;
 use std::collections::HashMap;
@@ -210,6 +205,12 @@ mod tests {
                 "mechanical_ventilation_input still has a product_reference at pointer {pointer}"
             );
         }
+    }
+
+    #[tokio::test]
+    #[ignore]
+    async fn test_resolve_sfp_in_use_factor() {
+        //
     }
 }
 
