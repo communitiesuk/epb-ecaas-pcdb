@@ -112,7 +112,8 @@
         "orientation360": 90,
         "pitch": 60
       },
-      "mvhr_eff": 0.1
+      "mvhr_eff": 0.1,
+      "SFP_in_use_factor": 1.25
     },
     "centralisedMvhr3WetRooms": {
       "vent_type": "MVHR",
@@ -130,7 +131,8 @@
         "orientation360": 90,
         "pitch": 60
       },
-      "mvhr_eff": 0.3
+      "mvhr_eff": 0.3,
+      "SFP_in_use_factor": 1.25
     },
     "centralisedMvhr7WetRooms": {
       "vent_type": "MVHR",
@@ -148,7 +150,8 @@
         "orientation360": 90,
         "pitch": 60
       },
-      "mvhr_eff": 0.7
+      "mvhr_eff": 0.7,
+      "SFP_in_use_factor": 1.25
     }
   }
 }

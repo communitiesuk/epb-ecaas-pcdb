@@ -431,7 +431,7 @@ pub(crate) struct CentralisedMevTestDatum {
 #[serde(rename_all = "camelCase")]
 pub(crate) struct CentralisedMvhrTestDatum {
     /// Whether tested using flexible, rigid ducting or semi-rigid, coded as 1,2 and 3 respectively. Semi-rigid have the same in use factors as rigid.
-    duct_type: MechanicalVentilationDuctType,
+    pub(crate) duct_type: MechanicalVentilationDuctType,
     /// Number of additional wet rooms (i.e. in addition to the kitchen)
     pub(crate) configuration: usize,
     /// Specific fan power in watts per (litre per second)

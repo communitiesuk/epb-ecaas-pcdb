@@ -82,7 +82,9 @@ pub async fn transform(
                             &products[&product_reference],
                             &product_reference,
                             number_of_wetrooms as usize,
-                        )?
+                            in_use_factors_access,
+                        )
+                        .await?
                     }
                     _ => {}
                 }

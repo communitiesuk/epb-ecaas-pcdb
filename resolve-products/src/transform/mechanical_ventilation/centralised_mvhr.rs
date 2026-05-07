@@ -1,14 +1,17 @@
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
+use crate::in_use_factors::{InUseFactorsAccess, MechanicalVentilationSystemType};
 use crate::products::{Product, Technology};
 use crate::transform::ResolveProductsResult;
 use serde_json::{Map, Value as JsonValue, json};
+use crate::transform::mechanical_ventilation::resolve_sfp_in_use_factor;
 
-pub(crate) fn transform(
+pub(crate) async fn transform(
     mech_vent: &mut Map<String, JsonValue>,
     product: &Product,
     product_reference: &str,
     number_of_wetrooms: usize,
+    in_use_factors_access: &impl InUseFactorsAccess,
 ) -> ResolveProductsResult<()> {
     if let Technology::CentralisedMvhr { test_data, .. } = &product.technology {
         let test_data_matching_number_of_wet_rooms: Vec<_> = test_data
@@ -33,6 +36,21 @@ pub(crate) fn transform(
         };
 
         mech_vent.insert("mvhr_eff".into(), json!(test_datum.mvhr_eff.as_f64()));
+
+        let duct_type = &test_datum.duct_type;
+        let installed_under_approved_scheme = mech_vent.get("installed_under_approved_scheme").and_then(JsonValue::as_bool).ok_or_else(|| { ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck("Centralised MVHR input was expected to have an 'installed_under_approved_scheme' field that is a boolean")})?;
+        let sfp_in_use_factor = resolve_sfp_in_use_factor(
+            in_use_factors_access,
+            &MechanicalVentilationSystemType::CentralisedMvAndMvhr,
+            duct_type,
+            installed_under_approved_scheme,
+        )
+            .await?;
+        mech_vent.insert(
+            "SFP_in_use_factor".into(),
+            json!(sfp_in_use_factor.as_f64()),
+        );
+        
         mech_vent.remove("installed_under_approved_scheme");
         mech_vent.remove(PRODUCT_REFERENCE_FIELD);
     }
@@ -42,6 +60,7 @@ pub(crate) fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::in_use_factors::mocks::FixtureBackedInUseFactorsAccess;
     use crate::products::Product;
     use crate::transform::catalogue::transformed_input_matches_expected;
     use crate::transform::mechanical_ventilation::{
@@ -54,6 +73,11 @@ mod tests {
     #[fixture]
     fn pcdb_products() -> HashMap<String, Product> {
         mechanical_ventilation_pcdb_products()
+    }
+
+    #[fixture]
+    fn in_use_factor_access() -> impl InUseFactorsAccess {
+        FixtureBackedInUseFactorsAccess
     }
 
     fn centralised_mvhr_input(product_reference: &str) -> Value {
@@ -78,12 +102,14 @@ mod tests {
         })
     }
 
+    #[tokio::test]
     #[rstest]
     #[case::one_wet_room("centralisedMvhr", 1)]
     #[case::two_wet_rooms("centralisedMvhr3WetRooms", 3)]
     #[case::eleven_wet_rooms("centralisedMvhr7WetRooms", 7)]
-    fn test_transform_centralised_mvhr(
+    async fn test_transform_centralised_mvhr(
         pcdb_products: HashMap<String, Product>,
+        in_use_factor_access: impl InUseFactorsAccess,
         #[case] product_reference: &str,
         #[case] number_of_wet_rooms: usize,
     ) {
@@ -95,16 +121,20 @@ mod tests {
             pcdb_mvhr,
             product_reference,
             number_of_wet_rooms,
-        );
+            &in_use_factor_access,
+        )
+        .await;
         assert!(result.is_ok());
 
         let expected_input = expected_transformed_mech_vent_input(product_reference);
         transformed_input_matches_expected(&mvhr_input, expected_input);
     }
 
+    #[tokio::test]
     #[rstest]
-    fn test_transform_centralised_mvhr_errors_given_unsupported_number_of_wet_rooms(
+    async fn test_transform_centralised_mvhr_errors_given_unsupported_number_of_wet_rooms(
         pcdb_products: HashMap<String, Product>,
+        in_use_factor_access: impl InUseFactorsAccess,
     ) {
         let product_reference = "centralisedMvhr";
         let mut mvhr_input = centralised_mvhr_input(product_reference);
@@ -115,13 +145,17 @@ mod tests {
             pcdb_mvhr,
             product_reference,
             8,
-        );
+            &in_use_factor_access,
+        )
+        .await;
         assert!(result.is_err());
     }
 
+    #[tokio::test]
     #[rstest]
-    fn test_transform_decentralised_mvhr_errors_given_ambiguous_configuration_from_pcdb(
+    async fn test_transform_decentralised_mvhr_errors_given_ambiguous_configuration_from_pcdb(
         pcdb_products: HashMap<String, Product>,
+        in_use_factor_access: impl InUseFactorsAccess,
     ) {
         let product_reference = "centralisedMvhrWithTwoEntriesForTheSameConfiguration";
         let mut mvhr_input = centralised_mvhr_input(product_reference);
@@ -132,7 +166,9 @@ mod tests {
             pcdb_mvhr,
             product_reference,
             1,
-        );
+            &in_use_factor_access,
+        )
+        .await;
         assert!(result.is_err());
     }
 }
