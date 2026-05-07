@@ -1,8 +1,6 @@
 //! module is concerned with in use factors data that is stored alongside product data under individual IDs
 //! with one `data` field containing a JSON list of items
 
-#![allow(dead_code)]
-
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{
     HeatPumpVesselType, MechanicalVentilationDuctType, MechanicalVentilationInstallationType,
@@ -51,10 +49,10 @@ impl InUseFactorsEntry for HotWaterOnlyInUseFactorEntry {
 #[derive(Debug, Deserialize)]
 pub struct MVInUseFactorEntry {
     #[serde(rename = "SFP_in_use_factor")]
-    sfp_in_use_factor: f64,
-    system_type: MechanicalVentilationSystemType,
-    duct_type: MechanicalVentilationDuctType,
-    installation: MechanicalVentilationInstallationType,
+    pub(crate) sfp_in_use_factor: Decimal,
+    pub(crate) system_type: MechanicalVentilationSystemType,
+    pub(crate) duct_type: MechanicalVentilationDuctType,
+    pub(crate) installation: MechanicalVentilationInstallationType,
 }
 
 impl InUseFactorsEntry for MVInUseFactorEntry {

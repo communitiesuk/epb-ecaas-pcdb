@@ -4,10 +4,21 @@ pub mod decentralised_mev;
 
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
+<<<<<<< Updated upstream
 use crate::products::Product;
 use crate::transform::{ResolveProductsResult, product_reference_from_json_object};
 #[cfg(test)]
 use serde_json::Map;
+=======
+use crate::in_use_factors::{
+    InUseFactorsAccess, MVInUseFactorEntry, MechanicalVentilationSystemType,
+};
+use crate::products::{
+    MechanicalVentilationDuctType, MechanicalVentilationInstallationType, Product,
+};
+use crate::transform::{ResolveProductsResult, product_reference_from_json_object};
+use rust_decimal::Decimal;
+>>>>>>> Stashed changes
 use serde_json::Value as JsonValue;
 use smartstring::alias::String as SmartString;
 use std::collections::HashMap;
@@ -80,6 +91,32 @@ pub fn transform(
         }
     }
     Ok(())
+}
+
+async fn resolve_sfp_in_use_factor(
+    in_use_factors_access: &impl InUseFactorsAccess,
+    system_type: &MechanicalVentilationSystemType,
+    duct_type: &MechanicalVentilationDuctType,
+    installed_under_approved_scheme: bool,
+) -> ResolveProductsResult<Decimal> {
+    let in_use_factors = in_use_factors_access
+        .in_use_factors::<MVInUseFactorEntry>()
+        .await?;
+    let installation_type = if installed_under_approved_scheme {
+        MechanicalVentilationInstallationType::InstalledUnderApprovedScheme
+    } else {
+        MechanicalVentilationInstallationType::NotInstalledUnderApprovedScheme
+    };
+
+    Ok(in_use_factors
+        .iter()
+        .find_map(|entry| {
+            (entry.system_type == *system_type
+                && entry.duct_type == *duct_type
+                && entry.installation == installation_type)
+                .then(|| entry.sfp_in_use_factor)
+        })
+        .ok_or(ResolvePcdbProductsError::InUseFactorEntryMissingError)?)
 }
 
 #[cfg(test)]
