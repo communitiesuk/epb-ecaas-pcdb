@@ -18,10 +18,10 @@ use serde_json::Value as JsonValue;
 use smartstring::alias::String as SmartString;
 use std::collections::HashMap;
 
-#[allow(dead_code)]
-pub fn transform(
+pub async fn transform(
     json: &mut JsonValue,
     products: &HashMap<SmartString, Product>,
+    in_use_factors_access: &impl InUseFactorsAccess,
 ) -> ResolveProductsResult<()> {
     let number_of_wetrooms_including_kitchen = match json.pointer_mut("/NumberOfWetRooms") {
         Some(node) if node.is_u64() => node.as_u64().unwrap(),
@@ -54,7 +54,9 @@ pub fn transform(
                             mech_vent_object,
                             &products[&product_reference],
                             &product_reference,
-                        )?
+                            in_use_factors_access,
+                        )
+                        .await?
                     }
                     "Centralised continuous MEV"
                         if mech_vent_object.contains_key(PRODUCT_REFERENCE_FIELD) =>
@@ -180,15 +182,18 @@ mod tests {
         })
     }
 
+    #[tokio::test]
     #[rstest]
-    fn test_transform_mechanical_ventilation_products(
+    async fn test_transform_mechanical_ventilation_products(
         mechanical_ventilation_pcdb_products: HashMap<SmartString, Product>,
     ) {
         let mut mechanical_ventilation_input = mechanical_ventilation_input();
         let result = transform(
             &mut mechanical_ventilation_input,
             &mechanical_ventilation_pcdb_products,
-        );
+            &FixtureBackedInUseFactorsAccess,
+        )
+        .await;
         assert!(result.is_ok());
 
         let pointers = [

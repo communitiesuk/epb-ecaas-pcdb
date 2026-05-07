@@ -1,16 +1,22 @@
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
+use crate::in_use_factors::InUseFactorsAccess;
 use crate::products::{
-    DecentralisedMevInstallationConfiguration, DecentralisedMevTestDatum, Product, Technology,
+    DecentralisedMevInstallationConfiguration, DecentralisedMevTestDatum,
+    MechanicalVentilationDuctType, Product, Technology,
+};
+use crate::transform::mechanical_ventilation::{
+    MechanicalVentilationSystemType, resolve_sfp_in_use_factor,
 };
 use crate::transform::{InvalidProductCategoryError, ResolveProductsResult};
 use serde::Deserialize;
 use serde_json::{Map, Value as JsonValue, json};
 
-pub(crate) fn transform(
+pub(crate) async fn transform(
     mech_vent: &mut Map<String, JsonValue>,
     product: &Product,
     product_reference: &str,
+    in_use_factors_access: &impl InUseFactorsAccess,
 ) -> ResolveProductsResult<()> {
     if let Technology::DecentralisedMev { test_data, .. } = &product.technology {
         let installation_type = mech_vent
@@ -53,13 +59,32 @@ pub(crate) fn transform(
             )
             .ok_or_else(|| ResolvePcdbProductsError::InvalidCombination(format!("Decentralised Mev product {} from PCDB is not compatible with specified installation configuration ({:?}, {:?})", product_reference, installation_type, installation_location)))?;
 
-        // use SFP for kitchen, or SFP2 for other
-        let sfp = match installation_location {
-            InstallationLocation::Kitchen => test_datum.sfp,
-            InstallationLocation::OtherWetRoom => test_datum.sfp2,
-        };
+        {
+            // use SFP for kitchen, or SFP2 for other
+            let sfp = match installation_location {
+                InstallationLocation::Kitchen => test_datum.sfp,
+                InstallationLocation::OtherWetRoom => test_datum.sfp2,
+            };
 
-        mech_vent.insert("SFP".into(), json!(sfp.as_f64()));
+            mech_vent.insert("SFP".into(), json!(sfp.as_f64()));
+        }
+
+        {
+            // assuming a rigid duct type for all Decentralised MeVs
+            let duct_type = MechanicalVentilationDuctType::RigidDucting;
+            let installed_under_approved_scheme = mech_vent.get("installed_under_approved_scheme").and_then(JsonValue::as_bool).ok_or_else(|| { ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck("Decentralised MeV input was expected to have a installed_under_approved_scheme field that is a boolean")})?;
+            let sfp_in_use_factor = resolve_sfp_in_use_factor(
+                in_use_factors_access,
+                &MechanicalVentilationSystemType::DecentralisedMev,
+                &duct_type,
+                installed_under_approved_scheme,
+            )
+            .await?;
+            mech_vent.insert(
+                "SFP_in_use_factor".into(),
+                json!(sfp_in_use_factor.as_f64()),
+            );
+        }
 
         mech_vent.remove("installation_type");
         mech_vent.remove("installation_location");
@@ -84,6 +109,7 @@ enum InstallationLocation {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::in_use_factors::mocks::FixtureBackedInUseFactorsAccess;
     use crate::transform::catalogue::transformed_input_matches_expected;
     use crate::transform::mechanical_ventilation::{
         expected_transformed_mech_vent_input, mechanical_ventilation_pcdb_products,
@@ -95,6 +121,11 @@ mod tests {
     #[fixture]
     fn pcdb_products() -> HashMap<String, Product> {
         mechanical_ventilation_pcdb_products()
+    }
+
+    #[fixture]
+    fn in_use_factor_access() -> impl InUseFactorsAccess {
+        FixtureBackedInUseFactorsAccess
     }
 
     fn decentralised_mev_input(
@@ -116,6 +147,7 @@ mod tests {
         })
     }
 
+    #[tokio::test]
     #[rstest]
     #[case::in_ceiling_kitchen("decentralisedMev", "in_ceiling", "kitchen")]
     #[case::in_ceiling_other("decentralisedMevInCeilingOther", "in_ceiling", "other_wet_room")]
@@ -127,8 +159,9 @@ mod tests {
         "through_wall",
         "other_wet_room"
     )]
-    fn test_transform_decentralised_mev(
+    async fn test_transform_decentralised_mev(
         pcdb_products: HashMap<String, Product>,
+        in_use_factor_access: impl InUseFactorsAccess,
         #[case] product_reference: &str,
         #[case] installation_type: &str,
         #[case] installation_location: &str,
@@ -143,16 +176,20 @@ mod tests {
             mev_input.as_object_mut().unwrap(),
             pcdb_mev,
             product_reference,
-        );
+            &in_use_factor_access,
+        )
+        .await;
         assert!(result.is_ok());
 
         let expected_input = expected_transformed_mech_vent_input(product_reference);
         transformed_input_matches_expected(&mev_input, expected_input);
     }
 
+    #[tokio::test]
     #[rstest]
-    fn test_transform_decentralised_mev_missing_configuration_error(
+    async fn test_transform_decentralised_mev_missing_configuration_error(
         pcdb_products: HashMap<String, Product>,
+        in_use_factor_access: impl InUseFactorsAccess,
     ) {
         let product_reference = "decentralisedMev";
         let mut mev_input = decentralised_mev_input(product_reference, "in_duct", "other_wet_room");
@@ -162,7 +199,9 @@ mod tests {
             mev_input.as_object_mut().unwrap(),
             pcdb_mev,
             product_reference,
-        );
+            &in_use_factor_access,
+        )
+        .await;
         assert!(result.is_err());
     }
 }
