@@ -3,8 +3,8 @@ use crate::errors::ResolvePcdbProductsError;
 use crate::in_use_factors::{InUseFactorsAccess, MechanicalVentilationSystemType};
 use crate::products::{Product, Technology};
 use crate::transform::ResolveProductsResult;
-use serde_json::{Map, Value as JsonValue, json};
 use crate::transform::mechanical_ventilation::resolve_sfp_in_use_factor;
+use serde_json::{Map, Value as JsonValue, json};
 
 pub(crate) async fn transform(
     mech_vent: &mut Map<String, JsonValue>,
@@ -45,12 +45,12 @@ pub(crate) async fn transform(
             duct_type,
             installed_under_approved_scheme,
         )
-            .await?;
+        .await?;
         mech_vent.insert(
             "SFP_in_use_factor".into(),
             json!(sfp_in_use_factor.as_f64()),
         );
-        
+
         mech_vent.remove("installed_under_approved_scheme");
         mech_vent.remove(PRODUCT_REFERENCE_FIELD);
     }
