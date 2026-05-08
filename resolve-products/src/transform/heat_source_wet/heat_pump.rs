@@ -248,13 +248,13 @@ mod tests {
 
     #[fixture]
     fn pcdb_heat_pumps() -> HashMap<String, Product> {
-        serde_json::from_str(include_str!("../../../test/test_heat_pump_pcdb.json")).unwrap()
+        serde_json::from_str(include_str!("../../../test/heat_pump_pcdb.json")).unwrap()
     }
 
     #[fixture]
     fn additional_fields() -> HashMap<String, Value> {
         serde_json::from_str(include_str!(
-            "../../../test/test_heat_pump_additional_fields.json"
+            "../../../test/heat_pump_additional_fields.json"
         ))
         .unwrap()
     }
@@ -266,7 +266,7 @@ mod tests {
 
     fn expected_heat_pump_input(product_reference: &str) -> Map<String, JsonValue> {
         let expected_heat_pumps: JsonValue = serde_json::from_str(include_str!(
-            "../../../test/test_heat_pump_input_transformed.json"
+            "../../../test/heat_pump_input_transformed.json"
         ))
         .unwrap();
 

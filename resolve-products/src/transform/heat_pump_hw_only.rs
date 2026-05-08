@@ -199,7 +199,7 @@ mod tests {
         let product_reference = "hp";
         let mut input = input(product_reference);
         let pcdb_hps: HashMap<String, Product> =
-            from_str(include_str!("../../test/test_heat_pump_pcdb.json")).unwrap();
+            from_str(include_str!("../../test/heat_pump_pcdb.json")).unwrap();
 
         let result = transform(
             &mut input,

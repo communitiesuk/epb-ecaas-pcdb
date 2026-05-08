@@ -111,7 +111,7 @@ mod tests {
 
     #[fixture]
     fn pcdb_heat_batteries() -> HashMap<String, Product> {
-        serde_json::from_str(include_str!("../../../test/test_heat_batteries_pcdb.json")).unwrap()
+        serde_json::from_str(include_str!("../../../test/heat_batteries_pcdb.json")).unwrap()
     }
 
     #[fixture]
@@ -121,7 +121,7 @@ mod tests {
 
     fn expected_transformed_input(product_reference: &str) -> Map<String, JsonValue> {
         let expected_input: JsonValue = serde_json::from_str(include_str!(
-            "../../../test/test_heat_battery_input_transformed.json"
+            "../../../test/heat_battery_input_transformed.json"
         ))
         .unwrap();
 
