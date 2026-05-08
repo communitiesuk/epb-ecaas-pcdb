@@ -16,7 +16,7 @@ pub(crate) async fn transform(
     if let Technology::CentralisedMev { test_data, .. } = &product.technology {
         let test_data_matching_number_of_wet_rooms: Vec<_> = test_data
             .iter()
-            .filter(|a| a.configuration == number_of_wetrooms)
+            .filter(|a| a.configuration == number_of_wetrooms - 1) // configuration excludes kitchen, number_of_wetrooms includes it
             .collect();
 
         let test_datum = match test_data_matching_number_of_wet_rooms.as_slice() {
@@ -98,8 +98,8 @@ mod tests {
 
     #[tokio::test]
     #[rstest]
-    #[case::one_wet_room("centralisedMev1WetRoom", 1)]
     #[case::two_wet_rooms("centralisedMev2WetRooms", 2)]
+    #[case::three_wet_rooms("centralisedMev3WetRooms", 3)]
     #[case::six_wet_rooms("centralisedMev6WetRooms", 6)]
     async fn test_transform_centralised_mev(
         pcdb_products: HashMap<String, Product>,
@@ -168,7 +168,7 @@ mod tests {
             mev_input.as_object_mut().unwrap(),
             pcdb_mev,
             product_reference,
-            7,
+            8,
             &in_use_factor_access,
         )
         .await;

@@ -160,7 +160,7 @@ mod tests {
 
     fn mechanical_ventilation_input() -> JsonValue {
         json!({
-            "NumberOfWetRooms": 2,
+            "NumberOfWetRooms": 3,
             "MechanicalVentilation": {
                 "decentralisedMev": {
                     "vent_type": "Decentralised continuous MEV",

@@ -16,7 +16,7 @@ pub(crate) async fn transform(
     if let Technology::CentralisedMvhr { test_data, .. } = &product.technology {
         let test_data_matching_number_of_wet_rooms: Vec<_> = test_data
             .iter()
-            .filter(|a| a.configuration == number_of_wetrooms)
+            .filter(|a| a.configuration == number_of_wetrooms - 1) // configuration excludes kitchen, number_of_wetrooms includes it
             .collect();
 
         let test_datum = match test_data_matching_number_of_wet_rooms.as_slice() {
@@ -111,9 +111,9 @@ mod tests {
 
     #[tokio::test]
     #[rstest]
-    #[case::one_wet_room("centralisedMvhr", 1)]
-    #[case::two_wet_rooms("centralisedMvhr3WetRooms", 3)]
-    #[case::eleven_wet_rooms("centralisedMvhr7WetRooms", 7)]
+    #[case::two_wet_rooms("centralisedMvhr", 2)]
+    #[case::three_wet_rooms("centralisedMvhr3WetRooms", 3)]
+    #[case::seven_wet_rooms("centralisedMvhr7WetRooms", 7)]
     async fn test_transform_centralised_mvhr(
         pcdb_products: HashMap<String, Product>,
         in_use_factor_access: impl InUseFactorsAccess,
@@ -157,7 +157,7 @@ mod tests {
             mvhr_input,
             pcdb_mvhr,
             product_reference,
-            3,
+            4,
             &in_use_factor_access,
         )
         .await;
@@ -181,7 +181,7 @@ mod tests {
             mvhr_input.as_object_mut().unwrap(),
             pcdb_mvhr,
             product_reference,
-            8,
+            9,
             &in_use_factor_access,
         )
         .await;
