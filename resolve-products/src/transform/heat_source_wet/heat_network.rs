@@ -87,12 +87,12 @@ mod tests {
 
     #[fixture]
     fn pcdb_heat_networks() -> HashMap<String, Product> {
-        serde_json::from_str(include_str!("../../../test/heat_network_pcdb.json")).unwrap()
+        serde_json::from_str(include_str!("../fixtures/heat_network_pcdb.json")).unwrap()
     }
 
     fn expected_heat_network_transformed(product_reference: &str) -> Map<String, Value> {
         let expected_heat_networks: Value =
-            serde_json::from_str(include_str!("../../../test/heat_network_transformed.json"))
+            serde_json::from_str(include_str!("../fixtures/heat_network_transformed.json"))
                 .unwrap();
         expected_heat_networks
             .get(product_reference)

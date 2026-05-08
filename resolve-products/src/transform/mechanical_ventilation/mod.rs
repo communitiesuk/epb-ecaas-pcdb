@@ -122,16 +122,13 @@ async fn resolve_sfp_in_use_factor(
 
 #[cfg(test)]
 fn mechanical_ventilation_pcdb_products() -> HashMap<String, Product> {
-    serde_json::from_str(include_str!(
-        "../../../test/mechanical_ventilation_pcdb.json"
-    ))
-    .unwrap()
+    serde_json::from_str(include_str!("../fixtures/mechanical_ventilation_pcdb.json")).unwrap()
 }
 
 #[cfg(test)]
 fn expected_transformed_mech_vent_input(product_reference: &str) -> Map<String, JsonValue> {
     let expected_mechanical_ventilation: JsonValue = serde_json::from_str(include_str!(
-        "../../../test/mechanical_ventilation_input_transformed.json"
+        "../fixtures/mechanical_ventilation_input_transformed.json"
     ))
     .unwrap();
 
@@ -152,10 +149,7 @@ mod tests {
 
     #[fixture]
     fn mechanical_ventilation_pcdb_products() -> HashMap<SmartString, Product> {
-        serde_json::from_str(include_str!(
-            "../../../test/mechanical_ventilation_pcdb.json"
-        ))
-        .unwrap()
+        serde_json::from_str(include_str!("../fixtures/mechanical_ventilation_pcdb.json")).unwrap()
     }
 
     fn mechanical_ventilation_input() -> JsonValue {

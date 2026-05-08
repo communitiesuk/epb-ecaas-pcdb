@@ -106,7 +106,7 @@ mod tests {
         let product_reference = "999";
         let mut input = input(product_reference);
         let expected: Map<String, JsonValue> =
-            from_str(include_str!("../../../test/fancoil_transformed.json")).unwrap();
+            from_str(include_str!("../fixtures/fancoil_transformed.json")).unwrap();
 
         let result = transform(
             input.as_object_mut().unwrap(),

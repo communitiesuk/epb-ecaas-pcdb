@@ -168,9 +168,9 @@ mod tests {
         let product_reference = "62";
         let mut input = input(product_reference);
         let expected: JsonValue =
-            from_str(include_str!("../../test/hp_hw_only_transformed.json")).unwrap();
+            from_str(include_str!("fixtures/hp_hw_only_transformed.json")).unwrap();
         let pcdb_hp_hw_only: Product =
-            from_str(include_str!("../../test/hp_hw_only_pcdb.json")).unwrap();
+            from_str(include_str!("fixtures/hp_hw_only_pcdb.json")).unwrap();
 
         let result = transform(
             &mut input,
@@ -199,7 +199,7 @@ mod tests {
         let product_reference = "hp";
         let mut input = input(product_reference);
         let pcdb_hps: HashMap<String, Product> =
-            from_str(include_str!("../../test/heat_pump_pcdb.json")).unwrap();
+            from_str(include_str!("fixtures/heat_pump_pcdb.json")).unwrap();
 
         let result = transform(
             &mut input,

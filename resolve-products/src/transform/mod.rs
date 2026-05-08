@@ -130,7 +130,7 @@ mod catalogue {
         pub(crate) fn new() -> Self {
             Self {
                 products: serde_json::from_str::<serde_json::Value>(include_str!(
-                    "../../test/referenced_products.json"
+                    "fixtures/referenced_products.json"
                 ))
                 .unwrap()
                 .as_object()
@@ -166,7 +166,7 @@ mod catalogue {
 
     pub(crate) fn mock_energy_supplies() -> EnergySupplies {
         let mock_energy_supplies_json =
-            serde_json::from_str(include_str!("../../test/request_with_energy_supplies.json"))
+            serde_json::from_str(include_str!("fixtures/request_with_energy_supplies.json"))
                 .unwrap();
         extract_energy_supplies(&mock_energy_supplies_json).unwrap()
     }

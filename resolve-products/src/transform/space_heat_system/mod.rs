@@ -91,15 +91,15 @@ mod tests {
     }
 
     pub(crate) static SPACE_HEATING_PCDB_PRODUCTS: LazyLock<HashMap<String, Product>> =
-        LazyLock::new(|| from_str(include_str!("../../../test/space_heating_pcdb.json")).unwrap());
+        LazyLock::new(|| from_str(include_str!("../fixtures/space_heating_pcdb.json")).unwrap());
 
     #[rstest]
     fn test_transform_space_heating(energy_supplies: EnergySupplies) {
-        let mut input = from_str(include_str!("../../../test/space_heating_input.json")).unwrap();
+        let mut input = from_str(include_str!("../fixtures/space_heating_input.json")).unwrap();
         let expected_esh: JsonValue =
-            from_str(include_str!("../../../test/esh_transformed.json")).unwrap();
+            from_str(include_str!("../fixtures/esh_transformed.json")).unwrap();
         let expected_wet_distribution: JsonValue = from_str(include_str!(
-            "../../../test/wet_distribution_transformed.json"
+            "../fixtures/wet_distribution_transformed.json"
         ))
         .unwrap();
 

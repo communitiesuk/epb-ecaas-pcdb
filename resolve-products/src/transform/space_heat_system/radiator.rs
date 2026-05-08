@@ -59,7 +59,7 @@ mod tests {
         let product_reference = "60";
         let mut input = input(product_reference);
         let expected: Map<String, Value> =
-            from_str(include_str!("../../../test/radiator_transformed.json")).unwrap();
+            from_str(include_str!("../fixtures/radiator_transformed.json")).unwrap();
 
         let result = transform(
             input.as_object_mut().unwrap(),
@@ -76,7 +76,7 @@ mod tests {
         let product_reference = "hp";
         let mut input = input(product_reference);
         let pcdb_hps: HashMap<String, Product> =
-            from_str(include_str!("../../../test/heat_pump_pcdb.json")).unwrap();
+            from_str(include_str!("../fixtures/heat_pump_pcdb.json")).unwrap();
 
         let result = transform(
             input.as_object_mut().unwrap(),

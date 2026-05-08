@@ -145,7 +145,7 @@ pub mod mocks {
 
     pub static IN_USE_FACTORS: LazyLock<HashMap<Arc<str>, serde_json::Value>> =
         LazyLock::new(|| {
-            serde_json::from_str(include_str!("../test/in_use_factors.json")).unwrap()
+            serde_json::from_str(include_str!("transform/fixtures/in_use_factors.json")).unwrap()
         });
 
     pub struct FixtureBackedInUseFactorsAccess;

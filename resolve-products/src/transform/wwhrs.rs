@@ -107,13 +107,13 @@ mod tests {
     #[case("wwhrsC")]
     fn test_transform_wwhrs_system_c(#[case] product_reference: &str) {
         let mut input = input(product_reference);
-        let expected = from_str::<JsonValue>(include_str!("../../test/wwhrs_transformed.json"))
+        let expected = from_str::<JsonValue>(include_str!("fixtures/wwhrs_transformed.json"))
             .unwrap()
             .get(product_reference)
             .unwrap()
             .clone();
         let pcdb_wwhrs: Product = serde_json::from_value(
-            from_str::<JsonValue>(include_str!("../../test/wwhrs_pcdb.json"))
+            from_str::<JsonValue>(include_str!("fixtures/wwhrs_pcdb.json"))
                 .unwrap()
                 .get(product_reference)
                 .unwrap()
@@ -141,7 +141,7 @@ mod tests {
         let product_reference = "hp";
         let mut input = input(product_reference);
         let pcdb_hps: HashMap<String, Product> =
-            from_str(include_str!("../../test/heat_pump_pcdb.json")).unwrap();
+            from_str(include_str!("fixtures/heat_pump_pcdb.json")).unwrap();
 
         let result = transform(&mut input, &pcdb_hps);
 

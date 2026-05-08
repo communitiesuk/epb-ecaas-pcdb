@@ -88,9 +88,9 @@ mod tests {
         let product_reference = "smart_tank";
         let mut input = input(product_reference);
         let expected: JsonValue =
-            from_str(include_str!("../../test/smart_hw_tank_transformed.json")).unwrap();
+            from_str(include_str!("fixtures/smart_hw_tank_transformed.json")).unwrap();
         let pcdb_smart_tank: Product =
-            from_str(include_str!("../../test/smart_hw_tank_pcdb.json")).unwrap();
+            from_str(include_str!("fixtures/smart_hw_tank_pcdb.json")).unwrap();
         let result = transform(
             &mut input,
             &HashMap::from([(product_reference.into(), pcdb_smart_tank)]),
@@ -111,7 +111,7 @@ mod tests {
         let product_reference = "hp";
         let mut input = input(product_reference);
         let pcdb_hps: HashMap<String, Product> =
-            from_str(include_str!("../../test/heat_pump_pcdb.json")).unwrap();
+            from_str(include_str!("fixtures/heat_pump_pcdb.json")).unwrap();
 
         let result = transform(&mut input, &pcdb_hps);
 

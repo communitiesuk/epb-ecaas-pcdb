@@ -57,7 +57,7 @@ mod tests {
         let product_reference = "720";
         let mut input = input(product_reference);
         let expected: Map<String, JsonValue> =
-            from_str(include_str!("../../../test/ufh_transformed.json")).unwrap();
+            from_str(include_str!("../fixtures/ufh_transformed.json")).unwrap();
 
         let result = transform(
             input.as_object_mut().unwrap(),

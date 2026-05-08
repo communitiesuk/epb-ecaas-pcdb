@@ -148,15 +148,15 @@ mod tests {
     #[fixture]
     fn heat_source_wet_pcdb_products() -> HashMap<SmartString, Product> {
         let hps: HashMap<SmartString, Product> =
-            from_str(include_str!("../../../test/heat_pump_pcdb.json")).unwrap();
+            from_str(include_str!("../fixtures/heat_pump_pcdb.json")).unwrap();
         let boilers: HashMap<SmartString, Product> =
-            from_str(include_str!("../../../test/boilers_pcdb.json")).unwrap();
+            from_str(include_str!("../fixtures/boilers_pcdb.json")).unwrap();
         let pcm_heat_batteries: HashMap<SmartString, Product> =
-            from_str(include_str!("../../../test/heat_batteries_pcdb.json")).unwrap();
+            from_str(include_str!("../fixtures/heat_batteries_pcdb.json")).unwrap();
         let hiu: HashMap<SmartString, Product> =
-            from_str(include_str!("../../../test/hiu_pcdb.json")).unwrap();
+            from_str(include_str!("../fixtures/hiu_pcdb.json")).unwrap();
         let heat_network: HashMap<SmartString, Product> =
-            from_str(include_str!("../../../test/heat_network_pcdb.json")).unwrap();
+            from_str(include_str!("../fixtures/heat_network_pcdb.json")).unwrap();
         hps.into_iter()
             .chain(boilers)
             .chain(pcm_heat_batteries)

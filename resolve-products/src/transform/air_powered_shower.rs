@@ -74,12 +74,10 @@ mod tests {
     fn test_transform_air_powered_shower() {
         let product_reference = "432";
         let mut input = input(product_reference);
-        let expected: JsonValue = from_str(include_str!(
-            "../../test/air_powered_shower_transformed.json"
-        ))
-        .unwrap();
+        let expected: JsonValue =
+            from_str(include_str!("fixtures/air_powered_shower_transformed.json")).unwrap();
         let pcdb_shower: Product =
-            from_str(include_str!("../../test/air_powered_shower_pcdb.json")).unwrap();
+            from_str(include_str!("fixtures/air_powered_shower_pcdb.json")).unwrap();
 
         let result = transform(
             &mut input,
@@ -101,7 +99,7 @@ mod tests {
         let product_reference = "hp";
         let mut input = input(product_reference);
         let pcdb_hps: HashMap<String, Product> =
-            from_str(include_str!("../../test/test_heat_pump_pcdb.json")).unwrap();
+            from_str(include_str!("fixtures/heat_pump_pcdb.json")).unwrap();
 
         let result = transform(&mut input, &pcdb_hps);
 

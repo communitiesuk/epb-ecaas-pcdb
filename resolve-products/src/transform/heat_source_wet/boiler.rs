@@ -107,7 +107,7 @@ mod tests {
 
     #[fixture]
     fn pcdb_boilers() -> HashMap<String, Product> {
-        serde_json::from_str(include_str!("../../../test/boilers_pcdb.json")).unwrap()
+        serde_json::from_str(include_str!("../fixtures/boilers_pcdb.json")).unwrap()
     }
 
     #[fixture]
@@ -117,7 +117,7 @@ mod tests {
 
     fn expected_boiler_input(product_reference: &str) -> Map<String, JsonValue> {
         let expected_boilers: JsonValue =
-            serde_json::from_str(include_str!("../../../test/boiler_input_transformed.json"))
+            serde_json::from_str(include_str!("../fixtures/boiler_input_transformed.json"))
                 .unwrap();
 
         expected_boilers
