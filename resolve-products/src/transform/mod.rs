@@ -43,6 +43,7 @@ pub async fn transform_json(
                 | Technology::DecentralisedMev { .. }
                 | Technology::CentralisedMev { .. }
                 | Technology::CentralisedMvhr { .. }
+                | Technology::Hiu { .. }
         )
     }) {
         return Err(ResolvePcdbProductsError::UnsupportedProductAtMapping);

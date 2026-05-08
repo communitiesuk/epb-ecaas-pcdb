@@ -3,6 +3,7 @@ mod heat_battery_dry_core;
 mod heat_battery_pcm;
 pub mod heat_network;
 mod heat_pump;
+mod hiu;
 
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::products::{Product, ProductCatalogue};
@@ -77,6 +78,16 @@ pub async fn transform(
                             energy_supplies,
                         )?
                     }
+                    "HIU" if heat_source_object.contains_key(PRODUCT_REFERENCE_FIELD) => {
+                        let product_reference =
+                            product_reference_from_json_object(heat_source_object)?;
+
+                        hiu::transform(
+                            heat_source_object,
+                            &products[&product_reference],
+                            &product_reference,
+                        )?
+                    }
                     _ => {}
                 }
             }
@@ -90,20 +101,22 @@ mod tests {
     use super::*;
     use crate::transform::catalogue::{FixtureBackedProductCatalogue, mock_energy_supplies};
     use rstest::{fixture, rstest};
-    use serde_json::json;
+    use serde_json::{from_str, json};
 
     #[fixture]
     fn heat_source_wet_pcdb_products() -> HashMap<SmartString, Product> {
         let hps: HashMap<SmartString, Product> =
-            serde_json::from_str(include_str!("../../../test/test_heat_pump_pcdb.json")).unwrap();
+            from_str(include_str!("../../../test/test_heat_pump_pcdb.json")).unwrap();
         let boilers: HashMap<SmartString, Product> =
-            serde_json::from_str(include_str!("../../../test/test_boilers_pcdb.json")).unwrap();
+            from_str(include_str!("../../../test/test_boilers_pcdb.json")).unwrap();
         let pcm_heat_batteries: HashMap<SmartString, Product> =
-            serde_json::from_str(include_str!("../../../test/test_heat_batteries_pcdb.json"))
-                .unwrap();
+            from_str(include_str!("../../../test/test_heat_batteries_pcdb.json")).unwrap();
+        let hiu: HashMap<SmartString, Product> =
+            from_str(include_str!("../../../test/hiu_pcdb.json")).unwrap();
         hps.into_iter()
             .chain(boilers)
             .chain(pcm_heat_batteries)
+            .chain(hiu)
             .collect()
     }
 
@@ -135,6 +148,13 @@ mod tests {
                     "product_reference": "dry_core",
                     "number_of_units": 2,
                     "is_heat_network": false
+                },
+                "hiu": {
+                    "type": "HIU",
+                    "EnergySupply": "mains elec",
+                    "product_reference": "hiu",
+                    "building_level_distribution_losses": 1,
+                    "is_heat_network": false,
                 }
             }
         })
@@ -172,6 +192,7 @@ mod tests {
             "/HeatSourceWet/boiler",
             "/HeatSourceWet/pcm",
             "/HeatSourceWet/dry_core",
+            "/HeatSourceWet/hiu",
         ];
         for pointer in pointers {
             assert!(heat_source_wet_input.pointer(pointer).is_some());
