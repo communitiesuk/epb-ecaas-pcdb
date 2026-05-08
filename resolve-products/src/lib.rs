@@ -12,6 +12,7 @@ use serde_json::Value as JsonValue;
 use smartstring::alias::String;
 use std::fmt::Debug;
 use std::io::{BufReader, Cursor, Read};
+use std::sync::LazyLock;
 
 pub async fn resolve_products(
     json: impl Read,
@@ -43,8 +44,21 @@ pub async fn resolve_products(
 
 pub(crate) const PRODUCT_REFERENCE_FIELD: &str = "product_reference";
 
+const ALL_PRODUCT_REFERENCE_FIELDS: [&str; 2] = [PRODUCT_REFERENCE_FIELD, "heat_network_reference"];
+
+static PRODUCT_REFERENCE_FIELDS_JSON_PATH_QUERY: LazyLock<std::string::String> =
+    LazyLock::new(|| {
+        format!(
+            "$..[{}]",
+            ALL_PRODUCT_REFERENCE_FIELDS
+                .iter()
+                .map(|field| format!("'{field}'"))
+                .join(",")
+        )
+    });
+
 fn extract_product_references(json: &JsonValue) -> ResolveProductsResult<Vec<String>> {
-    let instances = match json.query_with_path(&format!("$..{PRODUCT_REFERENCE_FIELD}")) {
+    let instances = match json.query_with_path(&PRODUCT_REFERENCE_FIELDS_JSON_PATH_QUERY) {
         Ok(instances) => instances,
         Err(json_path_error) => {
             return Err(JsonPathError::from(json_path_error).into());
