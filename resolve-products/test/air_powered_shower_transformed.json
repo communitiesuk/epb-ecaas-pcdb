@@ -1,0 +1,12 @@
+{
+  "HotWaterDemand": {
+    "Shower": {
+      "Shower1": {
+        "type": "MixerShower",
+        "ColdWaterSource": "mains water",
+        "flowrate": 10.0,
+        "allow_low_flowrate": false
+      }
+    }
+  }
+}

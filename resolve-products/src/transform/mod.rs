@@ -1,3 +1,4 @@
+mod air_powered_shower;
 mod heat_pump_hw_only;
 pub mod heat_source_wet;
 mod mechanical_ventilation;
@@ -8,7 +9,7 @@ mod wwhrs;
 use crate::errors::ResolvePcdbProductsError;
 use crate::in_use_factors::DynamoDbBackedInUseFactorsAccess;
 use crate::products::{
-    DynamoDbBackedProductCatalogue, FuelType, Product, Technology, find_products_for_references,
+    DynamoDbBackedProductCatalogue, FuelType, Product, find_products_for_references,
 };
 use crate::{PRODUCT_REFERENCE_FIELD, extract_product_references};
 use aws_sdk_dynamodb::client::Client as DynamoDbClient;
@@ -27,12 +28,6 @@ pub async fn transform_json(
     let product_catalogue = DynamoDbBackedProductCatalogue::new(dynamo_client);
     let products: HashMap<String, Product> =
         find_products_for_references(&product_references, &product_catalogue).await?;
-    if products
-        .values()
-        .any(|p| matches!(p.technology, Technology::AirPoweredShower { .. }))
-    {
-        return Err(ResolvePcdbProductsError::UnsupportedProductAtMapping);
-    }
 
     let energy_supplies = extract_energy_supplies(json).map_err(|_| {
         ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck(
@@ -48,6 +43,7 @@ pub async fn transform_json(
     heat_pump_hw_only::transform(json, &products, &in_use_factors_access, &energy_supplies).await?;
     smart_hot_water_tank::transform(json, &products)?;
     mechanical_ventilation::transform(json, &products, &in_use_factors_access).await?;
+    air_powered_shower::transform(json, &products)?;
 
     Ok(())
 }

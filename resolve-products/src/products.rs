@@ -269,7 +269,7 @@ pub(crate) enum Technology {
     AirPoweredShower {
         allow_low_flowrate: bool,
         #[serde(rename = "flowrate")]
-        flow_rate: f64,
+        flow_rate: Decimal,
     },
 }
 

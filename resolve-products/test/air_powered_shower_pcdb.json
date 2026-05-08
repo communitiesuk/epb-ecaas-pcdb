@@ -1,0 +1,12 @@
+{
+  "id": "432",
+  "technologyType": "AirPoweredShowers",
+  "allowLowFlowrate": false,
+  "brandName": "Air Powered shower",
+  "productID": "432",
+  "inuseFactor": 1,
+  "dataType": "illustrative_conservative",
+  "originalFlowrate": 10,
+  "flowrate": 10,
+  "type": "AirPoweredShower"
+}
