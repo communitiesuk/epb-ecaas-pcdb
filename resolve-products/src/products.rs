@@ -151,7 +151,12 @@ pub(crate) enum Technology {
     },
     #[serde(rename = "HeatInterfaceUnit")]
     Hiu {
-        // TODO: complete fields
+        /// HIU Heat loss in kWh/day
+        hiu_daily_loss: Decimal,
+        /// Max power for water heating in kW at 55C
+        max_power_water_55: Decimal,
+        /// Max power for water heating in kW at 70C
+        max_power_water_70: Decimal,
     },
     #[serde(rename = "InstantaneousWwhrSystem")]
     Wwhrs {
