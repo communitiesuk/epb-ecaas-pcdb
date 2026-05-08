@@ -7,13 +7,20 @@ pub fn transform(
     heat_source_wet: &mut Map<String, serde_json::Value>,
     product: &Product,
     product_reference: &str,
+    is_heat_pump_present: bool,
 ) -> ResolveProductsResult<()> {
     if let Technology::HeatNetwork {
         sub_heat_networks,
         community_heat_network_name,
+        has_booster_heat_pump,
         ..
     } = &product.technology
     {
+        // if heat network needs a booster heat pump, check there is at least one heat pump
+        if *has_booster_heat_pump && !is_heat_pump_present {
+            return Err(ResolvePcdbProductsError::BoosterHeatPumpNotPresentError);
+        }
+
         let sub_heat_network_name = heat_source_wet
             .get("sub_heat_network_name")
             .and_then(Value::as_str)
@@ -111,6 +118,7 @@ mod tests {
             input.as_object_mut().unwrap(),
             pcdb_product,
             heat_network_reference,
+            false,
         );
         match result {
             Ok(_) => {
@@ -119,5 +127,25 @@ mod tests {
             }
             Err(e) => panic!("Transformation failed with error: {}", e),
         }
+    }
+
+    #[rstest]
+    fn test_transform_heat_network_errors_for_5th_gen_with_no_heat_pump(
+        pcdb_heat_networks: HashMap<String, Product>,
+    ) {
+        let heat_network_reference = "heatNetworkBoosterHeatPump";
+        let mut input = heat_network_reference_input(heat_network_reference, "Thomas's Shed");
+        let pcdb_product = pcdb_heat_networks.get(heat_network_reference).unwrap();
+
+        let result = transform(
+            input.as_object_mut().unwrap(),
+            pcdb_product,
+            heat_network_reference,
+            false,
+        );
+        assert!(
+            result.is_err(),
+            "Expected error for 5th gen heat network with no heat pump"
+        );
     }
 }

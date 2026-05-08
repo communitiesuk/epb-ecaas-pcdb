@@ -24,6 +24,13 @@ pub async fn transform(
         _ => return Ok(()),
     };
 
+    let is_heat_pump_present = heat_source_wet.values().any(|heat_source| {
+        heat_source
+            .get("type")
+            .and_then(JsonValue::as_str)
+            .is_some_and(|type_str| type_str == "HeatPump")
+    });
+
     for heat_source in heat_source_wet.values_mut() {
         if let JsonValue::Object(heat_source_object) = heat_source {
             {
@@ -47,6 +54,7 @@ pub async fn transform(
                         heat_source_object,
                         &products[heat_network_reference.as_str()],
                         &heat_network_reference,
+                        is_heat_pump_present,
                     )?;
                 }
             }

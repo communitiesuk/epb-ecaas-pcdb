@@ -58,6 +58,10 @@ pub enum ResolvePcdbProductsError {
     InUseFactorEntryMissingError,
     #[error("Sub heat network with name '{0}' not found for heat network with ID '{1}'")]
     SubHeatNetworkNotFoundError(String, String),
+    #[error(
+        "A heat network was indicated that requires a booster heat pump, but no heat pump was present"
+    )]
+    BoosterHeatPumpNotPresentError,
 }
 
 #[derive(Debug, Error)]
