@@ -27,25 +27,10 @@ pub async fn transform_json(
     let product_catalogue = DynamoDbBackedProductCatalogue::new(dynamo_client);
     let products: HashMap<String, Product> =
         find_products_for_references(&product_references, &product_catalogue).await?;
-    if products.values().any(|p| {
-        !matches!(
-            p.technology,
-            Technology::HeatPump { .. }
-                | Technology::Boiler { .. }
-                | Technology::ElectricStorageHeater { .. }
-                | Technology::HeatBatteryDryCore { .. }
-                | Technology::HeatBatteryPcm { .. }
-                | Technology::Radiator { .. }
-                | Technology::UnderfloorHeating { .. }
-                | Technology::Wwhrs { .. }
-                | Technology::HeatPumpHotWaterOnly { .. }
-                | Technology::SmartHotWaterTank { .. }
-                | Technology::DecentralisedMev { .. }
-                | Technology::CentralisedMev { .. }
-                | Technology::CentralisedMvhr { .. }
-                | Technology::Hiu { .. }
-        )
-    }) {
+    if products
+        .values()
+        .any(|p| matches!(p.technology, Technology::AirPoweredShower { .. }))
+    {
         return Err(ResolvePcdbProductsError::UnsupportedProductAtMapping);
     }
 
