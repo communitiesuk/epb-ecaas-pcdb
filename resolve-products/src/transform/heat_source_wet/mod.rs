@@ -26,6 +26,31 @@ pub async fn transform(
 
     for heat_source in heat_source_wet.values_mut() {
         if let JsonValue::Object(heat_source_object) = heat_source {
+            {
+                // unpack heat network data if that is applicable
+
+                let is_heat_network = heat_source_object
+                    .get("is_heat_network")
+                    .and_then(JsonValue::as_bool)
+                    .ok_or_else(|| {
+                        ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck(
+                            "is_heat_network value was expected on a HeatSourceWet node",
+                        )
+                    })?;
+                if is_heat_network {
+                    let heat_network_reference = String::from(heat_source_object.get("heat_network_reference").and_then(JsonValue::as_str).ok_or_else(
+                        || ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck(
+                            "heat_network_reference value was expected on a HeatSourceWet node with is_heat_network=true",
+                        )
+                    )?);
+                    heat_network::transform(
+                        heat_source_object,
+                        &products[heat_network_reference.as_str()],
+                        &heat_network_reference,
+                    )?;
+                }
+            }
+
             if let Some(heat_source_type) = heat_source_object.get("type").and_then(|v| v.as_str())
             {
                 match heat_source_type {
@@ -107,6 +132,7 @@ pub async fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ALL_PRODUCT_REFERENCE_FIELDS;
     use crate::transform::catalogue::{FixtureBackedProductCatalogue, mock_energy_supplies};
     use rstest::{fixture, rstest};
     use serde_json::{from_str, json};
@@ -121,10 +147,13 @@ mod tests {
             from_str(include_str!("../../../test/test_heat_batteries_pcdb.json")).unwrap();
         let hiu: HashMap<SmartString, Product> =
             from_str(include_str!("../../../test/hiu_pcdb.json")).unwrap();
+        let heat_network: HashMap<SmartString, Product> =
+            from_str(include_str!("../../../test/heat_network_pcdb.json")).unwrap();
         hps.into_iter()
             .chain(boilers)
             .chain(pcm_heat_batteries)
             .chain(hiu)
+            .chain(heat_network)
             .collect()
     }
 
@@ -162,7 +191,9 @@ mod tests {
                     "EnergySupply": "mains elec",
                     "product_reference": "hiu",
                     "building_level_distribution_losses": 1,
-                    "is_heat_network": false,
+                    "is_heat_network": true,
+                    "heat_network_reference": "heatNetwork",
+                    "sub_heat_network_name": "Thomas's Shed"
                 }
             }
         })
@@ -204,12 +235,14 @@ mod tests {
         ];
         for pointer in pointers {
             assert!(heat_source_wet_input.pointer(pointer).is_some());
-            assert!(
-                heat_source_wet_input
-                    .pointer(&format!("{pointer}/product_reference"))
-                    .is_none(),
-                "heat_source_wet_input still has a product_reference at pointer {pointer}"
-            );
+            for field in ALL_PRODUCT_REFERENCE_FIELDS.iter() {
+                assert!(
+                    heat_source_wet_input
+                        .pointer(&format!("{pointer}/{field}"))
+                        .is_none(),
+                    "heat_source_wet_input still has a {field} at pointer {pointer}"
+                );
+            }
         }
     }
 
