@@ -29,8 +29,10 @@ default = []
 cli = ["dep:clap"]
 
 [dev-dependencies]
+aws-config = { version = "1.8.14", features = ["behavior-version-latest"] }
 rstest = "0.26.1"
-#aws-config = { version = "1.8.14", features = ["behavior-version-latest"] }
+testcontainers-modules = { version = "0.15.0", features = ["dynamodb"] }
+
 
 [[bin]]
 name = "resolve-products"
