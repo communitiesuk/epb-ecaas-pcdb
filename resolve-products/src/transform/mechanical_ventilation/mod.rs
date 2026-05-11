@@ -23,7 +23,7 @@ pub async fn transform(
     products: &HashMap<SmartString, Product>,
     in_use_factors_access: &impl InUseFactorsAccess,
 ) -> ResolveProductsResult<()> {
-    let number_of_wetrooms_including_kitchen = match json.pointer_mut("/NumberOfWetRooms") {
+    let number_of_wetrooms = match json.pointer_mut("/NumberOfWetRooms") {
         Some(node) if node.is_u64() => node.as_u64().unwrap(),
         _ => {
             return Err(
@@ -33,7 +33,6 @@ pub async fn transform(
             );
         }
     };
-    let number_of_wetrooms = number_of_wetrooms_including_kitchen - 1;
 
     let mechanical_ventilation = match json.pointer_mut("/MechanicalVentilation") {
         Some(node) if node.is_object() => node.as_object_mut().unwrap(),
