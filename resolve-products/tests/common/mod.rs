@@ -3,6 +3,12 @@
 use aws_config::BehaviorVersion;
 use aws_sdk_dynamodb::Client as DynamoDbClient;
 use aws_sdk_dynamodb::config::Credentials;
+use aws_sdk_dynamodb::config::http::HttpResponse;
+use aws_sdk_dynamodb::error::SdkError;
+use aws_sdk_dynamodb::operation::create_table::{CreateTableError, CreateTableOutput};
+use aws_sdk_dynamodb::types::{
+    AttributeDefinition, BillingMode, KeySchemaElement, KeyType, ScalarAttributeType,
+};
 use testcontainers_modules::dynamodb_local::DynamoDb;
 use testcontainers_modules::testcontainers::ContainerAsync;
 use testcontainers_modules::testcontainers::core::IntoContainerPort;
@@ -51,5 +57,30 @@ pub async fn setup() -> &'static DynamoDbClient {
 
             DynamoDbClient::new(&config)
         })
+        .await
+}
+
+pub async fn create_products_table(
+    client: &DynamoDbClient,
+) -> Result<CreateTableOutput, SdkError<CreateTableError, HttpResponse>> {
+    let id_attribute = AttributeDefinition::builder()
+        .attribute_name("id")
+        .attribute_type(ScalarAttributeType::S)
+        .build()?;
+
+    // TODO: will we need attribute definitions for technologyType, technologyGroup and brandName
+
+    let keys = KeySchemaElement::builder()
+        .attribute_name("id")
+        .key_type(KeyType::Hash)
+        .build()?;
+
+    client
+        .create_table()
+        .table_name("products")
+        .key_schema(keys)
+        .attribute_definitions(id_attribute)
+        .billing_mode(BillingMode::PayPerRequest)
+        .send()
         .await
 }
