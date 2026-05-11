@@ -1,11 +1,19 @@
-use std::io::{BufReader, Cursor};
+use rstest::{fixture, rstest};
 
 mod common;
 
+#[fixture]
+fn input_string() -> String {
+    include_str!("./example_input.json").into()
+}
+
+
 #[tokio::test]
-async fn test_setup() {
+#[rstest]
+async fn test_setup(input_string: String) {
+    let input_bytes = input_string.as_bytes();
     let client = common::setup().await;
-    let result =
-        resolve_products::resolve_products(BufReader::new(Cursor::new("{}")), client).await;
+
+    let result = resolve_products::resolve_products(input_bytes, client).await;
     assert!(result.is_err());
 }
