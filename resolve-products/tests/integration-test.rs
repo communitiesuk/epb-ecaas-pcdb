@@ -15,5 +15,7 @@ async fn test_setup(input_string: String) {
     let client = common::setup().await;
 
     let result = resolve_products::resolve_products(input_bytes, client).await;
-    assert!(result.is_err());
+    let error = result.err().unwrap();
+    assert!(error.to_string().contains("Cannot do operations on a non-existent table"));
+    // assert!(error.to_string(), "");
 }
