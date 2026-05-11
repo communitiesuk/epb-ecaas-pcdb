@@ -16,6 +16,7 @@ use std::sync::Arc;
 use thiserror::Error;
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct HotWaterOnlyInUseFactorEntry {
     pub in_use_factor_mismatch: Decimal,
     pub vessel_type: Arc<str>,
@@ -47,8 +48,8 @@ impl InUseFactorsEntry for HotWaterOnlyInUseFactorEntry {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MVInUseFactorEntry {
-    #[serde(rename = "SFP_in_use_factor")]
     pub(crate) sfp_in_use_factor: Decimal,
     pub(crate) system_type: MechanicalVentilationSystemType,
     pub(crate) duct_type: MechanicalVentilationDuctType,
