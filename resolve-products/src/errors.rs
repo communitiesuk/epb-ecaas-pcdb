@@ -40,10 +40,6 @@ pub enum ResolvePcdbProductsError {
     #[cfg(test)]
     #[error("Error encountered while deserializing test product: {0:?}")]
     BadTestProductError(serde_json::Error),
-    #[error(
-        "Received a product type that is not yet supported. Currently supported products: heat pump, boiler, electric storage heater, radiator, WWHRS, UFH, fan coil, smart hot water tank, heat batteries, HIU, air powered shower, and mechanical ventilation."
-    )]
-    UnsupportedProductAtDeserialization(serde_dynamo::Error),
     #[error("No energy supply provided for fuel type '{0}' to be mapped to")]
     NoEnergySupplyProvidedForFuelType(FuelType),
     #[error("The standing in use factors data was needed for a calculation, but was inaccessible")]

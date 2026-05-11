@@ -603,7 +603,7 @@ impl ProductCatalogue for DynamoDbBackedProductCatalogue<'_> {
             })
             .collect::<Result<HashMap<_, _>, _>>();
 
-        products.map_err(ResolvePcdbProductsError::UnsupportedProductAtDeserialization)
+        products.map_err(ResolvePcdbProductsError::DeserializeError)
     }
 }
 
