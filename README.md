@@ -24,13 +24,13 @@ There is also a binary entry point for this package that can be used to resolve 
 To convert a JSON document from a local file:
 
 ```shell
-cargo run -p resolve-products --features=cli -- [PATH_TO_FILE]
+cargo run -p resolve-products --features="cli,aws-config" -- [PATH_TO_FILE]
 ```
 
 To convert JSON copied in a Mac OS clipboard:
 
 ```shell
-pbpaste | cargo run -p resolve-products --features=cli -- -
+pbpaste | cargo run -p resolve-products --features="cli,aws-config" -- -
 ```
 
 # Contributing
