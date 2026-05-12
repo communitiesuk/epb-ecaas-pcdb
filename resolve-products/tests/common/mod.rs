@@ -20,7 +20,7 @@ static ONCE_DYNAMODB_CLIENT: OnceCell<DynamoDbClient> = OnceCell::const_new();
 static DYNAMO_NODE: OnceCell<ContainerAsync<DynamoDb>> = OnceCell::const_new();
 
 pub async fn setup() -> &'static DynamoDbClient {
-    ONCE_DYNAMODB_CLIENT
+    let client = ONCE_DYNAMODB_CLIENT
         .get_or_init(|| async {
             let dynamo_node = DYNAMO_NODE
                 .get_or_init(|| async {
@@ -57,7 +57,10 @@ pub async fn setup() -> &'static DynamoDbClient {
 
             DynamoDbClient::new(&config)
         })
-        .await
+        .await;
+
+    let  _ = create_products_table(client).await;
+    client
 }
 
 pub async fn create_products_table(
