@@ -27,10 +27,14 @@ pub async fn setup() -> &'static DynamoDbClient {
         .get_or_init(|| async {
             let dynamo_node = DYNAMO_NODE
                 .get_or_init(|| async {
-                    DynamoDb::default()
+                    let node = DynamoDb::default()
                         .start()
                         .await
-                        .expect("Failed to start DynamoDB Local container")
+                        .expect("Failed to start DynamoDB Local container");
+
+                    tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+
+                    node
                 })
                 .await;
 
