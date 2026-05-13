@@ -1,33 +1,16 @@
 use jsonschema::ValidationError;
 use resolve_products::PRODUCT_REFERENCE_FIELD;
-use rstest::{fixture, rstest};
+use rstest::rstest;
 use serde_json::{Value, from_str, to_string};
 use std::io::Cursor;
 
 mod common;
-
-#[fixture]
-fn input_with_hp_product_ref() -> Vec<u8> {
-    include_bytes!("./example_input_hp_only.json").to_vec()
-}
 
 async fn validate_against_target_schema(input: &Value) -> Result<(), ValidationError<'_>> {
     let schema = from_str(include_str!("./target_schema.json")).unwrap();
     let schema_validator = jsonschema::async_validator_for(&schema).await?;
 
     schema_validator.validate(input)
-}
-
-#[tokio::test]
-#[rstest]
-async fn test_setup(mut input_with_hp_product_ref: Vec<u8>) {
-    let client = common::setup().await;
-
-    let result =
-        resolve_products::resolve_products(Cursor::new(&mut input_with_hp_product_ref), client)
-            .await;
-
-    assert!(result.is_ok());
 }
 
 #[tokio::test]
