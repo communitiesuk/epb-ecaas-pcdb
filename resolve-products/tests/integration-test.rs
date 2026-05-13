@@ -32,13 +32,13 @@ async fn test_setup(mut input_with_hp_product_ref: Vec<u8>) {
 
 #[tokio::test]
 #[rstest]
-#[ignore = "WIP"]
-async fn test_valid_input(mut input_with_hp_product_ref: Vec<u8>) {
+#[case(include_bytes!("./demo_FHS.json"))]
+// #[case(include_bytes!("./example_input_hp_only.json"))]
+async fn test_valid_input(#[case] input: &[u8]) {
     let client = common::setup().await;
+    let mut input = input.to_vec();
 
-    let result =
-        resolve_products::resolve_products(Cursor::new(&mut input_with_hp_product_ref), client)
-            .await;
+    let result = resolve_products::resolve_products(Cursor::new(&mut input), client).await;
 
     assert!(result.is_ok());
 
