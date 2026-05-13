@@ -2,12 +2,13 @@ use jsonschema::ValidationError;
 use resolve_products::PRODUCT_REFERENCE_FIELD;
 use rstest::{fixture, rstest};
 use serde_json::{Value, from_str, to_string};
+use std::io::Cursor;
 
 mod common;
 
 #[fixture]
-fn input() -> &'static [u8] {
-    include_bytes!("./example_input_hp_only.json")
+fn input_with_hp_product_ref() -> Vec<u8> {
+    include_bytes!("./example_input_hp_only.json").to_vec()
 }
 
 async fn validate_against_target_schema(input: &Value) -> Result<(), ValidationError<'_>> {
@@ -19,24 +20,29 @@ async fn validate_against_target_schema(input: &Value) -> Result<(), ValidationE
 
 #[tokio::test]
 #[rstest]
-async fn test_setup(input: &[u8]) {
+async fn test_setup(mut input_with_hp_product_ref: Vec<u8>) {
     let client = common::setup().await;
 
-    let result = resolve_products::resolve_products(input, client).await;
+    let result =
+        resolve_products::resolve_products(Cursor::new(&mut input_with_hp_product_ref), client)
+            .await;
+
     assert!(result.is_ok());
 }
 
 #[tokio::test]
 #[rstest]
 #[ignore = "WIP"]
-async fn test_valid_input(input: &[u8]) {
+async fn test_valid_input(mut input_with_hp_product_ref: Vec<u8>) {
     let client = common::setup().await;
 
-    let result = resolve_products::resolve_products(input, client).await;
+    let result =
+        resolve_products::resolve_products(Cursor::new(&mut input_with_hp_product_ref), client)
+            .await;
 
     assert!(result.is_ok());
 
-    let transformed_input: Value = serde_json::from_slice(input).unwrap();
+    let transformed_input: Value = serde_json::from_reader(result.unwrap()).unwrap();
 
     assert!(
         !to_string(&transformed_input)
