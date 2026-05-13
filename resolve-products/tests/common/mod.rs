@@ -1,14 +1,17 @@
 // set up shared utilities
-
 use aws_config::BehaviorVersion;
-use aws_sdk_dynamodb::Client as DynamoDbClient;
 use aws_sdk_dynamodb::config::Credentials;
 use aws_sdk_dynamodb::config::http::HttpResponse;
 use aws_sdk_dynamodb::error::SdkError;
 use aws_sdk_dynamodb::operation::create_table::{CreateTableError, CreateTableOutput};
 use aws_sdk_dynamodb::types::{
-    AttributeDefinition, BillingMode, KeySchemaElement, KeyType, ScalarAttributeType,
+    AttributeDefinition, AttributeValue, BillingMode, KeySchemaElement, KeyType,
+    ScalarAttributeType,
 };
+use aws_sdk_dynamodb::{Client as DynamoDbClient, Client};
+use serde_dynamo::to_item;
+use serde_json::{Value, from_str};
+use std::collections::HashMap;
 use testcontainers_modules::dynamodb_local::DynamoDb;
 use testcontainers_modules::testcontainers::ContainerAsync;
 use testcontainers_modules::testcontainers::core::IntoContainerPort;
@@ -59,7 +62,16 @@ pub async fn setup() -> &'static DynamoDbClient {
         })
         .await;
 
-    let  _ = create_products_table(client).await;
+    let _ = create_products_table(client).await;
+
+    let hp: Value = from_str::<Value>(include_str!("./../pcdb_products.json"))
+        .unwrap()
+        .pointer("/hp")
+        .unwrap()
+        .clone();
+
+    add_item(client, hp).await;
+
     client
 }
 
@@ -86,4 +98,15 @@ pub async fn create_products_table(
         .billing_mode(BillingMode::PayPerRequest)
         .send()
         .await
+}
+
+async fn add_item(client: &Client, item: Value) {
+    let product_data: HashMap<String, AttributeValue> = to_item(item).unwrap();
+
+    let request = client
+        .put_item()
+        .table_name("products")
+        .set_item(product_data.into());
+
+    request.send().await.unwrap();
 }
