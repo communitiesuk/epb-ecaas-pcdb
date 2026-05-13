@@ -32,7 +32,7 @@ async fn test_setup(mut input_with_hp_product_ref: Vec<u8>) {
 
 #[tokio::test]
 #[rstest]
-#[case(include_bytes!("./demo_FHS.json"))]
+#[case(include_bytes!("./demo_fhs.json"))]
 // #[case(include_bytes!("./example_input_hp_only.json"))]
 async fn test_valid_input(#[case] input: &[u8]) {
     let client = common::setup().await;
