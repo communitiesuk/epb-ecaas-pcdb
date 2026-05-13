@@ -42,7 +42,7 @@ pub async fn resolve_products(
     Ok(Cursor::new(input.to_string()))
 }
 
-pub(crate) const PRODUCT_REFERENCE_FIELD: &str = "product_reference";
+pub const PRODUCT_REFERENCE_FIELD: &str = "product_reference";
 
 const ALL_PRODUCT_REFERENCE_FIELDS: [&str; 2] = [PRODUCT_REFERENCE_FIELD, "heat_network_reference"];
 
