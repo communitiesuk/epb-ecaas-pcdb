@@ -68,13 +68,12 @@ pub async fn setup() -> &'static DynamoDbClient {
 
     let _ = create_products_table(client).await;
 
-    let hp: Value = from_str::<Value>(include_str!("./../pcdb_products.json"))
-        .unwrap()
-        .pointer("/hp")
-        .unwrap()
-        .clone();
-
-    add_item(client, hp).await;
+    let products: Value = from_str::<Value>(include_str!("./../pcdb_products.json")).unwrap();
+    if let Some(products) = products.as_object() {
+        for product in products.values() {
+            add_item(client, product.clone()).await;
+        }
+    }
 
     client
 }

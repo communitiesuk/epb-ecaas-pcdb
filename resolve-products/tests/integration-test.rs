@@ -16,14 +16,14 @@ async fn validate_against_target_schema(input: &Value) -> Result<(), ValidationE
 #[tokio::test]
 #[rstest]
 #[case(include_bytes!("./demo_fhs.json"), include_bytes!("./demo_fhs.json"))]
-#[case(include_bytes!("./hp_only_input.json"), include_bytes!("./hp_only_input_transformed.json"))]
+#[case(include_bytes!("./input_with_product_refs.json"), include_bytes!("./input_transformed.json"))]
 async fn test_valid_input(#[case] input: &[u8], #[case] expected_transformed: &[u8]) {
     let client = common::setup().await;
     let mut input = input.to_vec();
 
     let result = resolve_products::resolve_products(Cursor::new(&mut input), client).await;
 
-    assert!(result.is_ok());
+    assert!(result.is_ok(), "{}", result.unwrap_err());
 
     let transformed_input: Value = serde_json::from_reader(result.unwrap()).unwrap();
     let expected: Value = from_slice(expected_transformed).unwrap();

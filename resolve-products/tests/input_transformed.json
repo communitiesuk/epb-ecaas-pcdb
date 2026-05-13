@@ -372,6 +372,21 @@
           "test_letter": "F"
         }
       ]
+    },
+    "Regular boiler": {
+      "type": "Boiler",
+      "EnergySupply": "mains elec",
+      "EnergySupply_aux": "mains elec",
+      "rated_power": 1.0,
+      "efficiency_full_load": 0.8,
+      "efficiency_part_load": 0.8,
+      "boiler_location": "internal",
+      "modulation_load": 0.1,
+      "electricity_circ_pump": 0.01,
+      "electricity_part_load": 0.01,
+      "electricity_full_load": 0.01,
+      "electricity_standby": 0.01,
+      "is_heat_network": false
     }
   },
   "SpaceHeatSystem": {
