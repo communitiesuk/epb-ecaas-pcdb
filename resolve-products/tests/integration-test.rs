@@ -33,7 +33,7 @@ async fn test_setup(mut input_with_hp_product_ref: Vec<u8>) {
 #[tokio::test]
 #[rstest]
 #[case(include_bytes!("./demo_fhs.json"))]
-// #[case(include_bytes!("./example_input_hp_only.json"))]
+#[case(include_bytes!("./example_input_hp_only.json"))]
 async fn test_valid_input(#[case] input: &[u8]) {
     let client = common::setup().await;
     let mut input = input.to_vec();
@@ -54,7 +54,7 @@ async fn test_valid_input(#[case] input: &[u8]) {
 
     assert!(
         schema_validation.is_ok(),
-        "{}",
-        schema_validation.unwrap_err().to_string()
+        "{:?}",
+        schema_validation.unwrap_err()
     );
 }
