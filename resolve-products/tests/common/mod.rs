@@ -12,10 +12,11 @@ use aws_sdk_dynamodb::{Client as DynamoDbClient, Client};
 use serde_dynamo::to_item;
 use serde_json::{Value, from_str};
 use std::collections::HashMap;
+use std::process::Command;
 use testcontainers_modules::dynamodb_local::DynamoDb;
-use testcontainers_modules::testcontainers::ContainerAsync;
 use testcontainers_modules::testcontainers::core::IntoContainerPort;
 use testcontainers_modules::testcontainers::runners::AsyncRunner;
+use testcontainers_modules::testcontainers::{ContainerAsync, ImageExt};
 use tokio::sync::OnceCell;
 
 static ONCE_DYNAMODB_CLIENT: OnceCell<DynamoDbClient> = OnceCell::const_new();
@@ -27,7 +28,12 @@ pub async fn setup() -> &'static DynamoDbClient {
         .get_or_init(|| async {
             let dynamo_node = DYNAMO_NODE
                 .get_or_init(|| async {
+                    let _ = Command::new("sh")
+                        .arg("-c")
+                        .arg("docker ps -aq --filter 'label=tests=pcdb' | xargs -r docker rm -f")
+                        .output();
                     let node = DynamoDb::default()
+                        .with_label("tests", "pcdb")
                         .start()
                         .await
                         .expect("Failed to start DynamoDB Local container");
