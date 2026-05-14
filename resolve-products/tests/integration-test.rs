@@ -3,20 +3,23 @@ use resolve_products::PRODUCT_REFERENCE_FIELD;
 use rstest::rstest;
 use serde_json::{Value, from_str, to_string};
 use std::io::Cursor;
+use std::sync::LazyLock;
 
 mod common;
 
+static TARGET_SCHEMA: LazyLock<Value> =
+    LazyLock::new(|| from_str(include_str!("fixtures/target_schema.json")).unwrap());
+
 async fn validate_against_target_schema(input: &Value) -> Result<(), ValidationError<'_>> {
-    let schema = from_str(include_str!("./target_schema.json")).unwrap();
-    let schema_validator = jsonschema::async_validator_for(&schema).await?;
+    let schema_validator = jsonschema::async_validator_for(&TARGET_SCHEMA).await?;
 
     schema_validator.validate(input)
 }
 
 #[tokio::test]
 #[rstest]
-#[case(include_str!("./demo_fhs.json"), include_str!("./demo_fhs.json"))]
-#[case(include_str!("./input_with_product_refs.json"), include_str!("./input_transformed.json"))]
+#[case(include_str!("fixtures/demo_fhs.json"), include_str!("fixtures/demo_fhs.json"))]
+#[case(include_str!("fixtures/input_with_product_refs.json"), include_str!("fixtures/input_transformed.json"))]
 async fn test_valid_input(#[case] input: &str, #[case] expected_transformed: &str) {
     let client = common::setup().await;
     let mut input_reader = Cursor::new(input);
@@ -53,7 +56,9 @@ async fn test_valid_input(#[case] input: &str, #[case] expected_transformed: &st
 #[tokio::test]
 async fn test_input_with_unknown_product_refs() {
     let client = common::setup().await;
-    let mut input_reader = Cursor::new(include_str!("./input_with_unknown_product_refs.json"));
+    let mut input_reader = Cursor::new(include_str!(
+        "fixtures/input_with_unknown_product_refs.json"
+    ));
 
     let result = resolve_products::resolve_products(&mut input_reader, client).await;
 
