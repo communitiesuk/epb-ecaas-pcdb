@@ -1,5 +1,6 @@
 use jsonschema::ValidationError;
 use resolve_products::PRODUCT_REFERENCE_FIELD;
+use resolve_products::errors::ResolvePcdbProductsError;
 use rstest::rstest;
 use serde_json::{Value, from_str, to_string};
 use std::io::Cursor;
@@ -63,10 +64,8 @@ async fn test_input_with_unknown_product_refs() {
     let result = resolve_products::resolve_products(&mut input_reader, &client).await;
 
     assert!(result.is_err());
-    assert!(
-        result
-            .unwrap_err()
-            .to_string()
-            .contains("0 product(s) successfully retrieved.")
-    );
+    assert!(matches!(
+        result.unwrap_err(),
+        ResolvePcdbProductsError::UnknownProductReference(_)
+    ));
 }
