@@ -1,5 +1,6 @@
 // set up shared utilities
 use aws_config::BehaviorVersion;
+use aws_sdk_dynamodb::config::Credentials;
 use aws_sdk_dynamodb::config::http::HttpResponse;
 use aws_sdk_dynamodb::error::SdkError;
 use aws_sdk_dynamodb::operation::create_table::{CreateTableError, CreateTableOutput};
@@ -22,6 +23,7 @@ static DYNAMO_NODE: OnceCell<ContainerAsync<DynamoDb>> = OnceCell::const_new();
 static DYNAMO_URL: OnceCell<String> = OnceCell::const_new();
 
 pub async fn setup() -> DynamoDbClient {
+    let credentials = Credentials::new("dummyaccesskey", "dummysecretkey", None, None, "dummy");
     let url = DYNAMO_URL
         .get_or_init(|| async {
             let dynamo_node = DYNAMO_NODE
@@ -53,8 +55,9 @@ pub async fn setup() -> DynamoDbClient {
 
             let seed_config = aws_config::defaults(BehaviorVersion::latest())
                 .behavior_version(BehaviorVersion::latest())
-                .endpoint_url(&endpoint_url)
                 .region("eu-west-2")
+                .endpoint_url(&endpoint_url)
+                .credentials_provider(credentials.clone())
                 .load()
                 .await;
             let seed_client = DynamoDbClient::new(&seed_config);
@@ -71,6 +74,7 @@ pub async fn setup() -> DynamoDbClient {
     let config = aws_config::defaults(BehaviorVersion::latest())
         .region("eu-west-2")
         .endpoint_url(url)
+        .credentials_provider(credentials)
         .load()
         .await;
 
