@@ -24,7 +24,7 @@ async fn test_valid_input(#[case] input: &str, #[case] expected_transformed: &st
     let client = common::setup().await;
     let mut input_reader = Cursor::new(input);
 
-    let result = resolve_products::resolve_products(&mut input_reader, client).await;
+    let result = resolve_products::resolve_products(&mut input_reader, &client).await;
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
 
@@ -60,7 +60,7 @@ async fn test_input_with_unknown_product_refs() {
         "fixtures/input_with_unknown_product_refs.json"
     ));
 
-    let result = resolve_products::resolve_products(&mut input_reader, client).await;
+    let result = resolve_products::resolve_products(&mut input_reader, &client).await;
 
     assert!(result.is_err());
     assert!(

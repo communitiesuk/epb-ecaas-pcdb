@@ -1,6 +1,5 @@
 // set up shared utilities
 use aws_config::BehaviorVersion;
-use aws_sdk_dynamodb::config::Credentials;
 use aws_sdk_dynamodb::config::http::HttpResponse;
 use aws_sdk_dynamodb::error::SdkError;
 use aws_sdk_dynamodb::operation::create_table::{CreateTableError, CreateTableOutput};
@@ -19,12 +18,11 @@ use testcontainers_modules::testcontainers::runners::AsyncRunner;
 use testcontainers_modules::testcontainers::{ContainerAsync, ImageExt};
 use tokio::sync::OnceCell;
 
-static ONCE_DYNAMODB_CLIENT: OnceCell<DynamoDbClient> = OnceCell::const_new();
-
 static DYNAMO_NODE: OnceCell<ContainerAsync<DynamoDb>> = OnceCell::const_new();
+static DYNAMO_URL: OnceCell<String> = OnceCell::const_new();
 
-pub async fn setup() -> &'static DynamoDbClient {
-    let client = ONCE_DYNAMODB_CLIENT
+pub async fn setup() -> DynamoDbClient {
+    let url = DYNAMO_URL
         .get_or_init(|| async {
             let dynamo_node = DYNAMO_NODE
                 .get_or_init(|| async {
@@ -37,8 +35,6 @@ pub async fn setup() -> &'static DynamoDbClient {
                         .start()
                         .await
                         .expect("Failed to start DynamoDB Local container");
-
-                    tokio::time::sleep(std::time::Duration::from_millis(500)).await;
 
                     node
                 })
@@ -55,45 +51,39 @@ pub async fn setup() -> &'static DynamoDbClient {
 
             let endpoint_url = format!("http://{host}:{host_port}");
 
-            let config = aws_config::defaults(BehaviorVersion::latest())
+            let seed_config = aws_config::defaults(BehaviorVersion::latest())
+                .behavior_version(BehaviorVersion::latest())
+                .endpoint_url(&endpoint_url)
                 .region("eu-west-2")
-                .endpoint_url(endpoint_url)
-                .credentials_provider(Credentials::new(
-                    "dummyaccesskey",
-                    "dummysecretkey",
-                    None,
-                    None,
-                    "dummy",
-                ))
                 .load()
                 .await;
+            let seed_client = DynamoDbClient::new(&seed_config);
 
-            DynamoDbClient::new(&config)
+            create_products_table(&seed_client)
+                .await
+                .expect("Failed to create table");
+            populate_products_table(seed_client).await;
+
+            endpoint_url
         })
         .await;
 
-    let _ = create_products_table(client).await;
+    let config = aws_config::defaults(BehaviorVersion::latest())
+        .region("eu-west-2")
+        .endpoint_url(url)
+        .load()
+        .await;
 
-    let products: Value =
-        from_str::<Value>(include_str!("../fixtures/pcdb_products.json")).unwrap();
-    if let Some(products) = products.as_object() {
-        for product in products.values() {
-            add_item(client, product.clone()).await;
-        }
-    }
-
-    client
+    DynamoDbClient::new(&config)
 }
 
-pub async fn create_products_table(
+async fn create_products_table(
     client: &DynamoDbClient,
 ) -> Result<CreateTableOutput, SdkError<CreateTableError, HttpResponse>> {
     let id_attribute = AttributeDefinition::builder()
         .attribute_name("id")
         .attribute_type(ScalarAttributeType::S)
         .build()?;
-
-    // TODO: will we need attribute definitions for technologyType, technologyGroup and brandName
 
     let keys = KeySchemaElement::builder()
         .attribute_name("id")
@@ -108,6 +98,17 @@ pub async fn create_products_table(
         .billing_mode(BillingMode::PayPerRequest)
         .send()
         .await
+}
+
+async fn populate_products_table(client: DynamoDbClient) {
+    let products: Value = from_str::<Value>(include_str!("../fixtures/pcdb_products.json"))
+        .expect("Could not parse products file");
+
+    if let Some(products) = products.as_object() {
+        for product in products.values() {
+            add_item(&client, product.clone()).await;
+        }
+    }
 }
 
 async fn add_item(client: &Client, item: Value) {
