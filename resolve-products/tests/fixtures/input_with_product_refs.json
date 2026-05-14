@@ -275,7 +275,13 @@
   },
   "SpaceHeatSystem": {
     "Wet distribution": {
-      "emitters": [],
+      "emitters": [
+        {
+          "wet_emitter_type": "fancoil",
+          "product_reference": "fancoil",
+          "n_units": 2
+        }
+      ],
       "EnergySupply": "mains elec",
       "temp_diff_emit_dsgn": 10,
       "Zone": "dwellingspace",
