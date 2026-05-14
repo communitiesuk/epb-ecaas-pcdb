@@ -49,3 +49,19 @@ async fn test_valid_input(#[case] input: &str, #[case] expected_transformed: &st
         schema_validation.unwrap_err()
     );
 }
+
+#[tokio::test]
+async fn test_input_with_unknown_product_refs() {
+    let client = common::setup().await;
+    let mut input_reader = Cursor::new(include_str!("./input_with_unknown_product_refs.json"));
+
+    let result = resolve_products::resolve_products(&mut input_reader, client).await;
+
+    assert!(result.is_err());
+    assert!(
+        result
+            .unwrap_err()
+            .to_string()
+            .contains("0 product(s) successfully retrieved.")
+    );
+}
