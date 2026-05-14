@@ -1,7 +1,7 @@
 use jsonschema::ValidationError;
 use resolve_products::PRODUCT_REFERENCE_FIELD;
 use rstest::rstest;
-use serde_json::{Value, from_slice, from_str, to_string};
+use serde_json::{Value, from_str, to_string};
 use std::io::Cursor;
 
 mod common;
@@ -15,18 +15,18 @@ async fn validate_against_target_schema(input: &Value) -> Result<(), ValidationE
 
 #[tokio::test]
 #[rstest]
-#[case(include_bytes!("./demo_fhs.json"), include_bytes!("./demo_fhs.json"))]
-#[case(include_bytes!("./input_with_product_refs.json"), include_bytes!("./input_transformed.json"))]
-async fn test_valid_input(#[case] input: &[u8], #[case] expected_transformed: &[u8]) {
+#[case(include_str!("./demo_fhs.json"), include_str!("./demo_fhs.json"))]
+#[case(include_str!("./input_with_product_refs.json"), include_str!("./input_transformed.json"))]
+async fn test_valid_input(#[case] input: &str, #[case] expected_transformed: &str) {
     let client = common::setup().await;
-    let mut input = input.to_vec();
+    let mut input_reader = Cursor::new(input);
 
-    let result = resolve_products::resolve_products(Cursor::new(&mut input), client).await;
+    let result = resolve_products::resolve_products(&mut input_reader, client).await;
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
 
     let transformed_input: Value = serde_json::from_reader(result.unwrap()).unwrap();
-    let expected: Value = from_slice(expected_transformed).unwrap();
+    let expected: Value = from_str(expected_transformed).unwrap();
 
     assert!(
         !to_string(&transformed_input)
