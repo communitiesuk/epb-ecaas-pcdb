@@ -12,6 +12,7 @@ use serde::Deserialize;
 use serde::de::DeserializeOwned;
 use serde_dynamo::from_item;
 use serde_repr::Deserialize_repr;
+use std::collections::HashMap;
 use std::sync::Arc;
 use thiserror::Error;
 
@@ -108,9 +109,21 @@ impl InUseFactorsAccess for DynamoDbBackedInUseFactorsAccess<'_> {
             .item
             .and_then(|record| record.get("data").cloned())
             .ok_or(())
-            .and_then(|attr_value| AttributeValue::as_m(&attr_value).map_err(|_| ()).cloned())?;
+            .and_then(|attr_value| AttributeValue::as_l(&attr_value).map_err(|_| ()).cloned())?;
 
-        Ok(from_item::<_, Vec<T>>(data).map_err(|_| ())?)
+        Ok(data
+            .into_iter()
+            .map(|item| {
+                from_item::<HashMap<String, AttributeValue>, T>(
+                    AttributeValue::as_m(&item).cloned().map_err(|_| {
+                        serde::de::Error::custom(
+                            "Could not deserialize item into object as expected",
+                        )
+                    })?,
+                )
+            })
+            .collect::<Result<Vec<T>, _>>()
+            .map_err(|_| ())?)
     }
 }
 
