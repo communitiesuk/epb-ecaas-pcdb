@@ -9,47 +9,59 @@ use aws_sdk_dynamodb::types::{
     ScalarAttributeType,
 };
 use aws_sdk_dynamodb::{Client as DynamoDbClient, Client};
+use parking_lot::Mutex;
 use serde_dynamo::to_item;
 use serde_json::{Value, from_str};
 use std::collections::HashMap;
-use std::process::Command;
+use std::sync::LazyLock;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::thread;
+use std::time::Duration;
 use testcontainers_modules::dynamodb_local::DynamoDb;
 use testcontainers_modules::testcontainers::core::IntoContainerPort;
 use testcontainers_modules::testcontainers::runners::AsyncRunner;
 use testcontainers_modules::testcontainers::{ContainerAsync, ImageExt};
 use tokio::sync::OnceCell;
 
-static DYNAMO_NODE: OnceCell<ContainerAsync<DynamoDb>> = OnceCell::const_new();
+static DYNAMO_NODE: OnceCell<Mutex<Option<ContainerAsync<DynamoDb>>>> = OnceCell::const_new();
 static DYNAMO_URL: OnceCell<String> = OnceCell::const_new();
 
-pub async fn setup() -> DynamoDbClient {
+static ENVIRONMENT_COUNTER: LazyLock<AtomicUsize> = LazyLock::new(|| AtomicUsize::new(0));
+
+pub async fn setup() -> TestEnvironment {
+    ENVIRONMENT_COUNTER.fetch_add(1, Ordering::SeqCst);
     let credentials = Credentials::new("dummyaccesskey", "dummysecretkey", None, None, "dummy");
     let url = DYNAMO_URL
         .get_or_init(|| async {
             let dynamo_node = DYNAMO_NODE
                 .get_or_init(|| async {
-                    let _ = Command::new("sh")
-                        .arg("-c")
-                        .arg("docker ps -aq --filter 'label=tests=pcdb' | xargs -r docker rm -f")
-                        .output();
                     let node = DynamoDb::default()
                         .with_label("tests", "pcdb")
                         .start()
                         .await
                         .expect("Failed to start DynamoDB Local container");
 
-                    node
+                    Mutex::new(Some(node))
                 })
                 .await;
 
-            let host = dynamo_node
-                .get_host()
-                .await
-                .expect("Could not resolve host for DynamoDB node");
-            let host_port = dynamo_node
-                .get_host_port_ipv4(8000.tcp())
-                .await
-                .expect("Could not resolve port for DynamoDB node");
+            let (host, host_port) = {
+                let dynamo_guard = dynamo_node.lock();
+                let dynamo_node = dynamo_guard.as_ref().expect(
+                    "Dynamo DB node is expected to exist at this stage in integration test setup",
+                );
+
+                let host = dynamo_node
+                    .get_host()
+                    .await
+                    .expect("Could not resolve host for DynamoDB node");
+                let host_port = dynamo_node
+                    .get_host_port_ipv4(8000.tcp())
+                    .await
+                    .expect("Could not resolve port for DynamoDB node");
+
+                (host, host_port)
+            };
 
             let endpoint_url = format!("http://{host}:{host_port}");
 
@@ -78,7 +90,7 @@ pub async fn setup() -> DynamoDbClient {
         .load()
         .await;
 
-    DynamoDbClient::new(&config)
+    DynamoDbClient::new(&config).into()
 }
 
 async fn create_products_table(
@@ -124,4 +136,43 @@ async fn add_item(client: &Client, item: Value) {
         .set_item(product_data.into());
 
     request.send().await.unwrap();
+}
+
+pub struct TestEnvironment {
+    client: DynamoDbClient,
+}
+
+impl TestEnvironment {
+    pub fn dynamo_client(&self) -> &DynamoDbClient {
+        &self.client
+    }
+}
+
+impl From<DynamoDbClient> for TestEnvironment {
+    fn from(client: DynamoDbClient) -> Self {
+        TestEnvironment { client }
+    }
+}
+
+impl Drop for TestEnvironment {
+    fn drop(&mut self) {
+        ENVIRONMENT_COUNTER.fetch_sub(1, Ordering::SeqCst);
+
+        // if we still have live environments, don't drop the dynamo node yet
+        if ENVIRONMENT_COUNTER.load(Ordering::SeqCst) > 0 {
+            return;
+        }
+        // loop where we pause for a second, then continue if we still don't have any live environments in the counter,
+        // otherwise repeat until we don't
+        loop {
+            thread::sleep(Duration::from_secs(1));
+            if ENVIRONMENT_COUNTER.load(Ordering::SeqCst) == 0 {
+                break;
+            }
+        }
+
+        if let Some(dynamo_node) = DYNAMO_NODE.get().and_then(|mutex| mutex.lock().take()) {
+            drop(dynamo_node);
+        }
+    }
 }

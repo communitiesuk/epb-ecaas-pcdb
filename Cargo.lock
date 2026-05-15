@@ -2834,6 +2834,7 @@ dependencies = [
  "itertools",
  "jsonpath-rust",
  "jsonschema",
+ "parking_lot",
  "rstest",
  "rust_decimal",
  "serde",

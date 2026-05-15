@@ -24,10 +24,12 @@ async fn validate_against_target_schema(input: &Value) -> Result<(), ValidationE
 #[case(include_str!("fixtures/demo_fhs.json"), include_str!("fixtures/demo_fhs.json"))]
 #[case(include_str!("fixtures/input_with_product_refs.json"), include_str!("fixtures/input_transformed.json"))]
 async fn test_valid_input(#[case] input: &str, #[case] expected_transformed: &str) {
-    let client = common::setup().await;
+    let environment = common::setup().await;
+    let client = environment.dynamo_client();
+
     let mut input_reader = Cursor::new(input);
 
-    let result = resolve_products::resolve_products(&mut input_reader, &client).await;
+    let result = resolve_products::resolve_products(&mut input_reader, client).await;
 
     assert!(result.is_ok(), "{}", result.unwrap_err());
 
@@ -61,12 +63,14 @@ async fn test_valid_input(#[case] input: &str, #[case] expected_transformed: &st
 
 #[tokio::test]
 async fn test_input_with_unknown_product_refs() {
-    let client = common::setup().await;
+    let environment = common::setup().await;
+    let client = environment.dynamo_client();
+
     let mut input_reader = Cursor::new(include_str!(
         "fixtures/input_with_unknown_product_refs.json"
     ));
 
-    let result = resolve_products::resolve_products(&mut input_reader, &client).await;
+    let result = resolve_products::resolve_products(&mut input_reader, client).await;
 
     assert!(result.is_err());
     assert!(matches!(
