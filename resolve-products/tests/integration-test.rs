@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use jsonschema::ValidationError;
 use resolve_products::PRODUCT_REFERENCE_FIELD;
 use resolve_products::errors::ResolvePcdbProductsError;
@@ -37,13 +38,16 @@ async fn test_valid_input(#[case] input: &str, #[case] expected_transformed: &st
             .unwrap()
             .contains(PRODUCT_REFERENCE_FIELD)
     );
-    assert_eq!(
-        transformed_input,
-        expected,
-        "actual: {}\nexpected: {}",
-        serde_json::to_string_pretty(&transformed_input).unwrap(),
-        serde_json::to_string_pretty(&expected).unwrap()
-    );
+
+    let mut actual_keys = transformed_input.as_object().unwrap().keys().collect_vec();
+    actual_keys.sort();
+    let mut expected_keys = expected.as_object().unwrap().keys().collect_vec();
+    expected_keys.sort();
+
+    assert_eq!(actual_keys, expected_keys);
+    for key in expected_keys {
+        assert_eq!(transformed_input[key], expected[key], "{:?}", key);
+    }
 
     let schema_validation = validate_against_target_schema(&transformed_input).await;
 
