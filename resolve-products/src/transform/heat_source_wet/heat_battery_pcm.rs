@@ -121,7 +121,8 @@ mod tests {
                 "battery_type": "pcm",
                 "product_reference": product_reference,
                 "number_of_units": 2,
-                "is_heat_network": false
+                "is_heat_network": false,
+                "EnergySupply": "mains elec"
         })
     }
 

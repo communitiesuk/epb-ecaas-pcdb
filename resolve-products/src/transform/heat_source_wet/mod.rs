@@ -185,14 +185,16 @@ mod tests {
                     "battery_type": "pcm",
                     "product_reference": "pcm",
                     "number_of_units": 2,
-                    "is_heat_network": false
+                    "is_heat_network": false,
+                    "EnergySupply": "mains elec"
                 },
                 "dry_core": {
                     "type": "HeatBattery",
                     "battery_type": "dry_core",
                     "product_reference": "dry_core",
                     "number_of_units": 2,
-                    "is_heat_network": false
+                    "is_heat_network": false,
+                    "EnergySupply": "mains elec"
                 },
                 "hiu": {
                     "type": "HIU",
