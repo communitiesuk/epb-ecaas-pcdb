@@ -582,5 +582,21 @@
     "outputPower": 1.8,
     "highHeatRetention": true,
     "controlType": "HHRSH"
+  },
+  "ufh": {
+    "floorFinishCompatibility": "2.5mm Acoustic Vinyl",
+    "equivalentSpecificThermalMass": 80.0,
+    "systemName": "Standard screed floor",
+    "dataType": "illustrative_conservative",
+    "wetEmitterType": "ufh",
+    "systemType": "in-screed",
+    "depthOfFloorStructuralMaterial": 65,
+    "pipeCentres": 250,
+    "fracConvective": 0.43,
+    "id": "ufh",
+    "systemPerformanceFactor": 5,
+    "structuralFloorMaterial": "Sand & Cement Screed",
+    "floorFinishResistance": 0,
+    "technologyType": "UnderFloorHeating"
   }
 }

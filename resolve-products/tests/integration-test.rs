@@ -18,6 +18,7 @@ async fn validate_against_target_schema(input: &Value) -> Result<(), ValidationE
     schema_validator.validate(input)
 }
 
+// TODO add radiator to input_with_product_refs once wet distribution thermal mass issue (reported to DESNZ) has been resolved
 #[tokio::test]
 #[rstest]
 #[case(include_str!("fixtures/demo_fhs.json"), include_str!("fixtures/demo_fhs.json"))]
