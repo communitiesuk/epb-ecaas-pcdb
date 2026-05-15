@@ -690,5 +690,17 @@
     "structuralFloorMaterial": "Sand & Cement Screed",
     "floorFinishResistance": 0,
     "technologyType": "UnderFloorHeating"
+  },
+  "air_powered_shower": {
+    "id": "air_powered_shower",
+    "technologyType": "AirPoweredShowers",
+    "allowLowFlowrate": false,
+    "brandName": "Air Powered shower",
+    "productID": "air_powered_shower",
+    "inuseFactor": 1,
+    "dataType": "illustrative_conservative",
+    "originalFlowrate": 10,
+    "flowrate": 10,
+    "type": "AirPoweredShower"
   }
 }

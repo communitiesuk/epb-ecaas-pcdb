@@ -685,7 +685,14 @@
   },
   "SpaceCoolSystem": {},
   "HotWaterDemand": {
-    "Shower": {},
+    "Shower": {
+      "Air powered shower": {
+        "type": "MixerShower",
+        "ColdWaterSource": "mains water",
+        "flowrate": 10.0,
+        "allow_low_flowrate": false
+      }
+    },
     "Bath": {},
     "Other": {
       "Taps": {

@@ -350,7 +350,13 @@
   },
   "SpaceCoolSystem": {},
   "HotWaterDemand": {
-    "Shower": {},
+    "Shower": {
+      "Air powered shower": {
+        "type": "MixerShower",
+        "ColdWaterSource": "mains water",
+        "product_reference": "air_powered_shower"
+      }
+    },
     "Bath": {},
     "Other": {
       "Taps": {
