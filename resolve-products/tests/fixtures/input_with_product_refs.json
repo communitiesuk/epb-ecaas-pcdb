@@ -271,6 +271,14 @@
       "product_reference": "boiler",
       "EnergySupply": "mains elec",
       "is_heat_network": false
+    },
+    "Heat battery PCM": {
+      "type": "HeatBattery",
+      "battery_type": "pcm",
+      "product_reference": "hb_pcm",
+      "number_of_units": 2,
+      "is_heat_network": false,
+      "EnergySupply": "mains elec"
     }
   },
   "SpaceHeatSystem": {
