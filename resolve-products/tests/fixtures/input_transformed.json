@@ -452,6 +452,14 @@
           9.0
         ]
       ]
+    },
+    "HIU": {
+      "type": "HIU",
+      "EnergySupply": "mains elec",
+      "power_max": 52.87,
+      "HIU_daily_loss": 1.0,
+      "building_level_distribution_losses": 1,
+      "is_heat_network": false
     }
   },
   "SpaceHeatSystem": {

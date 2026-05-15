@@ -287,6 +287,13 @@
       "number_of_units": 2,
       "is_heat_network": false,
       "EnergySupply": "mains elec"
+    },
+    "HIU": {
+      "type": "HIU",
+      "EnergySupply": "mains elec",
+      "product_reference": "hiu",
+      "building_level_distribution_losses": 1,
+      "is_heat_network": false
     }
   },
   "SpaceHeatSystem": {
