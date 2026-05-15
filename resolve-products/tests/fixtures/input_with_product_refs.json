@@ -274,6 +274,12 @@
     }
   },
   "SpaceHeatSystem": {
+    "Elec Heater": {
+      "type": "ElecStorageHeater",
+      "n_units": 1,
+      "Zone": "ThermalZone",
+      "product_reference": "esh"
+    },
     "Wet distribution": {
       "emitters": [
         {
