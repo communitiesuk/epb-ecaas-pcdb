@@ -2,3 +2,5 @@
 resolver = "3"
 members = ["resolve-products"]
 
+[profile.test]
+debug-assertions = false
