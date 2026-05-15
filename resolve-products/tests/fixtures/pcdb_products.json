@@ -702,5 +702,82 @@
     "originalFlowrate": 10,
     "flowrate": 10,
     "type": "AirPoweredShower"
+  },
+  "hp_hw_only": {
+    "id": "hp_hw_only",
+    "technologyType": "HotWaterOnlyHeatPump",
+    "brandName": "TEST",
+    "heatExchangerSurfaceAreaDeclared": 0.67,
+    "testData": [
+      {
+        "copDhw": 1.0,
+        "usefulHeat": 1.0,
+        "hwTappingProfDailyTotal": 1.0,
+        "productID": "hp_hw_only",
+        "electricalConsumption": 1.0,
+        "tappingProfile": "M",
+        "powerStandby": 1.0,
+        "id": 1,
+        "energyInputMeasured": 1.0,
+        "parentID": 4
+      },
+      {
+        "copDhw": 1.0,
+        "usefulHeat": 1.0,
+        "hwTappingProfDailyTotal": 1.0,
+        "productID": "hp_hw_only",
+        "electricalConsumption": 1.0,
+        "tappingProfile": "L",
+        "powerStandby": 1.0,
+        "id": 2,
+        "energyInputMeasured": 1.0,
+        "parentID": 4
+      }
+    ],
+    "productID": "hp_hw_only",
+    "dailyLossesDeclared": 2.22,
+    "fuel": "electricity",
+    "dataType": "listed_product",
+    "modelQualifier": "62070005",
+    "sourceType": "ExhaustAirMEV",
+    "finalYearOfManufacture": "current",
+    "type": "HeatPump_HWOnly",
+    "powerMax": 3,
+    "firstYearOfManufacture": "2016",
+    "modelName": "Modul-AIR Aqua",
+    "vesselType": "Separate limiting characteristics",
+    "testVesselVolume": 200,
+    "tankVolumeDeclared": 100,
+    "hwVesselLossDaily": 1.0
+  },
+  "hw_only_in_use_factors": {
+    "id": "HotWaterOnlyInUseFactors",
+    "data": [
+      {
+        "inUseFactorMismatch": 0.95,
+        "vesselType": "Integral",
+        "id": 1
+      },
+      {
+        "inUseFactorMismatch": 0.95,
+        "vesselType": "Separate fixed characteristics",
+        "id": 2
+      },
+      {
+        "inUseFactorMismatch": 0.95,
+        "vesselType": "Separate limiting characteristics",
+        "id": 3
+      },
+      {
+        "inUseFactorMismatch": 0.6,
+        "vesselType": "Separate but does not meet criteria ",
+        "id": 4
+      },
+      {
+        "inUseFactorMismatch": 0.6,
+        "vesselType": "Unspecified",
+        "id": 5
+      }
+    ]
   }
 }

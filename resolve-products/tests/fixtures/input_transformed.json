@@ -708,10 +708,10 @@
       "volume": 23,
       "ColdWaterSource": "header tank",
       "HeatSource": {
-        "Heat pump 2": {
-          "name": "Heat pump 2",
-          "heater_position": 0.2,
-          "type": "HeatSourceWet",
+        "hw only hp": {
+          "type": "HeatPump_HWOnly",
+          "heater_position": 0.1,
+          "product_reference": "hw_only_hp",
           "thermostat_position": 0.4
         }
       },
