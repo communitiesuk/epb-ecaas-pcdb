@@ -102,6 +102,7 @@ impl InUseFactorsAccess for DynamoDbBackedInUseFactorsAccess<'_> {
         let data = self
             .dynamo_db_client
             .get_item()
+            .table_name("products")
             .key("id", AttributeValue::S(T::entry_id().to_string()))
             .send()
             .await

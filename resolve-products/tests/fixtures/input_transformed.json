@@ -709,12 +709,34 @@
       "ColdWaterSource": "header tank",
       "HeatSource": {
         "hw only hp": {
-          "type": "HeatPump_HWOnly",
+          "EnergySupply": "mains elec",
+          "daily_losses_declared": 2.22,
+          "heat_exchanger_surface_area_declared": 0.67,
+          "in_use_factor_mismatch": 0.95,
+          "power_max": 3.0,
+          "tank_volume_declared": 100.0,
           "heater_position": 0.1,
-          "product_reference": "hw_only_hp",
-          "thermostat_position": 0.4
+          "thermostat_position": 0.4,
+          "type": "HeatPump_HWOnly",
+          "test_data": {
+            "M": {
+              "cop_dhw": 1.0,
+              "energy_input_measured": 1.0,
+              "hw_tapping_prof_daily_total": 1.0,
+              "hw_vessel_loss_daily": 1.0,
+              "power_standby": 1.0
+            },
+            "L": {
+              "cop_dhw": 1.0,
+              "energy_input_measured": 1.0,
+              "hw_tapping_prof_daily_total": 1.0,
+              "hw_vessel_loss_daily": 1.0,
+              "power_standby": 1.0
+            }
+          }
         }
       },
+      "heat_exchanger_surface_area": 1,
       "init_temp": 60
     }
   },
