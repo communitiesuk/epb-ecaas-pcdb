@@ -703,10 +703,15 @@
   },
   "HotWaterSource": {
     "hw cylinder": {
-      "daily_losses": 5,
-      "type": "StorageTank",
-      "volume": 23,
-      "ColdWaterSource": "header tank",
+      "type": "SmartHotWaterTank",
+      "EnergySupply_pump": "mains elec",
+      "max_flow_rate_pump_l_per_min": 19.0,
+      "power_pump_kW": 0.025,
+      "temp_usable": 40.0,
+      "volume": 250.0,
+      "daily_losses": 1.0,
+      "ColdWaterSource": "mains water",
+      "heat_exchanger_surface_area": 1.0,
       "HeatSource": {
         "hw only hp": {
           "EnergySupply": "mains elec",
@@ -735,9 +740,7 @@
             }
           }
         }
-      },
-      "heat_exchanger_surface_area": 1,
-      "init_temp": 60
+      }
     }
   },
   "OnSiteGeneration": {},

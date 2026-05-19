@@ -1,4 +1,5 @@
 use crate::PRODUCT_REFERENCE_FIELD;
+use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, Technology};
 use crate::transform::{
     InvalidProductCategoryError, ResolveProductsResult, product_reference_from_json_object,
@@ -22,6 +23,11 @@ pub fn transform(
         {
             let product_reference = product_reference_from_json_object(hot_water_source)?;
             let product = &products[&product_reference];
+            let has_hp_hw_only = hot_water_source
+                .get("HeatSource")
+                .and_then(|source| source.as_object()?.values().next())
+                .map(|source_val| source_val["type"] == "HeatPump_HWOnly")
+                .unwrap_or(false);
 
             if let Technology::SmartHotWaterTank {
                 max_flow_rate_pump_l_per_min,
@@ -29,9 +35,21 @@ pub fn transform(
                 temp_usable,
                 daily_losses,
                 volume,
+                heat_exchanger_surface_area,
                 ..
             } = &product.technology
             {
+                if has_hp_hw_only {
+                    let heat_exchanger_surface_area = heat_exchanger_surface_area.ok_or_else(
+                        || ResolvePcdbProductsError::InvalidCombination(
+                            "heat_exchanger_surface_area required for smart hot water tank with a hot water only heat pump as its heat source".into(),
+                        )
+                    )?;
+                    hot_water_source.insert(
+                        "heat_exchanger_surface_area".into(),
+                        heat_exchanger_surface_area.as_f64().into(),
+                    );
+                }
                 hot_water_source.insert(
                     "max_flow_rate_pump_l_per_min".into(),
                     max_flow_rate_pump_l_per_min.as_f64().into(),

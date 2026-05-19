@@ -237,6 +237,8 @@ pub(crate) enum Technology {
         daily_losses: Decimal,
         /// Total volume of tank (unit: litre)
         volume: Decimal,
+        /// Heat exchanger surface area (unit: m²)
+        heat_exchanger_surface_area: Option<Decimal>,
     },
     #[serde(rename = "HotWaterOnlyHeatPump")]
     HeatPumpHotWaterOnly {

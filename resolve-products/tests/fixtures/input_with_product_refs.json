@@ -367,10 +367,10 @@
   },
   "HotWaterSource": {
     "hw cylinder": {
-      "daily_losses": 5,
-      "type": "StorageTank",
-      "volume": 23,
-      "ColdWaterSource": "header tank",
+      "type": "SmartHotWaterTank",
+      "EnergySupply_pump": "mains elec",
+      "product_reference": "smart_tank",
+      "ColdWaterSource": "mains water",
       "HeatSource": {
         "hw only hp": {
           "type": "HeatPump_HWOnly",
@@ -378,9 +378,7 @@
           "product_reference": "hp_hw_only",
           "thermostat_position": 0.4
         }
-      },
-      "heat_exchanger_surface_area": 1,
-      "init_temp": 60
+      }
     }
   },
   "OnSiteGeneration": {},
