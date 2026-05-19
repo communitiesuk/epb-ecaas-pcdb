@@ -155,48 +155,50 @@ mod tests {
     fn mechanical_ventilation_input() -> JsonValue {
         json!({
             "NumberOfWetRooms": 3,
-            "MechanicalVentilation": {
-                "decentralisedMev": {
-                    "vent_type": "Decentralised continuous MEV",
-                    "EnergySupply": "mains elec",
-                    "product_reference": "decentralisedMev",
-                    "design_outdoor_air_flow_rate": 80,
-                    "installed_under_approved_scheme": true,
-                    "installation_type": "in_ceiling",
-                    "installation_location": "kitchen",
-                    "mid_height_air_flow_path": 2,
-                    "orientation360": 0,
-                    "pitch": 90
-                },
-                "centralisedMev": {
-                    "vent_type": "Centralised continuous MEV",
-                    "EnergySupply": "mains elec",
-                    "product_reference": "centralisedMev",
-                    "design_outdoor_air_flow_rate": 80,
-                    "installed_under_approved_scheme": true,
-                    "measured_fan_power": 12.26,
-                    "measured_air_flow_rate": 37,
-                    "mid_height_air_flow_path": 1.5,
-                    "orientation360": 90,
-                    "pitch": 60
-                },
-                "centralisedMvhr": {
-                    "vent_type": "MVHR",
-                    "EnergySupply": "mains elec",
-                    "product_reference": "centralisedMvhr",
-                    "design_outdoor_air_flow_rate": 80,
-                    "installed_under_approved_scheme": true,
-                    "mvhr_location": "inside",
-                    "ductwork": [],
-                    "position_intake": {
+            "InfiltrationVentilation": {
+                "MechanicalVentilation": {
+                    "decentralisedMev": {
+                        "vent_type": "Decentralised continuous MEV",
+                        "EnergySupply": "mains elec",
+                        "product_reference": "decentralisedMev",
+                        "design_outdoor_air_flow_rate": 80,
+                        "installed_under_approved_scheme": true,
+                        "installation_type": "in_ceiling",
+                        "installation_location": "kitchen",
+                        "mid_height_air_flow_path": 2,
+                        "orientation360": 0,
+                        "pitch": 90
+                    },
+                    "centralisedMev": {
+                        "vent_type": "Centralised continuous MEV",
+                        "EnergySupply": "mains elec",
+                        "product_reference": "centralisedMev",
+                        "design_outdoor_air_flow_rate": 80,
+                        "installed_under_approved_scheme": true,
+                        "measured_fan_power": 12.26,
+                        "measured_air_flow_rate": 37,
                         "mid_height_air_flow_path": 1.5,
                         "orientation360": 90,
                         "pitch": 60
                     },
-                    "position_exhaust": {
-                        "mid_height_air_flow_path": 1.6,
-                        "orientation360": 90,
-                        "pitch": 60
+                    "centralisedMvhr": {
+                        "vent_type": "MVHR",
+                        "EnergySupply": "mains elec",
+                        "product_reference": "centralisedMvhr",
+                        "design_outdoor_air_flow_rate": 80,
+                        "installed_under_approved_scheme": true,
+                        "mvhr_location": "inside",
+                        "ductwork": [],
+                        "position_intake": {
+                            "mid_height_air_flow_path": 1.5,
+                            "orientation360": 90,
+                            "pitch": 60
+                        },
+                        "position_exhaust": {
+                            "mid_height_air_flow_path": 1.6,
+                            "orientation360": 90,
+                            "pitch": 60
+                        }
                     }
                 }
             }
@@ -218,9 +220,9 @@ mod tests {
         assert!(result.is_ok());
 
         let pointers = [
-            "/MechanicalVentilation/decentralisedMev",
-            "/MechanicalVentilation/centralisedMev",
-            "/MechanicalVentilation/centralisedMvhr",
+            "/InfiltrationVentilation/MechanicalVentilation/decentralisedMev",
+            "/InfiltrationVentilation/MechanicalVentilation/centralisedMev",
+            "/InfiltrationVentilation/MechanicalVentilation/centralisedMvhr",
         ];
 
         for pointer in pointers {
