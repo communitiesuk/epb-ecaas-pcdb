@@ -44,7 +44,20 @@
     },
     "ventilation_zone_base_height": 34,
     "ach_max_static_calcs": 2,
-    "MechanicalVentilation": {},
+    "MechanicalVentilation": {
+      "mech vent": {
+        "vent_type": "Centralised continuous MEV",
+        "product_reference": "centralised_mev",
+        "measured_fan_power": 12.26,
+        "measured_air_flow_rate": 37,
+        "EnergySupply": "mains elec",
+        "design_outdoor_air_flow_rate": 80,
+        "mid_height_air_flow_path": 1.5,
+        "orientation360": 90,
+        "pitch": 60,
+        "installed_under_approved_scheme": true
+      }
+    },
     "Vents": {}
   },
   "ExternalConditions": {
