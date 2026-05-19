@@ -400,5 +400,11 @@
       "time_series_step": 1
     }
   },
-  "Events": {}
+  "Events": {},
+  "WWHRS": {
+    "WWHRS A": {
+      "ColdWaterSource": "mains water",
+      "product_reference": "wwhrsA"
+    }
+  }
 }

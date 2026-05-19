@@ -779,5 +779,76 @@
         "id": 5
       }
     ]
+  },
+  "wwhrsA": {
+    "id": "wwhrsA",
+    "technologyType": "InstantaneousWwhrSystem",
+    "brandName": "HEM Default",
+    "testData": [
+      {
+        "efficiency": 44.08,
+        "productID": "wwhrsA",
+        "systemType": "A",
+        "flowRate": 5,
+        "efficiencyAt92": 28.07,
+        "id": 1223,
+        "efficiencyAt125": 25.6855,
+        "parentID": 203
+      },
+      {
+        "efficiency": 35.99,
+        "productID": "wwhrsA",
+        "systemType": "A",
+        "flowRate": 7,
+        "efficiencyAt92": 28.07,
+        "id": 1224,
+        "efficiencyAt125": 25.6855,
+        "parentID": 203
+      },
+      {
+        "efficiency": 30.48,
+        "productID": "wwhrsA",
+        "systemType": "A",
+        "flowRate": 9,
+        "efficiencyAt92": 28.07,
+        "id": 1225,
+        "efficiencyAt125": 25.6855,
+        "parentID": 203
+      },
+      {
+        "efficiency": 26.39,
+        "productID": "wwhrsA",
+        "systemType": "A",
+        "flowRate": 11,
+        "efficiencyAt92": 28.07,
+        "id": 1226,
+        "efficiencyAt125": 25.6855,
+        "parentID": 203
+      },
+      {
+        "efficiency": 23.29,
+        "productID": "wwhrsA",
+        "systemType": "A",
+        "flowRate": 13,
+        "efficiencyAt92": 28.07,
+        "id": 1227,
+        "efficiencyAt_125": 25.6855,
+        "parentID": 203
+      }
+    ],
+    "productID": "wwhrsA",
+    "pipeLength": 3,
+    "dataType": "illustrative_conservative",
+    "heatExchangerWasteConnection": 70.31,
+    "finalYearOfManufacture": "current",
+    "heatExchangerVolumeOfWater": 1.73,
+    "firstYearOfManufacture": "2025",
+    "modelName": "InstantaneousWWHRS",
+    "heatExchangerColdWaterConnection": 20.94,
+    "heatExchangerWetWeight": 13.38,
+    "numberOfFlowRates": 5,
+    "utilisationFactor": 0.8839,
+    "heatExchangerLength": 10,
+    "heatExchangerDryWeight": 11.65
   }
 }
