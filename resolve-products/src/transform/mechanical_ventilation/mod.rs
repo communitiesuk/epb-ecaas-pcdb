@@ -34,10 +34,11 @@ pub async fn transform(
         }
     };
 
-    let mechanical_ventilation = match json.pointer_mut("/MechanicalVentilation") {
-        Some(node) if node.is_object() => node.as_object_mut().unwrap(),
-        _ => return Ok(()),
-    };
+    let mechanical_ventilation =
+        match json.pointer_mut("/InfiltrationVentilation/MechanicalVentilation") {
+            Some(node) if node.is_object() => node.as_object_mut().unwrap(),
+            _ => return Ok(()),
+        };
 
     for mech_vent in mechanical_ventilation.values_mut() {
         if let JsonValue::Object(mech_vent_object) = mech_vent {
