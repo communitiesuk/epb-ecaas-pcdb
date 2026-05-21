@@ -68,6 +68,25 @@
         "installation_type": "in_ceiling",
         "installation_location": "kitchen",
         "installed_under_approved_scheme": true
+      },
+      "mvhr": {
+        "product_reference": "mvhr",
+        "EnergySupply": "mains elec",
+        "design_outdoor_air_flow_rate": 111.6,
+        "ductwork": [],
+        "mvhr_location": "outside",
+        "installed_under_approved_scheme": true,
+        "position_exhaust": {
+          "mid_height_air_flow_path": 2.3,
+          "orientation360": 270,
+          "pitch": 90
+        },
+        "position_intake": {
+          "mid_height_air_flow_path": 2.3,
+          "orientation360": 270,
+          "pitch": 90
+        },
+        "vent_type": "MVHR"
       }
     },
     "Vents": {}

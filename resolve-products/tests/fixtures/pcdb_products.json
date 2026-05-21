@@ -989,6 +989,97 @@
     "dataType": "illustrative_conservative",
     "finalYearOfManufacture": "current"
   },
+  "mvhr": {
+    "brandName": "Test",
+    "modelName": "Test",
+    "id": "mvhr",
+    "productID": "mvhr",
+    "dataType": "listed_product",
+    "finalYearOfManufacture": "current",
+    "firstYearOfManufacture": "2023",
+    "technologyType": "CentralisedMvhr",
+    "testData": [
+      {
+        "configuration": 1,
+        "mvhrEff": 0.8,
+        "sfp": 0.11,
+        "flowRate": 11,
+        "ductSize": 1,
+        "ductType": 2,
+        "id": 1,
+        "productID": "mvhr",
+        "parentID": 2
+      },
+      {
+        "configuration": 2,
+        "mvhrEff": 0.82,
+        "sfp": 0.22,
+        "flowRate": 22,
+        "ductSize": 1,
+        "ductType": 2,
+        "id": 2,
+        "productID": "mvhr",
+        "parentID": 2
+      },
+      {
+        "configuration": 3,
+        "mvhrEff": 0.83,
+        "sfp": 0.33,
+        "flowRate": 33,
+        "ductSize": 1,
+        "ductType": 2,
+        "id": 3,
+        "productID": "mvhr",
+        "parentID": 2
+      },
+      {
+        "configuration": 4,
+        "mvhrEff": 0.83,
+        "sfp": 0.44,
+        "flowRate": 44,
+        "ductSize": 1,
+        "ductType": 2,
+        "id": 4,
+        "productID": "mvhr",
+        "parentID": 2
+      },
+      {
+        "configuration": 5,
+        "mvhrEff": 0.84,
+        "sfp": 0.55,
+        "flowRate": 55,
+        "ductSize": 1,
+        "ductType": 2,
+        "id": 5,
+        "productID": "mvhr",
+        "parentID": 2
+      },
+      {
+        "configuration": 6,
+        "mvhrEff": 0.6,
+        "sfp": 0.66,
+        "flowRate": 66,
+        "ductSize": 1,
+        "ductType": 2,
+        "id": 6,
+        "productID": "mvhr",
+        "parentID": 2
+      },
+      {
+        "configuration": 7,
+        "mvhrEff": 0.7,
+        "sfp": 0.77,
+        "flowRate": 77,
+        "ductSize": 1,
+        "ductType": 2,
+        "id": 7,
+        "productID": "mvhr",
+        "parentID": 2
+      }
+    ],
+    "integralOnly": 0,
+    "summerBypass": 3
+  },
   "mv_in_use_factors": {
     "id": "MVInUseFactors",
     "data": [
