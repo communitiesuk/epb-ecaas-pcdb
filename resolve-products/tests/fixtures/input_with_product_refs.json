@@ -56,6 +56,18 @@
         "orientation360": 90,
         "pitch": 60,
         "installed_under_approved_scheme": true
+      },
+      "dMEV": {
+        "product_reference": "decentralised_mev",
+        "EnergySupply": "mains elec",
+        "design_outdoor_air_flow_rate": 111.6,
+        "mid_height_air_flow_path": 5.5,
+        "orientation360": 0,
+        "pitch": 90,
+        "vent_type": "Decentralised continuous MEV",
+        "installation_type": "in_ceiling",
+        "installation_location": "kitchen",
+        "installed_under_approved_scheme": true
       }
     },
     "Vents": {}

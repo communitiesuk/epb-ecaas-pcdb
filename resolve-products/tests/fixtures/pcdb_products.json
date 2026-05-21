@@ -941,6 +941,54 @@
     ],
     "integralOnly": 0
   },
+  "decentralised_mev": {
+    "id": "decentralised_mev",
+    "productID": "decentralised_mev",
+    "technologyType": "DecentralisedMev",
+    "firstYearOfManufacture": "2025",
+    "modelName": "Decentralised MEV",
+    "brandName": "HEM Default",
+    "testData": [
+      {
+        "sfp3": 0.8,
+        "sfp2": 0.34,
+        "productID": "decentralised_mev",
+        "configuration": 1,
+        "flowRate": 13,
+        "id": 1,
+        "sfp": 0.38,
+        "flowRate2": 8,
+        "flowRate3": 13,
+        "parentID": 1
+      },
+      {
+        "sfp3": 0.8,
+        "sfp2": 0.32,
+        "productID": "decentralised_mev",
+        "configuration": 2,
+        "flowRate": 13,
+        "id": 2,
+        "sfp": 0.44,
+        "flowRate2": 8,
+        "flowRate3": 13,
+        "parentID": 1
+      },
+      {
+        "sfp3": 0.8,
+        "sfp2": 0.42,
+        "productID": "decentralised_mev",
+        "configuration": 3,
+        "flowRate": 13,
+        "id": 3,
+        "sfp": 0.36,
+        "flowRate2": 8,
+        "flowRate3": 13,
+        "parentID": 1
+      }
+    ],
+    "dataType": "illustrative_conservative",
+    "finalYearOfManufacture": "current"
+  },
   "mv_in_use_factors": {
     "id": "MVInUseFactors",
     "data": [
