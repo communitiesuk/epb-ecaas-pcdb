@@ -122,3 +122,20 @@ async fn test_input_with_product_category_mismatches() {
         ResolvePcdbProductsError::ProductCategoryMismatches(_)
     ));
 }
+
+#[tokio::test]
+async fn test_input_that_does_not_conform_to_combined_schema() {
+    let environment = common::setup().await;
+    let client = environment.dynamo_client();
+
+    let valid_json = r#"{"key": "value"}"#;
+    let mut input_reader = Cursor::new(valid_json);
+
+    let result = resolve_products::resolve_products(&mut input_reader, client).await;
+
+    assert!(result.is_err());
+    assert!(matches!(
+        result.unwrap_err(),
+        ResolvePcdbProductsError::InvalidRequest(_)
+    ));
+}
