@@ -141,4 +141,31 @@ mod tests {
                 .contains("smart hot water tank")
         );
     }
+
+    #[test]
+    fn test_transform_smart_hot_water_tank_errors_when_invalid_combination() {
+        let product_reference = "smart_tank";
+        let pcdb_smart_tank: Product =
+            from_str(include_str!("fixtures/smart_hw_tank_pcdb.json")).unwrap();
+        let mut input = input(product_reference);
+        input.as_object_mut().unwrap()["HotWaterSource"]["hw cylinder"]["HeatSource"] = json!({
+            "hw only hp": {
+                "type": "HeatPump_HWOnly",
+                "heater_position": 0.1,
+                "product_reference": "hp_hw_only",
+                "thermostat_position": 0.4
+            }
+        });
+
+        let result = transform(
+            &mut input,
+            &HashMap::from([(product_reference.into(), pcdb_smart_tank)]),
+        );
+
+        assert!(result.is_err());
+        assert!(matches!(
+            result.unwrap_err(),
+            ResolvePcdbProductsError::InvalidCombination(_)
+        ));
+    }
 }
