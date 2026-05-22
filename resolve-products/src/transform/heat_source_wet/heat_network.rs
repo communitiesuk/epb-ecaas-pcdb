@@ -4,7 +4,7 @@ use crate::transform::{InvalidProductCategoryError, ResolveProductsResult};
 use serde_json::{Map, Value, json};
 
 pub fn transform(
-    heat_source_wet: &mut Map<String, serde_json::Value>,
+    heat_source_wet: &mut Map<String, Value>,
     product: &Product,
     product_reference: &str,
     is_heat_pump_present: bool,
