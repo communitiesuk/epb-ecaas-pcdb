@@ -334,10 +334,12 @@
     },
     "HIU": {
       "type": "HIU",
-      "EnergySupply": "mains elec",
       "product_reference": "hiu",
       "building_level_distribution_losses": 1,
-      "is_heat_network": false
+      "is_heat_network": true,
+      "heat_network_type": "sleeved DHN",
+      "heat_network_reference": "heat_network",
+      "sub_heat_network_name": "default_connection"
     }
   },
   "SpaceHeatSystem": {

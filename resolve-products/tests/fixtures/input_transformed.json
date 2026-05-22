@@ -497,11 +497,20 @@
     },
     "HIU": {
       "type": "HIU",
-      "EnergySupply": "mains elec",
+      "EnergySupply": {
+        "name": "The Island of Sodor - default_connection",
+        "is_export_capable": false,
+        "factor": {
+          "Emissions Factor kgCO2e/kWh": 0.252,
+          "Emissions Factor kgCO2e/kWh including out-of-scope emissions": 0.252,
+          "Primary Energy Factor kWh/kWh delivered": 1.15
+        }
+      },
       "power_max": 52.87,
       "HIU_daily_loss": 1.0,
       "building_level_distribution_losses": 1,
-      "is_heat_network": false
+      "is_heat_network": true,
+      "heat_network_type": "sleeved DHN"
     }
   },
   "SpaceHeatSystem": {

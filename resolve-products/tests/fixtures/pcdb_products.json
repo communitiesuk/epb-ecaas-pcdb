@@ -1273,5 +1273,69 @@
         "id": 31
       }
     ]
+  },
+  "heat_network": {
+    "boosterHeatPump": false,
+    "brandName": "-",
+    "communityHeatNetworkName": "The Island of Sodor",
+    "communityHeatNetworkVersionNumber": 1,
+    "dataSource": 3,
+    "dbEntryUpdated": "Wed Apr 02 16:00:00 BST 2025",
+    "descriptionOfNetwork": "The Island of Sodor",
+    "heatSource1": "mains gas",
+    "heatSource2": "CHP (mains gas)",
+    "id": "heat_network",
+    "modelName": "",
+    "numberOfsubheatNetworks": 3,
+    "percentageOfHeat1": 44,
+    "percentageOfHeat2": 56,
+    "postcodeOfThePrimaryEnergyCentre": "SO1 1TT",
+    "productID": "heat_network",
+    "serviceProvision": 1,
+    "status": 0,
+    "technologyType": "HeatNetworks",
+    "testData": [
+      {
+        "productID": "heat_network",
+        "primaryEnergyFactorkWhkWhDelivered": 1.15,
+        "distributionLossFactor": 1.24,
+        "pumpingElectricalEnergyPerSubheatNetwork": 0,
+        "pumpingEnergyFactor": 0.016,
+        "id": 23,
+        "heatNetworkId": 3,
+        "subheatNetworkName": "default_connection",
+        "emissionsFactorkgCO2ekWh": 0.252,
+        "emissionsFactorkgCO2ekWhincludingOutOfScopeEmissions": 0.252,
+        "costOfHeat": 4.58
+      },
+      {
+        "productID": "heat_network",
+        "primaryEnergyFactorkWhkWhDelivered": 1.89,
+        "distributionLossFactor": 2.04,
+        "pumpingElectricalEnergyPerSubheatNetwork": 0,
+        "pumpingEnergyFactor": 0.032,
+        "id": 24,
+        "heatNetworkId": 3,
+        "subheatNetworkName": "Thomas's Shed",
+        "emissionsFactorkgCO2ekWh": 0.414,
+        "emissionsFactorkgCO2ekWhincludingOutOfScopeEmissions": 0.415,
+        "costOfHeat": 7.54
+      },
+      {
+        "productID": "heat_network",
+        "primaryEnergyFactorkWhkWhDelivered": 1.49,
+        "distributionLossFactor": 1.61,
+        "pumpingElectricalEnergyPerSubheatNetwork": 0,
+        "pumpingEnergyFactor": 0.025,
+        "id": 25,
+        "heatNetworkId": 3,
+        "subheatNetworkName": "Chez the Fat Controller",
+        "emissionsFactorkgCO2ekWh": 0.327,
+        "emissionsFactorkgCO2ekWhincludingOutOfScopeEmissions": 0.329,
+        "costOfHeat": 5.95
+      }
+    ],
+    "validityEndDate": "Thu Dec 24 16:00:00 BST 2027",
+    "year": 2025
   }
 }
