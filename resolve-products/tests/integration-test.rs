@@ -78,3 +78,20 @@ async fn test_input_with_unknown_product_refs() {
         ResolvePcdbProductsError::UnknownProductReference(_)
     ));
 }
+
+#[tokio::test]
+async fn test_input_with_invalid_json() {
+    let environment = common::setup().await;
+    let client = environment.dynamo_client();
+
+    let invalid_json = r#"{"name": "trailing comma",}"#;
+    let mut input_reader = Cursor::new(invalid_json);
+
+    let result = resolve_products::resolve_products(&mut input_reader, client).await;
+
+    assert!(result.is_err());
+    assert!(matches!(
+        result.unwrap_err(),
+        ResolvePcdbProductsError::InvalidJson
+    ));
+}
