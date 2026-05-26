@@ -219,3 +219,22 @@ async fn test_fuel_type_no_energy_supply_errors() {
         ResolvePcdbProductsError::NoEnergySupplyProvidedForFuelType(_)
     ));
 }
+
+#[tokio::test]
+async fn test_unknown_sub_heat_network_errors() {
+    let environment = common::setup().await;
+    let client = environment.dynamo_client();
+
+    let mut input: Value = from_str(INPUT_WITH_PRODUCT_REFS).unwrap();
+    input.as_object_mut().unwrap()["HeatSourceWet"]["HIU"]["sub_heat_network_name"] =
+        json!("nonsense");
+    let mut input_reader = Cursor::new(input.to_string());
+
+    let result = resolve_products::resolve_products(&mut input_reader, client).await;
+
+    assert!(result.is_err());
+    assert!(matches!(
+        result.unwrap_err(),
+        ResolvePcdbProductsError::SubHeatNetworkNotFoundError(_, _)
+    ));
+}
