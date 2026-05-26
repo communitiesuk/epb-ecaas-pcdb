@@ -166,9 +166,9 @@ async fn test_pcdb_product_missing_field_errors() {
     let client = environment.dynamo_client();
 
     let mut input: Value = from_str(INPUT_WITH_PRODUCT_REFS).unwrap();
-    // reference a PCDB HIU that's missing technology_type
+    // reference a PCDB HIU that's invalid due to missing technology_type field
     input.as_object_mut().unwrap()["HeatSourceWet"]["HIU"]["product_reference"] =
-        json!("invalid_hiu");
+        json!("hiu_missing_technology_type");
     let mut input_reader = Cursor::new(input.to_string());
 
     let result = resolve_products::resolve_products(&mut input_reader, client).await;
@@ -177,5 +177,25 @@ async fn test_pcdb_product_missing_field_errors() {
     assert!(matches!(
         result.unwrap_err(),
         ResolvePcdbProductsError::DeserializeError(_)
+    ));
+}
+
+#[tokio::test]
+async fn test_invalid_pcdb_product_errors() {
+    let environment = common::setup().await;
+    let client = environment.dynamo_client();
+
+    let mut input: Value = from_str(INPUT_WITH_PRODUCT_REFS).unwrap();
+    // reference a PCDB heat battery that's invalid due to missing test data
+    input.as_object_mut().unwrap()["HeatSourceWet"]["Heat battery dry core"]["product_reference"] =
+        json!("hb_dry_core_empty_test_data");
+    let mut input_reader = Cursor::new(input.to_string());
+
+    let result = resolve_products::resolve_products(&mut input_reader, client).await;
+
+    assert!(result.is_err());
+    assert!(matches!(
+        result.unwrap_err(),
+        ResolvePcdbProductsError::InvalidProduct(_, _)
     ));
 }

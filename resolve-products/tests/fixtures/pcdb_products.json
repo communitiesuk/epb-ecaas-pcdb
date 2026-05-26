@@ -1354,11 +1354,11 @@
     "finalYearOfManufacture": "current",
     "heatSource": "Main Heating System"
   },
-  "invalid_hiu": {
-    "id": "invalid_hiu",
+  "hiu_missing_technology_type": {
+    "id": "hiu_missing_technology_type",
     "powerCircPump": 0,
     "brandName": "HEM Default",
-    "productID": "invalid_hiu",
+    "productID": "hiu_missing_technology_type",
     "vwart70": 31.9,
     "dataType": "illustrative_conservative",
     "finalYearOfManufacture": "current",
@@ -1370,5 +1370,24 @@
     "maxPowerWater70": 75.34,
     "maxPowerWater55": 52.87,
     "vwart55": 36.3
+  },
+  "hb_dry_core_empty_test_data": {
+    "id": "hb_dry_core_empty_test_data",
+    "technologyType": "HeatBatteryDryCore",
+    "productID": "hb_dry_core_empty_test_data",
+    "type": "HeatBattery",
+    "batteryType": "dry_core",
+    "brandName": "Test brand name",
+    "modelName": "Test model name",
+    "electricityCircPump": 0,
+    "electricityStandby": 0.024,
+    "fanPwr": 11.0,
+    "finalYearOfManufacture": "current",
+    "fuel": "electricity",
+    "heatStorageCapacity": 20,
+    "pwrIn": 9,
+    "ratedPowerInstant": 2.5,
+    "setpointTempWater": 60,
+    "testData": []
   }
 }
