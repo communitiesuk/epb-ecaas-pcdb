@@ -64,7 +64,7 @@ async fn test_valid_input_succeeds(#[case] input: &str, #[case] expected_transfo
 }
 
 #[tokio::test]
-async fn test_input_with_unknown_product_refs_errors() {
+async fn test_unknown_product_ref_errors() {
     let environment = common::setup().await;
     let client = environment.dynamo_client();
 
@@ -82,7 +82,7 @@ async fn test_input_with_unknown_product_refs_errors() {
 }
 
 #[tokio::test]
-async fn test_input_with_invalid_json_errors() {
+async fn test_invalid_json_errors() {
     let environment = common::setup().await;
     let client = environment.dynamo_client();
 
@@ -99,7 +99,7 @@ async fn test_input_with_invalid_json_errors() {
 }
 
 #[tokio::test]
-async fn test_input_with_product_category_mismatches_errors() {
+async fn test_product_category_mismatch_errors() {
     let environment = common::setup().await;
     let client = environment.dynamo_client();
 
@@ -124,7 +124,7 @@ async fn test_input_with_product_category_mismatches_errors() {
 }
 
 #[tokio::test]
-async fn test_input_that_does_not_conform_to_combined_schema_errors() {
+async fn test_combined_schema_violation_errors() {
     let environment = common::setup().await;
     let client = environment.dynamo_client();
 
@@ -141,7 +141,7 @@ async fn test_input_that_does_not_conform_to_combined_schema_errors() {
 }
 
 #[tokio::test]
-async fn test_input_with_invalid_combination_errors() {
+async fn test_invalid_combination_errors() {
     let environment = common::setup().await;
     let client = environment.dynamo_client();
 
