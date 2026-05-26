@@ -1389,5 +1389,38 @@
     "ratedPowerInstant": 2.5,
     "setpointTempWater": 60,
     "testData": []
+  },
+  "esh_with_gas": {
+    "id": "esh_with_gas",
+    "technologyType": "StorageHeater",
+    "brandName": "Gabarron",
+    "testData": [
+      {
+        "dryCoreMinOutput": 0,
+        "productID": "esh_with_gas ",
+        "testPoint": 0,
+        "id": 287,
+        "dryCoreMaxOutput": 0,
+        "parentID": 12
+      }
+    ],
+    "storageCapacity": 20,
+    "fanPwr": 12,
+    "productID": "esh_with_gas ",
+    "ratedPowerInstant": 2.5,
+    "ratedPower": 2.2,
+    "airFlowType": "fan-assisted",
+    "fuel": "mains_gas",
+    "dataType": "listed_product",
+    "modelQualifier": "SOLARHHR40",
+    "finalYearOfManufacture": "current",
+    "firstYearOfManufacture": "2017",
+    "modelName": "SOLARHHR",
+    "heatRetention": 51,
+    "pwrIn": 3.7,
+    "fracConvective": 0.7,
+    "outputPower": 1.8,
+    "highHeatRetention": true,
+    "controlType": "HHRSH"
   }
 }

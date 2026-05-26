@@ -199,3 +199,23 @@ async fn test_invalid_pcdb_product_errors() {
         ResolvePcdbProductsError::InvalidProduct(_, _)
     ));
 }
+
+#[tokio::test]
+async fn test_fuel_type_no_energy_supply_errors() {
+    let environment = common::setup().await;
+    let client = environment.dynamo_client();
+
+    let mut input: Value = from_str(INPUT_WITH_PRODUCT_REFS).unwrap();
+    // reference a PCDB elec storage heater with fuel type mains gas (input has electricity energy supply only)
+    input.as_object_mut().unwrap()["SpaceHeatSystem"]["Elec Heater"]["product_reference"] =
+        json!("esh_with_gas");
+    let mut input_reader = Cursor::new(input.to_string());
+
+    let result = resolve_products::resolve_products(&mut input_reader, client).await;
+
+    assert!(result.is_err());
+    assert!(matches!(
+        result.unwrap_err(),
+        ResolvePcdbProductsError::NoEnergySupplyProvidedForFuelType(_)
+    ));
+}
