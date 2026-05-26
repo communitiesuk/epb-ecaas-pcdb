@@ -161,5 +161,21 @@ async fn test_input_with_invalid_combination_errors() {
 }
 
 #[tokio::test]
-#[ignore = "todo"]
-async fn test_input_referencing_invalid_pcdb_product_errors() {}
+async fn test_pcdb_product_missing_field_errors() {
+    let environment = common::setup().await;
+    let client = environment.dynamo_client();
+
+    let mut input: Value = from_str(INPUT_WITH_PRODUCT_REFS).unwrap();
+    // reference a PCDB HIU that's missing technology_type
+    input.as_object_mut().unwrap()["HeatSourceWet"]["HIU"]["product_reference"] =
+        json!("invalid_hiu");
+    let mut input_reader = Cursor::new(input.to_string());
+
+    let result = resolve_products::resolve_products(&mut input_reader, client).await;
+
+    assert!(result.is_err());
+    assert!(matches!(
+        result.unwrap_err(),
+        ResolvePcdbProductsError::DeserializeError(_)
+    ));
+}

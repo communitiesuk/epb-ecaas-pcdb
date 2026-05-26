@@ -1353,5 +1353,22 @@
     "tempUsable": 40,
     "finalYearOfManufacture": "current",
     "heatSource": "Main Heating System"
+  },
+  "invalid_hiu": {
+    "id": "invalid_hiu",
+    "powerCircPump": 0,
+    "brandName": "HEM Default",
+    "productID": "invalid_hiu",
+    "vwart70": 31.9,
+    "dataType": "illustrative_conservative",
+    "finalYearOfManufacture": "current",
+    "type": 1,
+    "hiuDailyLoss": 1,
+    "powerAux": 0.0792,
+    "firstYearOfManufacture": "2025",
+    "modelName": "Heat interface Unit",
+    "maxPowerWater70": 75.34,
+    "maxPowerWater55": 52.87,
+    "vwart55": 36.3
   }
 }
