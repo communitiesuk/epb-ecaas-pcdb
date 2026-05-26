@@ -141,8 +141,24 @@ async fn test_input_that_does_not_conform_to_combined_schema_errors() {
 }
 
 #[tokio::test]
-#[ignore = "todo"]
-async fn test_input_with_invalid_combination_errors() {}
+async fn test_input_with_invalid_combination_errors() {
+    let environment = common::setup().await;
+    let client = environment.dynamo_client();
+
+    // smart hot water tank product must have a heat_exchanger_surface_area when its heat source is a heat pump hot water only
+    let mut input: Value = from_str(INPUT_WITH_PRODUCT_REFS).unwrap();
+    input.as_object_mut().unwrap()["HotWaterSource"]["hw cylinder"]["product_reference"] =
+        json!("smart_tank_no_heat_exchanger_area");
+    let mut input_reader = Cursor::new(input.to_string());
+
+    let result = resolve_products::resolve_products(&mut input_reader, client).await;
+
+    assert!(result.is_err());
+    assert!(matches!(
+        result.unwrap_err(),
+        ResolvePcdbProductsError::InvalidCombination(_)
+    ));
+}
 
 #[tokio::test]
 #[ignore = "todo"]
