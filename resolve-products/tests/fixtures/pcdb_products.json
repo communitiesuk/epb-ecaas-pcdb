@@ -1422,5 +1422,29 @@
     "outputPower": 1.8,
     "highHeatRetention": true,
     "controlType": "HHRSH"
+  },
+  "heat_network_requiring_hp": {
+    "boosterHeatPump": true,
+    "brandName": "-",
+    "communityHeatNetworkName": "The Island of Sodor",
+    "communityHeatNetworkVersionNumber": 1,
+    "dataSource": 3,
+    "dbEntryUpdated": "Wed Apr 02 16:00:00 BST 2025",
+    "descriptionOfNetwork": "The Island of Sodor",
+    "heatSource1": "mains gas",
+    "heatSource2": "CHP (mains gas)",
+    "id": "heat_network_requiring_hp",
+    "modelName": "",
+    "numberOfsubheatNetworks": 3,
+    "percentageOfHeat1": 44,
+    "percentageOfHeat2": 56,
+    "postcodeOfThePrimaryEnergyCentre": "SO1 1TT",
+    "productID": "heat_network_requiring_hp",
+    "serviceProvision": 1,
+    "status": 0,
+    "technologyType": "HeatNetworks",
+    "testData": [],
+    "validityEndDate": "Thu Dec 24 16:00:00 BST 2027",
+    "year": 2025
   }
 }

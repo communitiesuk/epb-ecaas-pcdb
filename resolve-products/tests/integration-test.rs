@@ -104,7 +104,7 @@ async fn test_product_category_mismatch_errors() {
     let client = environment.dynamo_client();
 
     let mut input: Value = from_str(INPUT_WITH_PRODUCT_REFS).unwrap();
-    input.as_object_mut().unwrap()["HotWaterSource"]["hw cylinder"]["HeatSource"] = json!({
+    input["HotWaterSource"]["hw cylinder"]["HeatSource"] = json!({
         "hw only hp": {
             "type": "HeatPump_HWOnly",
             "heater_position": 0.1,
@@ -147,7 +147,7 @@ async fn test_invalid_combination_errors() {
 
     // smart hot water tank product must have a heat_exchanger_surface_area when its heat source is a heat pump hot water only
     let mut input: Value = from_str(INPUT_WITH_PRODUCT_REFS).unwrap();
-    input.as_object_mut().unwrap()["HotWaterSource"]["hw cylinder"]["product_reference"] =
+    input["HotWaterSource"]["hw cylinder"]["product_reference"] =
         json!("smart_tank_no_heat_exchanger_area");
     let mut input_reader = Cursor::new(input.to_string());
 
@@ -167,8 +167,7 @@ async fn test_pcdb_product_missing_field_errors() {
 
     let mut input: Value = from_str(INPUT_WITH_PRODUCT_REFS).unwrap();
     // reference a PCDB HIU that's invalid due to missing technology_type field
-    input.as_object_mut().unwrap()["HeatSourceWet"]["HIU"]["product_reference"] =
-        json!("hiu_missing_technology_type");
+    input["HeatSourceWet"]["HIU"]["product_reference"] = json!("hiu_missing_technology_type");
     let mut input_reader = Cursor::new(input.to_string());
 
     let result = resolve_products::resolve_products(&mut input_reader, client).await;
@@ -187,7 +186,7 @@ async fn test_invalid_pcdb_product_errors() {
 
     let mut input: Value = from_str(INPUT_WITH_PRODUCT_REFS).unwrap();
     // reference a PCDB heat battery that's invalid due to missing test data
-    input.as_object_mut().unwrap()["HeatSourceWet"]["Heat battery dry core"]["product_reference"] =
+    input["HeatSourceWet"]["Heat battery dry core"]["product_reference"] =
         json!("hb_dry_core_empty_test_data");
     let mut input_reader = Cursor::new(input.to_string());
 
@@ -207,8 +206,7 @@ async fn test_fuel_type_no_energy_supply_errors() {
 
     let mut input: Value = from_str(INPUT_WITH_PRODUCT_REFS).unwrap();
     // reference a PCDB elec storage heater with fuel type mains gas (input has electricity energy supply only)
-    input.as_object_mut().unwrap()["SpaceHeatSystem"]["Elec Heater"]["product_reference"] =
-        json!("esh_with_gas");
+    input["SpaceHeatSystem"]["Elec Heater"]["product_reference"] = json!("esh_with_gas");
     let mut input_reader = Cursor::new(input.to_string());
 
     let result = resolve_products::resolve_products(&mut input_reader, client).await;
@@ -226,8 +224,7 @@ async fn test_unknown_sub_heat_network_errors() {
     let client = environment.dynamo_client();
 
     let mut input: Value = from_str(INPUT_WITH_PRODUCT_REFS).unwrap();
-    input.as_object_mut().unwrap()["HeatSourceWet"]["HIU"]["sub_heat_network_name"] =
-        json!("nonsense");
+    input["HeatSourceWet"]["HIU"]["sub_heat_network_name"] = json!("nonsense");
     let mut input_reader = Cursor::new(input.to_string());
 
     let result = resolve_products::resolve_products(&mut input_reader, client).await;
@@ -236,5 +233,26 @@ async fn test_unknown_sub_heat_network_errors() {
     assert!(matches!(
         result.unwrap_err(),
         ResolvePcdbProductsError::SubHeatNetworkNotFoundError(_, _)
+    ));
+}
+
+#[tokio::test]
+async fn test_missing_heat_pump_for_heat_network_errors() {
+    let environment = common::setup().await;
+    let client = environment.dynamo_client();
+
+    let mut input: Value = from_str(INPUT_WITH_PRODUCT_REFS).unwrap();
+    // remove heat pump from input and reference PCDB heat network with booster_heat_pump: true
+    let heat_source_wet = input["HeatSourceWet"].as_object_mut().unwrap();
+    heat_source_wet["HIU"]["heat_network_reference"] = json!("heat_network_requiring_hp");
+    heat_source_wet.remove("Heat pump");
+    let mut input_reader = Cursor::new(input.to_string());
+
+    let result = resolve_products::resolve_products(&mut input_reader, client).await;
+
+    assert!(result.is_err());
+    assert!(matches!(
+        result.unwrap_err(),
+        ResolvePcdbProductsError::BoosterHeatPumpNotPresentError
     ));
 }
