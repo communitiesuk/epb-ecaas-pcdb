@@ -25,7 +25,7 @@ async fn validate_against_target_schema(input: &Value) -> Result<(), ValidationE
 #[rstest]
 #[case(include_str!("fixtures/demo_fhs.json"), include_str!("fixtures/demo_fhs.json"))]
 #[case(INPUT_WITH_PRODUCT_REFS, include_str!("fixtures/input_transformed.json"))]
-async fn test_valid_input(#[case] input: &str, #[case] expected_transformed: &str) {
+async fn test_valid_input_succeeds(#[case] input: &str, #[case] expected_transformed: &str) {
     let environment = common::setup().await;
     let client = environment.dynamo_client();
 
@@ -64,7 +64,7 @@ async fn test_valid_input(#[case] input: &str, #[case] expected_transformed: &st
 }
 
 #[tokio::test]
-async fn test_input_with_unknown_product_refs() {
+async fn test_input_with_unknown_product_refs_errors() {
     let environment = common::setup().await;
     let client = environment.dynamo_client();
 
@@ -82,7 +82,7 @@ async fn test_input_with_unknown_product_refs() {
 }
 
 #[tokio::test]
-async fn test_input_with_invalid_json() {
+async fn test_input_with_invalid_json_errors() {
     let environment = common::setup().await;
     let client = environment.dynamo_client();
 
@@ -99,7 +99,7 @@ async fn test_input_with_invalid_json() {
 }
 
 #[tokio::test]
-async fn test_input_with_product_category_mismatches() {
+async fn test_input_with_product_category_mismatches_errors() {
     let environment = common::setup().await;
     let client = environment.dynamo_client();
 
@@ -124,7 +124,7 @@ async fn test_input_with_product_category_mismatches() {
 }
 
 #[tokio::test]
-async fn test_input_that_does_not_conform_to_combined_schema() {
+async fn test_input_that_does_not_conform_to_combined_schema_errors() {
     let environment = common::setup().await;
     let client = environment.dynamo_client();
 
@@ -139,3 +139,11 @@ async fn test_input_that_does_not_conform_to_combined_schema() {
         ResolvePcdbProductsError::InvalidRequest(_)
     ));
 }
+
+#[tokio::test]
+#[ignore = "todo"]
+async fn test_input_with_invalid_combination_errors() {}
+
+#[tokio::test]
+#[ignore = "todo"]
+async fn test_input_referencing_invalid_pcdb_product_errors() {}
