@@ -755,11 +755,6 @@
     "data": [
       {
         "inUseFactorMismatch": 0.95,
-        "vesselType": "Integral",
-        "id": 1
-      },
-      {
-        "inUseFactorMismatch": 0.95,
         "vesselType": "Separate fixed characteristics",
         "id": 2
       },
@@ -1446,5 +1441,52 @@
     "testData": [],
     "validityEndDate": "Thu Dec 24 16:00:00 BST 2027",
     "year": 2025
+  },
+  "hp_hw_only_unknown_vessel_type": {
+    "id": "hp_hw_only_unknown_vessel_type",
+    "technologyType": "HotWaterOnlyHeatPump",
+    "brandName": "TEST",
+    "heatExchangerSurfaceAreaDeclared": 0.67,
+    "testData": [
+      {
+        "copDhw": 1.0,
+        "usefulHeat": 1.0,
+        "hwTappingProfDailyTotal": 1.0,
+        "productID": "hp_hw_only_unknown_vessel_type",
+        "electricalConsumption": 1.0,
+        "tappingProfile": "M",
+        "powerStandby": 1.0,
+        "id": 1,
+        "energyInputMeasured": 1.0,
+        "parentID": 4
+      },
+      {
+        "copDhw": 1.0,
+        "usefulHeat": 1.0,
+        "hwTappingProfDailyTotal": 1.0,
+        "productID": "hp_hw_only_unknown_vessel_type",
+        "electricalConsumption": 1.0,
+        "tappingProfile": "L",
+        "powerStandby": 1.0,
+        "id": 2,
+        "energyInputMeasured": 1.0,
+        "parentID": 4
+      }
+    ],
+    "productID": "hp_hw_only_unknown_vessel_type",
+    "dailyLossesDeclared": 2.22,
+    "fuel": "electricity",
+    "dataType": "listed_product",
+    "modelQualifier": "62070005",
+    "sourceType": "ExhaustAirMEV",
+    "finalYearOfManufacture": "current",
+    "type": "HeatPump_HWOnly",
+    "powerMax": 3,
+    "firstYearOfManufacture": "2016",
+    "modelName": "Modul-AIR Aqua",
+    "vesselType": "Integral",
+    "testVesselVolume": 200,
+    "tankVolumeDeclared": 100,
+    "hwVesselLossDaily": 1.0
   }
 }

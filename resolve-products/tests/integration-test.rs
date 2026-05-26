@@ -256,3 +256,22 @@ async fn test_missing_heat_pump_for_heat_network_errors() {
         ResolvePcdbProductsError::BoosterHeatPumpNotPresentError
     ));
 }
+
+#[tokio::test]
+async fn test_vessel_type_missing_from_factors_errors() {
+    let environment = common::setup().await;
+    let client = environment.dynamo_client();
+
+    let mut input: Value = from_str(INPUT_WITH_PRODUCT_REFS).unwrap();
+    input["HotWaterSource"]["hw cylinder"]["HeatSource"]["hw only hp"]["product_reference"] =
+        json!("hp_hw_only_unknown_vessel_type");
+    let mut input_reader = Cursor::new(input.to_string());
+
+    let result = resolve_products::resolve_products(&mut input_reader, client).await;
+
+    assert!(result.is_err());
+    assert!(matches!(
+        result.unwrap_err(),
+        ResolvePcdbProductsError::InUseFactorEntryMissingError
+    ));
+}
