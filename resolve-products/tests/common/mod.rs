@@ -1,3 +1,5 @@
+#![allow(clippy::await_holding_lock)]
+
 // set up shared utilities
 use aws_config::BehaviorVersion;
 use aws_sdk_dynamodb::config::Credentials;
