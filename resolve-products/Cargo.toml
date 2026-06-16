@@ -5,7 +5,7 @@ edition = "2024"
 rust-version = "1.85.0"
 
 [dependencies]
-aws-config = { version = "1.8.16", features = ["behavior-version-latest"], optional = true }
+aws-config = { version = "1.8.17", features = ["behavior-version-latest"], optional = true }
 aws-sdk-dynamodb = "1.111.0"
 clap = { version = "4.6.1", features = ["derive"], optional = true }
 indexmap = "2.14.0"
@@ -29,7 +29,7 @@ default = []
 cli = ["dep:clap"]
 
 [dev-dependencies]
-aws-config = { version = "1.8.14", features = ["behavior-version-latest"] }
+aws-config = { version = "1.8.17", features = ["behavior-version-latest"] }
 parking_lot = "0.12.5"
 rstest = "0.26.1"
 testcontainers-modules = { version = "0.15.0", features = ["dynamodb"] }
