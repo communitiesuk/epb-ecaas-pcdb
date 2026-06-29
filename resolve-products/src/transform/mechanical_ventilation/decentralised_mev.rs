@@ -43,7 +43,6 @@ pub(crate) async fn transform(
 
         let expected_configuration = match installation_type {
             "in_ceiling" => Ok(DecentralisedMevInstallationConfiguration::InCeiling),
-            "in_duct" => Ok(DecentralisedMevInstallationConfiguration::InDuct),
             "through_wall" => Ok(DecentralisedMevInstallationConfiguration::ThroughWall),
             _ => Err(
                 ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck(
@@ -154,8 +153,6 @@ mod tests {
     #[rstest]
     #[case::in_ceiling_kitchen("decentralisedMev", "in_ceiling", "kitchen")]
     #[case::in_ceiling_other("decentralisedMevInCeilingOther", "in_ceiling", "other_wet_room")]
-    #[case::in_duct_kitchen("decentralisedMevInDuctKitchen", "in_duct", "kitchen")]
-    #[case::in_duct_other("decentralisedMevInDuctOther", "in_duct", "other_wet_room")]
     #[case::through_wall_kitchen("decentralisedMevThroughWallKitchen", "through_wall", "kitchen")]
     #[case::through_wall_other(
         "decentralisedMevThroughWallOther",

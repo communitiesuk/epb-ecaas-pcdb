@@ -476,7 +476,6 @@ pub(crate) struct DecentralisedMevTestDatum {
 #[repr(u8)]
 pub(crate) enum DecentralisedMevInstallationConfiguration {
     InCeiling = 1,
-    InDuct = 2,
     ThroughWall = 3,
 }
 
