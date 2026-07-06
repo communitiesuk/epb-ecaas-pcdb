@@ -932,6 +932,66 @@
         "flowRate": 16,
         "sfp": 0.6,
         "parentID": 2
+      },
+      {
+        "id": 1,
+        "productID": "centralised_mev",
+        "configuration": 1,
+        "ductType": 2,
+        "ductSize": 2,
+        "flowRate": 1,
+        "sfp": 0.11,
+        "parentID": 2
+      },
+      {
+        "id": 2,
+        "productID": "centralised_mev",
+        "configuration": 2,
+        "ductType": 2,
+        "ductSize": 2,
+        "flowRate": 2,
+        "sfp": 0.22,
+        "parentID": 2
+      },
+      {
+        "id": 3,
+        "productID": "centralised_mev",
+        "configuration": 3,
+        "ductType": 2,
+        "ductSize": 2,
+        "flowRate": 3,
+        "sfp": 0.33,
+        "parentID": 2
+      },
+      {
+        "id": 4,
+        "productID": "centralised_mev",
+        "configuration": 4,
+        "ductType": 2,
+        "ductSize": 2,
+        "flowRate": 4,
+        "sfp": 0.43,
+        "parentID": 2
+      },
+      {
+        "id": 5,
+        "productID": "centralised_mev",
+        "configuration": 5,
+        "ductType": 2,
+        "ductSize": 2,
+        "flowRate": 5,
+        "sfp": 0.53,
+        "parentID": 2
+      },
+      {
+        "id": 6,
+        "productID": "centralised_mev",
+        "configuration": 6,
+        "ductType": 2,
+        "ductSize": 2,
+        "flowRate": 6,
+        "sfp": 0.63,
+        "parentID": 2
       }
     ],
     "integralOnly": 0

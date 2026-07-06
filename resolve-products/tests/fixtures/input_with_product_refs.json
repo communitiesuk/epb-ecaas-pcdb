@@ -55,7 +55,8 @@
         "mid_height_air_flow_path": 1.5,
         "orientation360": 90,
         "pitch": 60,
-        "installed_under_approved_scheme": true
+        "installed_under_approved_scheme": true,
+        "indicated_duct_size": "125mm_or_larger"
       },
       "dMEV": {
         "product_reference": "decentralised_mev",

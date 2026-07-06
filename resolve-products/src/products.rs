@@ -422,7 +422,7 @@ pub(crate) struct FanCoilTestDatum {
     pub(crate) fan_power_w: Decimal,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct CentralisedMevTestDatum {
     /// Whether tested using flexible, rigid ducting or semi-rigid, coded as 1,2 and 3 respectively. Semi-rigid have the same in use factors as rigid.
@@ -431,6 +431,7 @@ pub(crate) struct CentralisedMevTestDatum {
     pub(crate) configuration: usize,
     /// Specific fan power in watts per (litre per second)
     pub(crate) sfp: Decimal,
+    pub(crate) duct_size: usize,
 }
 
 #[derive(Debug, Deserialize)]
@@ -446,7 +447,7 @@ pub(crate) struct CentralisedMvhrTestDatum {
     pub(crate) mvhr_eff: Decimal,
 }
 
-#[derive(Debug, Deserialize_repr, PartialEq)]
+#[derive(Debug, Deserialize_repr, PartialEq, Clone)]
 #[repr(u8)]
 pub(crate) enum MechanicalVentilationDuctType {
     Flexible = 1,

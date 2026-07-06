@@ -14,6 +14,30 @@ pub(crate) async fn transform(
     in_use_factors_access: &impl InUseFactorsAccess,
 ) -> ResolveProductsResult<()> {
     if let Technology::CentralisedMev { test_data, .. } = &product.technology {
+        let has_both_duct_sizes = test_data.iter().any(|datum| datum.duct_size == 1)
+            && test_data.iter().any(|datum| datum.duct_size == 2);
+        let test_data = if has_both_duct_sizes {
+            let indicated_duct_size = mech_vent
+                .get("indicated_duct_size")
+                .and_then(JsonValue::as_str)
+                .ok_or_else(|| {
+                    ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck(
+                        "Centralised MeV input was expected to have an 'indicated_duct_size' field",
+                    )
+                })?;
+            let duct_size = match indicated_duct_size {
+                "125mm_or_larger" => 1,
+                "smaller_than_125mm" => 2,
+                _ => unreachable!(),
+            };
+            &test_data
+                .iter()
+                .filter(|datum| datum.duct_size == duct_size)
+                .cloned()
+                .collect()
+        } else {
+            test_data
+        };
         let test_data_matching_number_of_wet_rooms: Vec<_> = test_data
             .iter()
             .filter(|a| a.configuration == number_of_wetrooms - 1) // configuration excludes kitchen, number_of_wetrooms includes it
@@ -55,6 +79,7 @@ pub(crate) async fn transform(
             json!(sfp_in_use_factor.as_f64()),
         );
 
+        mech_vent.remove("indicated_duct_size");
         mech_vent.remove("installed_under_approved_scheme");
         mech_vent.remove(PRODUCT_REFERENCE_FIELD);
     }
@@ -177,11 +202,13 @@ mod tests {
 
     #[tokio::test]
     #[rstest]
-    async fn test_transform_decentralised_mev_errors_given_ambiguous_configuration_from_pcdb(
+    async fn test_transform_centralised_mev_errors_given_ambiguous_configuration_from_pcdb(
         pcdb_products: HashMap<String, Product>,
         in_use_factor_access: impl InUseFactorsAccess,
     ) {
         let product_reference = "centralisedMevWithTwoEntriesForTheSameConfiguration";
+        // input doesn't have indicated_duct_size field which is required when pcdb product has test
+        // data for both duct size 1 and duct size 2
         let mut mev_input = centralised_mev_input(product_reference);
         let pcdb_mev = pcdb_products.get(product_reference).unwrap();
 
@@ -189,10 +216,45 @@ mod tests {
             mev_input.as_object_mut().unwrap(),
             pcdb_mev,
             product_reference,
-            1,
+            2,
             &in_use_factor_access,
         )
         .await;
-        assert!(result.is_err());
+
+        assert!(matches!(
+            result.unwrap_err(),
+            ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck(_)
+        ));
+    }
+
+    #[tokio::test]
+    #[rstest]
+    async fn test_transform_centralised_mev_with_both_duct_sizes_and_deciding_field_provided(
+        pcdb_products: HashMap<String, Product>,
+        in_use_factor_access: impl InUseFactorsAccess,
+    ) {
+        let product_reference = "centralisedMevWithTwoEntriesForTheSameConfiguration";
+        let mut mev_input = centralised_mev_input(product_reference);
+        if let Some(obj) = mev_input.as_object_mut() {
+            obj.insert(
+                "indicated_duct_size".to_string(),
+                Value::from("smaller_than_125mm"),
+            );
+        }
+        let pcdb_mev = pcdb_products.get(product_reference).unwrap();
+
+        let result = transform(
+            mev_input.as_object_mut().unwrap(),
+            pcdb_mev,
+            product_reference,
+            2,
+            &in_use_factor_access,
+        )
+        .await;
+
+        assert!(result.is_ok());
+
+        let expected_input = expected_transformed_mech_vent_input(product_reference);
+        transformed_input_matches_expected(&mev_input, expected_input);
     }
 }
