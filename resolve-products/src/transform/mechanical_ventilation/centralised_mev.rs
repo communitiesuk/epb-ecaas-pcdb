@@ -26,10 +26,14 @@ pub(crate) async fn transform(
                     )
                 })?;
             let duct_size = match indicated_duct_size {
-                "125mm_or_larger" => 1,
-                "smaller_than_125mm" => 2,
-                _ => unreachable!(),
-            };
+                "125mm_or_larger" => Ok(1),
+                "smaller_than_125mm" => Ok(2),
+                _ => Err(
+                    ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck(
+                        "Centralised Mev field 'indicated_duct_size' was expected to be a known value",
+                    ),
+                ),
+            }?;
             &test_data
                 .iter()
                 .filter(|datum| datum.duct_size == duct_size)
