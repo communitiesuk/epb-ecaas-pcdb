@@ -1,6 +1,7 @@
 pub mod centralised_mev;
 pub mod centralised_mvhr;
 pub mod decentralised_mev;
+pub mod centralised_mv;
 
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
@@ -8,7 +9,7 @@ use crate::in_use_factors::{
     InUseFactorsAccess, MVInUseFactorEntry, MechanicalVentilationSystemType,
 };
 use crate::products::{
-    MechanicalVentilationDuctType, MechanicalVentilationInstallationType, Product,
+    MechanicalVentilationDuctType, MechanicalVentilationInstallationType, Product, Technology,
 };
 use crate::transform::{ResolveProductsResult, product_reference_from_json_object};
 use rust_decimal::Decimal;
@@ -77,14 +78,29 @@ pub async fn transform(
                         let product_reference =
                             product_reference_from_json_object(mech_vent_object)?;
 
-                        centralised_mvhr::transform(
-                            mech_vent_object,
-                            &products[&product_reference],
-                            &product_reference,
-                            number_of_wetrooms as usize,
-                            in_use_factors_access,
-                        )
+                        let product =   &products[&product_reference];
+
+                        if let Technology::CentralisedMvhr { .. } = &product.technology {
+                             centralised_mvhr::transform(
+                                mech_vent_object,
+                                product,
+                                &product_reference,
+                                number_of_wetrooms as usize,
+                                in_use_factors_access,
+                            )
                         .await?
+                        }
+
+                        if let Technology::CentralisedMv { .. } = &product.technology {
+                             centralised_mv::transform(
+                                mech_vent_object,
+                                product,
+                                &product_reference,
+                                number_of_wetrooms as usize,
+                                in_use_factors_access,
+                            )
+                        .await?
+                        }
                     }
                     _ => {}
                 }
@@ -199,6 +215,25 @@ mod tests {
                             "orientation360": 90,
                             "pitch": 60
                         }
+                    },
+                    "centralisedMv": {
+                        "vent_type": "MVHR",
+                        "EnergySupply": "mains elec",
+                        "product_reference": "centralisedMv",
+                        "design_outdoor_air_flow_rate": 80,
+                        "installed_under_approved_scheme": true,
+                        "mvhr_location": "inside",
+                        "ductwork": [],
+                        "position_intake": {
+                            "mid_height_air_flow_path": 1.5,
+                            "orientation360": 90,
+                            "pitch": 60
+                        },
+                        "position_exhaust": {
+                            "mid_height_air_flow_path": 1.6,
+                            "orientation360": 90,
+                            "pitch": 60
+                        }
                     }
                 }
             }
@@ -223,6 +258,7 @@ mod tests {
             "/InfiltrationVentilation/MechanicalVentilation/decentralisedMev",
             "/InfiltrationVentilation/MechanicalVentilation/centralisedMev",
             "/InfiltrationVentilation/MechanicalVentilation/centralisedMvhr",
+            "/InfiltrationVentilation/MechanicalVentilation/centralisedMv",
         ];
 
         for pointer in pointers {

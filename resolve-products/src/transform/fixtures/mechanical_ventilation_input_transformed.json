@@ -191,6 +191,87 @@
       "measured_air_flow_rate": 3.0,
       "mvhr_eff": 0.3,
       "SFP_in_use_factor": 1.25
+    },
+    "centralisedMv": {
+      "vent_type": "MVHR",
+      "EnergySupply": "mains elec",
+      "design_outdoor_air_flow_rate": 80,
+      "mvhr_location": "inside",
+      "ductwork": [],
+      "position_intake": {
+        "mid_height_air_flow_path": 1.5,
+        "orientation360": 90,
+        "pitch": 60
+      },
+      "position_exhaust": {
+        "mid_height_air_flow_path": 1.6,
+        "orientation360": 90,
+        "pitch": 60
+      },
+      "mvhr_eff": 0,
+      "SFP": 0.11,
+      "SFP_in_use_factor": 1.25
+    },
+    "centralisedMv3WetRooms": {
+      "vent_type": "MVHR",
+      "EnergySupply": "mains elec",
+      "design_outdoor_air_flow_rate": 80,
+      "mvhr_location": "inside",
+      "ductwork": [],
+      "position_intake": {
+        "mid_height_air_flow_path": 1.5,
+        "orientation360": 90,
+        "pitch": 60
+      },
+      "position_exhaust": {
+        "mid_height_air_flow_path": 1.6,
+        "orientation360": 90,
+        "pitch": 60
+      },
+      "mvhr_eff": 0,
+      "SFP": 0.22,
+      "SFP_in_use_factor": 1.25
+    },
+    "centralisedMv7WetRooms": {
+      "vent_type": "MVHR",
+      "EnergySupply": "mains elec",
+      "design_outdoor_air_flow_rate": 80,
+      "mvhr_location": "inside",
+      "ductwork": [],
+      "position_intake": {
+        "mid_height_air_flow_path": 1.5,
+        "orientation360": 90,
+        "pitch": 60
+      },
+      "position_exhaust": {
+        "mid_height_air_flow_path": 1.6,
+        "orientation360": 90,
+        "pitch": 60
+      },
+      "mvhr_eff": 0,
+      "SFP": 0.66,
+      "SFP_in_use_factor": 1.25
+    },
+    "centralisedMvWithMeasuredFanPowerAndAirFlowRate": {
+      "vent_type": "MVHR",
+      "EnergySupply": "mains elec",
+      "design_outdoor_air_flow_rate": 80,
+      "mvhr_location": "inside",
+      "ductwork": [],
+      "position_intake": {
+        "mid_height_air_flow_path": 1.5,
+        "orientation360": 90,
+        "pitch": 60
+      },
+      "position_exhaust": {
+        "mid_height_air_flow_path": 1.6,
+        "orientation360": 90,
+        "pitch": 60
+      },
+      "measured_fan_power": 2.0,
+      "measured_air_flow_rate": 3.0,
+      "mvhr_eff": 0,
+      "SFP_in_use_factor": 1.25
     }
   }
 }

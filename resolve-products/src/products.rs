@@ -224,6 +224,11 @@ pub(crate) enum Technology {
         #[serde(rename = "testData")]
         test_data: Vec<DecentralisedMevTestDatum>,
     },
+    #[serde(alias = "CentralisedMv")]
+    CentralisedMv {
+        #[serde(rename = "testData")]
+        test_data: Vec<CentralisedMvTestDatum>,
+    },
     #[serde(alias = "SmartHotWaterTank")]
     SmartHotWaterTank {
         /// Usable temperature (unit: degree Celsius)
@@ -445,6 +450,17 @@ pub(crate) struct CentralisedMvhrTestDatum {
     pub(crate) sfp: Decimal,
     /// Heat exchanger efficiency
     pub(crate) mvhr_eff: Decimal,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct CentralisedMvTestDatum {
+    /// Whether tested using flexible, rigid ducting or semi-rigid, coded as 1,2 and 3 respectively. Semi-rigid have the same in use factors as rigid.
+    pub(crate) duct_type: MechanicalVentilationDuctType,
+    /// Number of additional wet rooms (i.e. in addition to the kitchen)
+    pub(crate) configuration: usize,
+    /// Specific fan power in watts per (litre per second)
+    pub(crate) sfp: Decimal,
 }
 
 #[derive(Debug, Deserialize_repr, PartialEq, Clone)]
