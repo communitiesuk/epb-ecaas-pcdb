@@ -190,7 +190,7 @@ mod tests {
 
     #[tokio::test]
     #[rstest]
-    async fn test_transform_decentralised_mv_errors_given_ambiguous_configuration_from_pcdb(
+    async fn test_transform_centralised_mv_errors_given_ambiguous_configuration_from_pcdb(
         pcdb_products: HashMap<String, Product>,
         in_use_factor_access: impl InUseFactorsAccess,
     ) {
