@@ -1,7 +1,7 @@
 pub mod centralised_mev;
+pub mod centralised_mv;
 pub mod centralised_mvhr;
 pub mod decentralised_mev;
-pub mod centralised_mv;
 
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
@@ -78,28 +78,28 @@ pub async fn transform(
                         let product_reference =
                             product_reference_from_json_object(mech_vent_object)?;
 
-                        let product =   &products[&product_reference];
+                        let product = &products[&product_reference];
 
                         if let Technology::CentralisedMvhr { .. } = &product.technology {
-                             centralised_mvhr::transform(
+                            centralised_mvhr::transform(
                                 mech_vent_object,
                                 product,
                                 &product_reference,
                                 number_of_wetrooms as usize,
                                 in_use_factors_access,
                             )
-                        .await?
+                            .await?
                         }
 
                         if let Technology::CentralisedMv { .. } = &product.technology {
-                             centralised_mv::transform(
+                            centralised_mv::transform(
                                 mech_vent_object,
                                 product,
                                 &product_reference,
                                 number_of_wetrooms as usize,
                                 in_use_factors_access,
                             )
-                        .await?
+                            .await?
                         }
                     }
                     _ => {}
