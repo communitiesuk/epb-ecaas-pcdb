@@ -42,6 +42,7 @@ pub(crate) async fn transform(
             mech_vent.insert("SFP".into(), test_datum.sfp.as_f64().into());
         }
 
+        // Centralised MV is sent in request as a Centralised MVHR, but we need to give it a zero MVHR efficiency as it has no heat recovery
         mech_vent.insert("mvhr_eff".into(), json!(0));
 
         let duct_type = &test_datum.duct_type;
