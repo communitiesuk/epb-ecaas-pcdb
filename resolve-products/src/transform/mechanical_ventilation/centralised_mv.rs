@@ -196,7 +196,7 @@ mod tests {
     ) {
         let product_reference = "centralisedMvWithTwoEntriesForTheSameConfiguration";
         let mut mv_input = centralised_mv_input(product_reference);
-        let pcdb_mv = pcdb_products.get(product_reference).expect(&format!("Expected test PCDB product with product reference {product_reference}"));
+        let pcdb_mv = pcdb_products.get(product_reference).unwrap_or_else(|| panic!("Expected test PCDB product with product reference {product_reference}"));
 
         let result = transform(
             mv_input.as_object_mut().unwrap(),
