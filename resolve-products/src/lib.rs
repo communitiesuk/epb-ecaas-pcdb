@@ -68,7 +68,7 @@ fn extract_product_references(json: &JsonValue) -> ResolveProductsResult<Vec<Str
     instances
         .into_iter()
         .map(|v| -> ResolveProductsResult<String> {
-            match v.val() {
+            match v.val {
                 JsonValue::String(value) => Ok(String::from(value)),
                 value => Err(ResolvePcdbProductsError::InvalidProductCategoryReference(
                     value.to_owned(),
