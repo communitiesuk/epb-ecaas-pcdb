@@ -1,11 +1,11 @@
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{
-    HeatPumpBackupControlType, HeatPumpTestDatum, HeatPumpTestLetter, Product, ProductCatalogue,
-    Technology, find_product_for_reference,
+    HeatPumpBackupControlType, HeatPumpExhaustAirMixedFields, HeatPumpSourceType,
+    HeatPumpTestDatum, HeatPumpTestDatumExhaustAirMixedFields, HeatPumpTestLetter, Product,
+    ProductCatalogue, Technology, find_product_for_reference,
 };
 use crate::transform::{EnergySupplies, InvalidProductCategoryError, ResolveProductsResult};
-use itertools::Itertools;
 use rust_decimal::prelude::ToPrimitive;
 use serde_json::{Map, Value as JsonValue, json};
 
@@ -37,6 +37,7 @@ pub async fn transform(
         ref test_data,
         variable_temp_control,
         ref boiler_product_id,
+        exhaust_air_mixed_fields,
         ..
     } = product.technology
     {
@@ -179,34 +180,77 @@ pub async fn transform(
             "temp_return_feed_max".into(),
             temp_return_feed_max.to_f64().into(),
         );
+        if source_type == HeatPumpSourceType::ExhaustAirMixed {
+            if let Some(HeatPumpExhaustAirMixedFields {
+                eahp_mixed_min_temp,
+                eahp_mixed_max_temp,
+            }) = exhaust_air_mixed_fields
+            {
+                heat_pump.insert(
+                    "eahp_mixed_min_temp".into(),
+                    eahp_mixed_min_temp.to_f64().into(),
+                );
+                heat_pump.insert(
+                    "eahp_mixed_max_temp".into(),
+                    eahp_mixed_max_temp.to_f64().into(),
+                );
+            } else {
+                return Err(ResolvePcdbProductsError::InvalidProduct(
+                    product_reference.to_owned(),
+                    "An ExhaustAirMixed heat pump in the PCDB was expected to have the fields eahp_mixed_min_temp and eahp_mixed_max_temp.",
+                ));
+            }
+        }
         heat_pump.insert(
             "test_data_EN14825".into(),
             JsonValue::from(
                 test_data
                     .iter()
                     .filter_map(|datum| {
-                        let HeatPumpTestDatum {
-                            capacity,
-                            coefficient_of_performance,
-                            design_flow_temperature,
-                            temperature_outlet,
-                            temperature_source,
-                            temperature_test,
-                            test_letter,
-                            ..
-                        } = datum;
                         // 'E' is not accepted in HEM, so filter this out
-                        (*test_letter != HeatPumpTestLetter::E).then_some(json!({
-                            "capacity": capacity.to_f64(),
-                            "cop": coefficient_of_performance.to_f64(),
-                            "design_flow_temp": design_flow_temperature.to_f64(),
-                            "temp_outlet": temperature_outlet.to_f64(),
-                            "temp_source": temperature_source.to_f64(),
-                            "temp_test": temperature_test.to_f64(),
-                            "test_letter": test_letter,
-                        }))
+                        (!datum.has_test_letter(HeatPumpTestLetter::E)).then(|| {
+                            let HeatPumpTestDatum {
+                                capacity,
+                                coefficient_of_performance,
+                                design_flow_temperature,
+                                temperature_outlet,
+                                temperature_source,
+                                temperature_test,
+                                test_letter,
+                                exhaust_air_mixed_fields,
+                                ..
+                            } = datum;
+
+                            let mut test_datum = json!({
+                                "capacity": capacity.to_f64(),
+                                "cop": coefficient_of_performance.to_f64(),
+                                "design_flow_temp": design_flow_temperature.to_f64(),
+                                "temp_outlet": temperature_outlet.to_f64(),
+                                "temp_source": temperature_source.to_f64(),
+                                "temp_test": temperature_test.to_f64(),
+                                "test_letter": test_letter,
+                            });
+
+                            if source_type == HeatPumpSourceType::ExhaustAirMixed {
+                                if let Some(HeatPumpTestDatumExhaustAirMixedFields { air_flow_rate, eahp_mixed_ext_air_ratio }) = exhaust_air_mixed_fields {
+                                    test_datum.as_object_mut().unwrap().extend(json!({
+                                        "air_flow_rate": air_flow_rate.to_f64(),
+                                        "eahp_mixed_ext_air_ratio": eahp_mixed_ext_air_ratio.to_f64(),
+                                    }).as_object().unwrap().clone());
+                                } else {
+                                    return Err(
+                                        ResolvePcdbProductsError::InvalidProduct(
+                                            product_reference.to_owned(),
+                                            "An item of heat pump test data for a heat pump with an exhaust air mixed source type must have air_flow_rate and eahp_mixed_ext_air_ratio fields in the HEM database."
+                                        )
+                                    );
+                                }
+                            }
+
+                            Ok(test_datum)
+                        })
                     })
-                    .collect_vec(),
+                    .collect::<Result<Vec<serde_json::Value>, ResolvePcdbProductsError>>()?,
             ),
         );
         heat_pump.insert(
@@ -281,6 +325,7 @@ mod tests {
     #[case::hp_with_modulating_control_numeric("hp_with_modulating_control_numeric")]
     #[case::hp_with_backup_ctrl_type_substitute("hp_with_backup_ctrl_type_substitute")]
     #[case::hp_with_boiler("hp_with_boiler")]
+    #[case::hp_exhaust_air_mixed("hp_exhaust_air_mixed")]
     async fn test_transform_heat_pump(
         pcdb_heat_pumps: HashMap<String, Product>,
         #[case] product_reference: &str,

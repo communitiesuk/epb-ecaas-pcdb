@@ -94,6 +94,8 @@ pub(crate) enum Technology {
         test_data: Vec<HeatPumpTestDatum>,
         #[serde(rename = "boilerProductID")]
         boiler_product_id: Option<String>,
+        #[serde(flatten)]
+        exhaust_air_mixed_fields: Option<HeatPumpExhaustAirMixedFields>,
     },
     #[serde(alias = "RegularBoiler", alias = "CombiBoiler")]
     Boiler {
@@ -320,6 +322,13 @@ pub(crate) enum HeatPumpBackupControlType {
     Substitute,
 }
 
+#[derive(Clone, Copy, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct HeatPumpExhaustAirMixedFields {
+    pub(crate) eahp_mixed_min_temp: Decimal,
+    pub(crate) eahp_mixed_max_temp: Decimal,
+}
+
 #[derive(Debug, Deserialize)]
 pub(crate) struct HeatPumpTestDatum {
     #[serde(rename = "design_flow_temp")]
@@ -336,6 +345,20 @@ pub(crate) struct HeatPumpTestDatum {
     pub(crate) coefficient_of_performance: Decimal,
     #[serde(rename = "degradation_coeff")]
     pub(crate) degradation_coefficient: Decimal,
+    #[serde(flatten)]
+    pub(crate) exhaust_air_mixed_fields: Option<HeatPumpTestDatumExhaustAirMixedFields>,
+}
+
+impl HeatPumpTestDatum {
+    pub(crate) fn has_test_letter(&self, test_letter: HeatPumpTestLetter) -> bool {
+        self.test_letter == test_letter
+    }
+}
+
+#[derive(Clone, Copy, Debug, Deserialize)]
+pub(crate) struct HeatPumpTestDatumExhaustAirMixedFields {
+    pub(crate) air_flow_rate: Decimal,
+    pub(crate) eahp_mixed_ext_air_ratio: Decimal,
 }
 
 #[derive(Copy, Clone, Debug, Deserialize_enum_str, PartialEq, Serialize_enum_str)]
