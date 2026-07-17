@@ -296,3 +296,27 @@ async fn test_indicated_duct_size_missing_from_centralised_mev_errors() {
         ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck(_)
     ));
 }
+
+#[tokio::test]
+async fn test_unknown_product_variant_caught_as_error() {
+    let environment = common::setup().await;
+    let client = environment.dynamo_client();
+
+    let mut input: Value = from_str(INPUT_WITH_PRODUCT_REFS).unwrap();
+    input["InfiltrationVentilation"]["MechanicalVentilation"]["mech vent"]
+        .as_object_mut()
+        .unwrap()
+        .insert(
+            "product_reference".to_string(),
+            json!("unsupported_technology_type"),
+        );
+    let mut input_reader = Cursor::new(input.to_string());
+
+    let result = resolve_products::resolve_products(&mut input_reader, client).await;
+
+    assert!(result.is_err());
+    assert!(matches!(
+        result.unwrap_err(),
+        ResolvePcdbProductsError::UnsupportedProductCategory { .. }
+    ));
+}

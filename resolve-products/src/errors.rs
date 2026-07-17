@@ -29,6 +29,13 @@ pub enum ResolvePcdbProductsError {
     ProductCategoryMismatches(Vec<String>),
     #[error("Invalid product category reference - expected as string of correct format: {0:?}")]
     InvalidProductCategoryReference(Value),
+    #[error(
+        "Unknown product category '{category}' referenced by product reference '{product_reference}'"
+    )]
+    UnsupportedProductCategory {
+        category: String,
+        product_reference: String,
+    },
     #[error("{0:?}")]
     UnknownProductReference(String),
     #[error("PCDB product with reference {0} breaks an expected invariant: {1}")]

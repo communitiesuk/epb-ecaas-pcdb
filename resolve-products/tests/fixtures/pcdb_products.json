@@ -1619,5 +1619,9 @@
     "testVesselVolume": 200,
     "tankVolumeDeclared": 100,
     "hwVesselLossDaily": 1.0
+  },
+  "unsupported_technology_type": {
+    "id": "unsupported_technology_type",
+    "technologyType": "UnsupportedTechnology ✨"
   }
 }

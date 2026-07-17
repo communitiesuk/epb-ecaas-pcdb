@@ -9,7 +9,7 @@ mod wwhrs;
 use crate::errors::ResolvePcdbProductsError;
 use crate::in_use_factors::DynamoDbBackedInUseFactorsAccess;
 use crate::products::{
-    DynamoDbBackedProductCatalogue, FuelType, Product, find_products_for_references,
+    DynamoDbBackedProductCatalogue, FuelType, Product, Technology, find_products_for_references,
 };
 use crate::{PRODUCT_REFERENCE_FIELD, extract_product_references};
 use aws_sdk_dynamodb::client::Client as DynamoDbClient;
@@ -28,6 +28,7 @@ pub async fn transform_json(
     let product_catalogue = DynamoDbBackedProductCatalogue::new(dynamo_client);
     let products: HashMap<String, Product> =
         find_products_for_references(&product_references, &product_catalogue).await?;
+    let _ = check_unknown_categories(&products)?;
 
     let energy_supplies = extract_energy_supplies(json).map_err(|_| {
         ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck(
@@ -60,6 +61,23 @@ fn product_reference_from_json_object(
                 )
             })?,
     ))
+}
+
+fn check_unknown_categories(
+    products: &HashMap<String, Product>,
+) -> Result<(), ResolvePcdbProductsError> {
+    for (product_reference, product) in products {
+        if let Technology::Unknown {
+            technology_type: unknown_category,
+        } = &product.technology
+        {
+            return Err(ResolvePcdbProductsError::UnsupportedProductCategory {
+                category: unknown_category.to_string(),
+                product_reference: product_reference.to_string(),
+            });
+        }
+    }
+    Ok(())
 }
 
 pub type ResolveProductsResult<T> = Result<T, ResolvePcdbProductsError>;
