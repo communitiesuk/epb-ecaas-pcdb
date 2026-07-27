@@ -43,10 +43,10 @@ pub enum ResolvePcdbProductsError {
     #[error("Error encountered while accessing PCDB store: {0:?}")]
     AccessError(#[from] Box<aws_sdk_dynamodb::Error>),
     #[error("Error encountered while deserializing PCDB products: {0:?}")]
-    DeserializeError(serde_dynamo::Error),
+    DeserializeError(#[source] serde_dynamo::Error),
     #[cfg(test)]
     #[error("Error encountered while deserializing test product: {0:?}")]
-    BadTestProductError(serde_json::Error),
+    BadTestProductError(#[source] serde_json::Error),
     #[error("No energy supply provided for fuel type '{0}' to be mapped to")]
     NoEnergySupplyProvidedForFuelType(FuelType),
     #[error("The standing in use factors data was needed for a calculation, but was inaccessible")]
