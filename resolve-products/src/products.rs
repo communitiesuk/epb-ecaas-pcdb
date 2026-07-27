@@ -627,11 +627,13 @@ impl ProductCatalogue for DynamoDbBackedProductCatalogue<'_> {
 
         let products = results.responses().unwrap().get("products").unwrap();
         if products.len() != product_references.len() {
-            return Err(ResolvePcdbProductsError::UnknownProductReference(format!(
-                "At least one product reference from the list ({}) could not be found within the PCDB store. {} product(s) successfully retrieved.",
-                product_references.join(", "),
-                products.len(),
-            )));
+            return Err(ResolvePcdbProductsError::UnknownProductReferences(
+                product_references
+                    .into_iter()
+                    .cloned()
+                    .map(Into::into)
+                    .collect(),
+            ));
         }
 
         let products = products

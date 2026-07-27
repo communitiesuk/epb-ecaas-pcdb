@@ -36,8 +36,8 @@ pub enum ResolvePcdbProductsError {
         category: String,
         product_reference: String,
     },
-    #[error("{0:?}")]
-    UnknownProductReference(String),
+    #[error("At least one product reference from the list ({}) could not be found within the PCDB store.", .0.join(", "), )]
+    UnknownProductReferences(Vec<String>),
     #[error("PCDB product with reference {0} breaks an expected invariant: {1}")]
     InvalidProduct(String, &'static str),
     #[error("Error encountered while accessing PCDB store: {0:?}")]
