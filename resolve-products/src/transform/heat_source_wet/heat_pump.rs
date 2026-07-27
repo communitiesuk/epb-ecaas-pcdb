@@ -206,9 +206,9 @@ pub async fn transform(
             JsonValue::from(
                 test_data
                     .iter()
-                    .filter_map(|datum| {
-                        // 'E' is not accepted in HEM, so filter this out
-                        (!datum.has_test_letter(HeatPumpTestLetter::E)).then(|| {
+                    // 'E' is not accepted in HEM, so filter this out
+                    .filter(|&datum| !datum.has_test_letter(HeatPumpTestLetter::E))
+                    .map(|datum| {
                             let HeatPumpTestDatum {
                                 capacity,
                                 coefficient_of_performance,
@@ -249,7 +249,6 @@ pub async fn transform(
 
                             Ok(test_datum)
                         })
-                    })
                     .collect::<Result<Vec<serde_json::Value>, ResolvePcdbProductsError>>()?,
             ),
         );

@@ -28,7 +28,7 @@ pub async fn transform_json(
     let product_catalogue = DynamoDbBackedProductCatalogue::new(dynamo_client);
     let products: HashMap<String, Product> =
         find_products_for_references(&product_references, &product_catalogue).await?;
-    let _ = check_unknown_categories(&products)?;
+    check_unknown_categories(&products)?;
 
     let energy_supplies = extract_energy_supplies(json).map_err(|_| {
         ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck(
