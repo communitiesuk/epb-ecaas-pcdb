@@ -11,7 +11,7 @@ aws-sdk-dynamodb = "1.112.0"
 clap = { version = "4.6.1", features = ["derive"], optional = true }
 itertools = "0.15.0"
 jsonpath-rust = "1.0.5"
-jsonschema = { version = "0.47.0", features = ["resolve-async"] }
+jsonschema = { version = "0.49.2", features = ["resolve-async"] }
 rust_decimal = "1.42.0"
 serde = { version = "1.0.228", features = ["derive", "rc"] }
 serde-enum-str = "0.5.0"
