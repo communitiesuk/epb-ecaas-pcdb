@@ -1,4 +1,5 @@
 use crate::products::FuelType;
+use itertools::Itertools;
 use jsonpath_rust::parser::errors::JsonPathError as OriginalJsonPathError;
 use jsonschema::ValidationError;
 use jsonschema::error::ValidationErrorKind;
@@ -36,8 +37,8 @@ pub enum ResolvePcdbProductsError {
         category: String,
         product_reference: String,
     },
-    #[error("At least one product reference from the list ({}) could not be found within the PCDB store.", .0.join(", "), )]
-    UnknownProductReferences(Vec<String>),
+    #[error("The product reference{} {} could not be found within the PCDB store.", if .0.len() == 1 { "" } else { "s" }, .0.as_comma_separated_list(), )]
+    UnknownProductReferences(SingleOrList<String>),
     #[error("PCDB product with reference {0} breaks an expected invariant: {1}")]
     InvalidProduct(String, &'static str),
     #[error("Error encountered while accessing PCDB store: {0:?}")]
@@ -61,6 +62,53 @@ pub enum ResolvePcdbProductsError {
         "A heat network was indicated that requires a booster heat pump, but no heat pump was present"
     )]
     BoosterHeatPumpNotPresentError,
+}
+
+#[derive(Clone, Debug)]
+pub enum SingleOrList<T: Display> {
+    Single(T),
+    List(Vec<T>),
+}
+
+impl<T: Display> SingleOrList<T> {
+    pub fn to_vec(self) -> Vec<T> {
+        match self {
+            SingleOrList::Single(v) => vec![v],
+            SingleOrList::List(v) => v,
+        }
+    }
+
+    pub fn as_comma_separated_list(&self) -> String {
+        match self {
+            SingleOrList::Single(v) => format!("{}", v),
+            SingleOrList::List(v) => v.iter().map(|v| v.to_string()).join(", "),
+        }
+    }
+
+    pub fn len(&self) -> usize {
+        match self {
+            SingleOrList::Single(_) => 1,
+            SingleOrList::List(v) => v.len(),
+        }
+    }
+}
+
+impl<T: Display> From<T> for SingleOrList<T> {
+    fn from(v: T) -> Self {
+        SingleOrList::Single(v)
+    }
+}
+
+impl<T: Display> From<Vec<T>> for SingleOrList<T> {
+    fn from(v: Vec<T>) -> Self {
+        SingleOrList::List(v)
+    }
+}
+
+impl<T: Display> From<SingleOrList<T>> for Vec<T> {
+    fn from(v: SingleOrList<T>) -> Self {
+        v.to_vec()
+    }
 }
 
 #[derive(Debug, Error)]

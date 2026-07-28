@@ -163,22 +163,34 @@ mod catalogue {
             &self,
             product_references: &[smartstring::alias::String],
         ) -> ResolveProductsResult<HashMap<smartstring::alias::String, Product>> {
-            product_references
+            let mut missing_product_references = vec![];
+            let result = product_references
                 .iter()
                 .map(|reference| {
-                    let product: Result<Product, _> = self
+                    let product: Result<Product, ResolvePcdbProductsError> = self
                         .products
                         .get(reference.as_str())
-                        .ok_or(ResolvePcdbProductsError::UnknownProductReferences(vec![
-                            reference.to_string(),
-                        ]))
+                        .ok_or_else(|| {
+                            missing_product_references.push(reference.to_string());
+                            ResolvePcdbProductsError::UnknownProductReferences(
+                                reference.to_string().into(),
+                            )
+                        })
                         .and_then(|product_json| {
                             serde_json::from_value(product_json.clone())
                                 .map_err(ResolvePcdbProductsError::BadTestProductError)
                         });
                     Ok((reference.clone(), product?))
                 })
-                .collect()
+                .collect();
+
+            if let Err(ResolvePcdbProductsError::UnknownProductReferences(_)) = result {
+                return Err(ResolvePcdbProductsError::UnknownProductReferences(
+                    missing_product_references.into(),
+                ));
+            }
+
+            result
         }
     }
 

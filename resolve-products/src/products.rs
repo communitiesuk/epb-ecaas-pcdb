@@ -4,6 +4,7 @@ use crate::ResolveProductsResult;
 use crate::errors::ResolvePcdbProductsError;
 use aws_sdk_dynamodb::Client as DynamoDbClient;
 use aws_sdk_dynamodb::types::{AttributeValue, KeysAndAttributes};
+use itertools::Itertools;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Deserializer};
 use serde_dynamo::from_item;
@@ -12,7 +13,7 @@ use serde_json::{Number, Value};
 use serde_repr::Deserialize_repr;
 use serde_valid::Validate;
 use smartstring::alias::String;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 pub(crate) async fn find_products_for_references(
     product_references: &[String],
@@ -627,12 +628,20 @@ impl ProductCatalogue for DynamoDbBackedProductCatalogue<'_> {
 
         let products = results.responses().unwrap().get("products").unwrap();
         if products.len() != product_references.len() {
+            // there's an anomaly so work out what's missing
+            let refs_from_database: HashSet<&str> = products
+                .iter()
+                .filter_map(|p| p.get("id").and_then(|p| p.as_s().ok().map(|r| r.as_str())))
+                .collect();
+            let refs_from_request: HashSet<&str> =
+                product_references.iter().map(|r| r.as_str()).collect();
+
             return Err(ResolvePcdbProductsError::UnknownProductReferences(
-                product_references
-                    .into_iter()
-                    .cloned()
-                    .map(Into::into)
-                    .collect(),
+                refs_from_request
+                    .difference(&refs_from_database)
+                    .map(|x| x.to_string())
+                    .collect_vec()
+                    .into(),
             ));
         }
 
