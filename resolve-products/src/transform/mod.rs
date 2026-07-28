@@ -169,9 +169,9 @@ mod catalogue {
                     let product: Result<Product, _> = self
                         .products
                         .get(reference.as_str())
-                        .ok_or(ResolvePcdbProductsError::UnknownProductReference(
+                        .ok_or(ResolvePcdbProductsError::UnknownProductReferences(vec![
                             reference.to_string(),
-                        ))
+                        ]))
                         .and_then(|product_json| {
                             serde_json::from_value(product_json.clone())
                                 .map_err(ResolvePcdbProductsError::BadTestProductError)

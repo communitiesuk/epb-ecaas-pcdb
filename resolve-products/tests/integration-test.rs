@@ -77,7 +77,7 @@ async fn test_unknown_product_ref_errors() {
     assert!(result.is_err());
     assert!(matches!(
         result.unwrap_err(),
-        ResolvePcdbProductsError::UnknownProductReference(_)
+        ResolvePcdbProductsError::UnknownProductReferences(_)
     ));
 }
 
