@@ -4,6 +4,7 @@ mod products;
 mod transform;
 
 use crate::errors::{JsonPathError, JsonValidationError, ResolvePcdbProductsError};
+pub use crate::products::FuelType;
 use crate::transform::{ResolveProductsResult, transform_json};
 use aws_sdk_dynamodb::Client as DynamoDbClient;
 use itertools::Itertools;
