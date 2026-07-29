@@ -28,8 +28,10 @@ pub enum ResolvePcdbProductsError {
         "There were mismatch errors where provided product references related to incompatible product categories: {0:?}."
     )]
     ProductCategoryMismatches(Vec<String>),
-    #[error("Invalid product category reference - expected as string of correct format: {0:?}")]
-    InvalidProductCategoryReference(Value),
+    #[error(
+        "Invalid JSON representing product reference - expected as string of correct format: {0:?}"
+    )]
+    InvalidProductReferenceJson(Value),
     #[error(
         "Unknown product category '{category}' referenced by product reference '{product_reference}'"
     )]

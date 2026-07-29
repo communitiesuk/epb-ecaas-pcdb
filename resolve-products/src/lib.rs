@@ -70,7 +70,7 @@ fn extract_product_references(json: &JsonValue) -> ResolveProductsResult<Vec<Str
         .map(|v| -> ResolveProductsResult<String> {
             match v.val {
                 JsonValue::String(value) => Ok(String::from(value)),
-                value => Err(ResolvePcdbProductsError::InvalidProductCategoryReference(
+                value => Err(ResolvePcdbProductsError::InvalidProductReferenceJson(
                     value.to_owned(),
                 )),
             }

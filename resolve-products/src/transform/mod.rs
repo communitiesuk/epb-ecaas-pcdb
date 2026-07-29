@@ -56,7 +56,7 @@ fn product_reference_from_json_object(
         product_json[PRODUCT_REFERENCE_FIELD]
             .as_str()
             .ok_or_else(|| {
-                ResolvePcdbProductsError::InvalidProductCategoryReference(
+                ResolvePcdbProductsError::InvalidProductReferenceJson(
                     product_json[PRODUCT_REFERENCE_FIELD].clone(),
                 )
             })?,
