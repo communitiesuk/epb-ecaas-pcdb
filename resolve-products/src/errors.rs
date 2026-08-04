@@ -4,6 +4,7 @@ use jsonpath_rust::parser::errors::JsonPathError as OriginalJsonPathError;
 use jsonschema::ValidationError;
 use jsonschema::error::ValidationErrorKind;
 use serde_json::Value;
+use std::collections::BTreeSet;
 use std::fmt::{Display, Formatter};
 use std::string::FromUtf8Error;
 use this_error_from_box::this_error_from_box;
@@ -69,17 +70,10 @@ pub enum ResolvePcdbProductsError {
 #[derive(Clone, Debug)]
 pub enum SingleOrList<T: Display> {
     Single(T),
-    List(Vec<T>),
+    List(BTreeSet<T>),
 }
 
 impl<T: Display> SingleOrList<T> {
-    pub fn to_vec(self) -> Vec<T> {
-        match self {
-            SingleOrList::Single(v) => vec![v],
-            SingleOrList::List(v) => v,
-        }
-    }
-
     pub fn as_comma_separated_list(&self) -> String {
         match self {
             SingleOrList::Single(v) => format!("{}", v),
@@ -101,15 +95,9 @@ impl<T: Display> From<T> for SingleOrList<T> {
     }
 }
 
-impl<T: Display> From<Vec<T>> for SingleOrList<T> {
+impl<T: Display + Ord> From<Vec<T>> for SingleOrList<T> {
     fn from(v: Vec<T>) -> Self {
-        SingleOrList::List(v)
-    }
-}
-
-impl<T: Display> From<SingleOrList<T>> for Vec<T> {
-    fn from(v: SingleOrList<T>) -> Self {
-        v.to_vec()
+        SingleOrList::List(BTreeSet::from_iter(v.into_iter()))
     }
 }
 
