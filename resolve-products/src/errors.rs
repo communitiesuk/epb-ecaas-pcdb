@@ -44,7 +44,7 @@ pub enum ResolvePcdbProductsError {
     UnknownProductReferences(SingleOrList<String>),
     #[error("PCDB product with reference {0} breaks an expected invariant: {1}")]
     InvalidProduct(String, &'static str),
-    #[error("Error encountered while accessing PCDB store: {0:?}")]
+    #[error("Error encountered while trying to access PCDB store.")]
     AccessError(#[from] Box<aws_sdk_dynamodb::Error>),
     #[error("Error encountered while deserializing PCDB products: {0:?}")]
     DeserializeError(#[source] serde_dynamo::Error),
