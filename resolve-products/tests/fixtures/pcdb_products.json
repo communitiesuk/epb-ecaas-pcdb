@@ -17,7 +17,7 @@
     "modulatingControl": true,
     "backupCtrlType": "None",
     "varFlowTempCtrlDuringTest": true,
-    "testDataEN14825": [
+    "testDataEn14825": [
       {
         "degradation_coeff": 0,
         "test_letter": "A",

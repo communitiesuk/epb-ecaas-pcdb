@@ -17,7 +17,7 @@
     "modulatingControl": true,
     "backupCtrlType": "None",
     "varFlowTempCtrlDuringTest": true,
-    "testDataEN14825": [
+    "testDataEn14825": [
       {
         "degradation_coeff": 0,
         "test_letter": "A",
@@ -209,7 +209,7 @@
     "modulatingControl": false,
     "backupCtrlType": "None",
     "varFlowTempCtrlDuringTest": true,
-    "testDataEN14825": [
+    "testDataEn14825": [
       {
         "degradation_coeff": 0,
         "test_letter": "A",
@@ -403,7 +403,7 @@
     "hasCostRatioControl": 1,
     "powerMaxBackup": 0,
     "varFlowTempCtrlDuringTest": true,
-    "testDataEN14825": [
+    "testDataEn14825": [
       {
         "degradation_coeff": 0,
         "test_letter": "A",
@@ -595,7 +595,7 @@
     "modulatingControl": 1,
     "backupCtrlType": "None",
     "varFlowTempCtrlDuringTest": false,
-    "testDataEN14825": [
+    "testDataEn14825": [
       {
         "degradation_coeff": 0,
         "test_letter": "A",
@@ -788,7 +788,7 @@
     "backupCtrlType": "TopUp",
     "hasCostRatioControl": 1,
     "varFlowTempCtrlDuringTest": false,
-    "testDataEN14825": [
+    "testDataEn14825": [
       {
         "degradation_coeff": 0,
         "test_letter": "A",
@@ -984,7 +984,7 @@
     "modulatingControl": true,
     "backupCtrlType": "None",
     "varFlowTempCtrlDuringTest": true,
-    "testDataEN14825": [
+    "testDataEn14825": [
       {
         "degradation_coeff": 0,
         "test_letter": "A",
