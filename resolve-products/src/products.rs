@@ -283,8 +283,8 @@ pub(crate) enum Technology {
     },
     // capture any unknown product type that is referenced so we are able to construe it as an
     // invalid choice for the payload in question rather than a badly-formed product in the HEM database
-    #[serde(untagged)]
-    Unknown { technology_type: String },
+    #[serde(other)]
+    Unknown,
 }
 
 // special deserialization logic so that booleans that are indicated by 0 or 1 are deserialized as true or false

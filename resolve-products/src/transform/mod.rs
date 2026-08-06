@@ -67,12 +67,9 @@ fn check_unknown_categories(
     products: &HashMap<String, Product>,
 ) -> Result<(), ResolvePcdbProductsError> {
     for (product_reference, product) in products {
-        if let Technology::Unknown {
-            technology_type: unknown_category,
-        } = &product.technology
-        {
+        if let Technology::Unknown = &product.technology {
             return Err(ResolvePcdbProductsError::UnsupportedProductCategory {
-                category: unknown_category.to_string(),
+                category: "(unknown category)".to_string(),
                 product_reference: product_reference.to_string(),
             });
         }
