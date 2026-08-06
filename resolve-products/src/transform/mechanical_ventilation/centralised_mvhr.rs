@@ -2,8 +2,8 @@ use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::in_use_factors::{InUseFactorsAccess, MechanicalVentilationSystemType};
 use crate::products::{Product, Technology};
-use crate::transform::ResolveProductsResult;
 use crate::transform::mechanical_ventilation::resolve_sfp_in_use_factor;
+use crate::transform::{InvalidProductCategoryError, ResolveProductsResult};
 use serde_json::{Map, Value as JsonValue, json};
 
 pub(crate) async fn transform(
@@ -60,8 +60,15 @@ pub(crate) async fn transform(
 
         mech_vent.remove("installed_under_approved_scheme");
         mech_vent.remove(PRODUCT_REFERENCE_FIELD);
+
+        Ok(())
+    } else {
+        Err(InvalidProductCategoryError::from((
+            product_reference,
+            "Centralised MVHR (mechanical ventilation)",
+        ))
+        .into())
     }
-    Ok(())
 }
 
 #[cfg(test)]

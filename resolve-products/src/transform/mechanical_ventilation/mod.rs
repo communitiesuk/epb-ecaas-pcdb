@@ -11,7 +11,9 @@ use crate::in_use_factors::{
 use crate::products::{
     MechanicalVentilationDuctType, MechanicalVentilationInstallationType, Product, Technology,
 };
-use crate::transform::{ResolveProductsResult, product_reference_from_json_object};
+use crate::transform::{
+    InvalidProductCategoryError, ResolveProductsResult, product_reference_from_json_object,
+};
 use rust_decimal::Decimal;
 #[cfg(test)]
 use serde_json::Map;
@@ -80,26 +82,34 @@ pub async fn transform(
 
                         let product = &products[&product_reference];
 
-                        if let Technology::CentralisedMvhr { .. } = &product.technology {
-                            centralised_mvhr::transform(
-                                mech_vent_object,
-                                product,
-                                &product_reference,
-                                number_of_wetrooms as usize,
-                                in_use_factors_access,
-                            )
-                            .await?
-                        }
-
-                        if let Technology::CentralisedMv { .. } = &product.technology {
-                            centralised_mv::transform(
-                                mech_vent_object,
-                                product,
-                                &product_reference,
-                                number_of_wetrooms as usize,
-                                in_use_factors_access,
-                            )
-                            .await?
+                        match &product.technology {
+                            Technology::CentralisedMvhr { .. } => {
+                                centralised_mvhr::transform(
+                                    mech_vent_object,
+                                    product,
+                                    &product_reference,
+                                    number_of_wetrooms as usize,
+                                    in_use_factors_access,
+                                )
+                                .await?;
+                            }
+                            Technology::CentralisedMv { .. } => {
+                                centralised_mv::transform(
+                                    mech_vent_object,
+                                    product,
+                                    &product_reference,
+                                    number_of_wetrooms as usize,
+                                    in_use_factors_access,
+                                )
+                                .await?;
+                            }
+                            _ => {
+                                return Err(InvalidProductCategoryError::from((
+                                    product_reference,
+                                    "Centralised MV/MVHR (mechanical ventilation)",
+                                ))
+                                .into());
+                            }
                         }
                     }
                     _ => {}
@@ -162,12 +172,19 @@ mod tests {
     use crate::in_use_factors::mocks::FixtureBackedInUseFactorsAccess;
     use rstest::{fixture, rstest};
     use serde_json::json;
+    use std::collections::BTreeSet;
 
     #[fixture]
     fn mechanical_ventilation_pcdb_products() -> HashMap<SmartString, Product> {
         serde_json::from_str(include_str!("../fixtures/mechanical_ventilation_pcdb.json")).unwrap()
     }
 
+    #[fixture]
+    fn non_mech_vent_pcdb_products() -> HashMap<SmartString, Product> {
+        serde_json::from_str(include_str!("../fixtures/hiu_pcdb.json")).unwrap()
+    }
+
+    #[fixture]
     fn mechanical_ventilation_input() -> JsonValue {
         json!({
             "NumberOfWetRooms": 3,
@@ -240,6 +257,16 @@ mod tests {
         })
     }
 
+    #[fixture]
+    fn mapped_mech_vent_types(mechanical_ventilation_input: JsonValue) -> BTreeSet<String> {
+        mechanical_ventilation_input["InfiltrationVentilation"]["MechanicalVentilation"]
+            .as_object()
+            .unwrap()
+            .values()
+            .map(|x| x["vent_type"].as_str().unwrap().to_string())
+            .collect()
+    }
+
     #[tokio::test]
     #[rstest]
     async fn test_transform_mechanical_ventilation_products(
@@ -268,6 +295,54 @@ mod tests {
                     .pointer(&format!("{pointer}/product_reference"))
                     .is_none(),
                 "mechanical_ventilation_input still has a product_reference at pointer {pointer}"
+            );
+        }
+    }
+
+    #[fixture]
+    fn mechanical_ventilation_input_referencing_bad_category() -> JsonValue {
+        json!({
+            "NumberOfWetRooms": 3,
+            "InfiltrationVentilation": {
+                "MechanicalVentilation": {
+                    "decentralisedMvhr": {
+                        "vent_type": "Decentralised continuous MEV",
+                        "EnergySupply": "mains elec",
+                        "product_reference": "hiu",
+                        "design_outdoor_air_flow_rate": 80,
+                        "installed_under_approved_scheme": true,
+                        "installation_type": "in_ceiling",
+                        "installation_location": "kitchen",
+                        "mid_height_air_flow_path": 2,
+                        "orientation360": 0,
+                        "pitch": 90
+                    },
+                }
+            }
+        })
+    }
+
+    #[tokio::test]
+    #[rstest]
+    async fn test_reference_to_wrong_category_errors(
+        non_mech_vent_pcdb_products: HashMap<SmartString, Product>,
+        mut mechanical_ventilation_input_referencing_bad_category: JsonValue,
+        mapped_mech_vent_types: BTreeSet<String>,
+    ) {
+        for vent_type in mapped_mech_vent_types.iter() {
+            mechanical_ventilation_input_referencing_bad_category["InfiltrationVentilation"]["MechanicalVentilation"]
+                ["decentralisedMvhr"]["vent_type"] = json!(vent_type);
+            assert!(
+                matches!(
+                    transform(
+                        &mut mechanical_ventilation_input_referencing_bad_category,
+                        &non_mech_vent_pcdb_products,
+                        &FixtureBackedInUseFactorsAccess,
+                    )
+                    .await,
+                    Err(ResolvePcdbProductsError::ProductCategoryMismatches(_))
+                ),
+                "Transform function did not error in case of an inadmissible product of the wrong category for vent type {vent_type}"
             );
         }
     }
