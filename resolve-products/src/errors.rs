@@ -26,7 +26,7 @@ pub enum ResolvePcdbProductsError {
     #[error("Could not extract product references: {0:?}")]
     CouldNotExtractProductReferences(#[from] JsonPathError),
     #[error(
-        "There were mismatch errors where provided product references related to incompatible product categories: {0:?}."
+        "There were mismatch errors where provided product references related to incompatible product categories: {}", .0.join(" ")
     )]
     ProductCategoryMismatches(Vec<String>),
     #[error(
