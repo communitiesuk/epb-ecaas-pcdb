@@ -1,5 +1,6 @@
 use aws_config::BehaviorVersion;
 use clap::Parser;
+use serde_json::Value;
 use std::fs::File;
 use std::io::{self, Read};
 use std::path::PathBuf;
@@ -45,7 +46,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut resolved = resolve_products::resolve_products(input_bytes, &dynamo_client).await?;
 
-    io::copy(&mut resolved, &mut io::stdout())?;
+    if cli.pretty {
+        let pretty: Value = serde_json::from_reader(resolved).unwrap();
+        serde_json::to_writer_pretty(io::stdout(), &pretty).unwrap();
+    } else {
+        io::copy(&mut resolved, &mut io::stdout())?;
+    }
 
     Ok(())
 }
