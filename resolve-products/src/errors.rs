@@ -115,10 +115,11 @@ impl Display for JsonValidationError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "The JSON fragment {} in the request body at path {} was not valid under its schema at path {}",
+            "The JSON fragment {} in the request body at path {} was not valid under its schema at path {}, reason '{:?}'.",
             self.value.to_json_string().unwrap(),
             self.instance_path,
-            self.schema_path
+            self.schema_path,
+            self.kind,
         )
     }
 }
