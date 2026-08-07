@@ -4,6 +4,7 @@ use jsonpath_rust::parser::errors::JsonPathError as OriginalJsonPathError;
 use jsonschema::ValidationError;
 use jsonschema::error::ValidationErrorKind;
 use serde_json::Value;
+use serde_valid::json::ToJsonString;
 use std::collections::BTreeSet;
 use std::fmt::{Display, Formatter};
 use std::string::FromUtf8Error;
@@ -114,8 +115,10 @@ impl Display for JsonValidationError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "The value {:?} at path {} was not valid under its schema at path {}",
-            self.value, self.instance_path, self.schema_path
+            "The JSON fragment {} in the request body at path {} was not valid under its schema at path {}",
+            self.value.to_json_string().unwrap(),
+            self.instance_path,
+            self.schema_path
         )
     }
 }
