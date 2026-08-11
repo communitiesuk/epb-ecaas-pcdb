@@ -6,7 +6,7 @@ mod underfloor_heating;
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::products::Product;
 use crate::transform::{EnergySupplies, ResolveProductsResult, product_reference_from_json_object};
-use serde_json::Value as JsonValue;
+use serde_json::{Value as JsonValue, json};
 use smartstring::alias::String;
 use std::collections::HashMap;
 
@@ -65,6 +65,18 @@ pub fn transform(
                                     }
                                 }
                             }
+                        }
+
+                        // NB. it should be that this following check, and behaviour, needs to be removed for 1.0.0-alpha9!
+
+                        // for 1.0.0-alpha7, if there are any emitters with an 'n' field and "thermal_mass" isn't already
+                        // set as a sibling field to emitters, then set one with the token non-zero value 0.001 because
+                        // the schema needs it (this is fixed in subsequent versions of FHS)
+                        let emitters = system.get("emitters").and_then(|v| v.as_array());
+                        if emitters.into_iter().flatten().any(|emitter| {
+                            emitter.get("n").is_some() && !system.contains_key("thermal_mass")
+                        }) {
+                            system.insert("thermal_mass".to_string(), json!(0.001));
                         }
                     }
                     _ => {} // TODO could add warning about unexpected type being reached
