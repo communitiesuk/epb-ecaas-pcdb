@@ -88,6 +88,14 @@ impl<T: Display> SingleOrList<T> {
             SingleOrList::List(v) => v.len(),
         }
     }
+
+    #[allow(dead_code)]
+    pub fn is_empty(&self) -> bool {
+        match self {
+            SingleOrList::Single(_) => false,
+            SingleOrList::List(v) => v.is_empty(),
+        }
+    }
 }
 
 impl<T: Display> From<T> for SingleOrList<T> {
@@ -98,7 +106,7 @@ impl<T: Display> From<T> for SingleOrList<T> {
 
 impl<T: Display + Ord> From<Vec<T>> for SingleOrList<T> {
     fn from(v: Vec<T>) -> Self {
-        SingleOrList::List(BTreeSet::from_iter(v.into_iter()))
+        SingleOrList::List(BTreeSet::from_iter(v))
     }
 }
 
