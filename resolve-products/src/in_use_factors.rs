@@ -107,8 +107,8 @@ impl InUseFactorsAccess for DynamoDbBackedInUseFactorsAccess<'_> {
             .key("id", AttributeValue::S(T::entry_id().to_string()))
             .send()
             .await
-            .map_err(|_| {
-                info!("Error getting in use factors item from DynamoDB");
+            .map_err(|e| {
+                info!("Error getting in use factors item from DynamoDB, with error: {e:?}");
                 ()
             })?
             .item
