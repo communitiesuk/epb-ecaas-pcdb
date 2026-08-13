@@ -15,6 +15,7 @@ use serde_repr::Deserialize_repr;
 use std::collections::HashMap;
 use std::sync::Arc;
 use thiserror::Error;
+use tracing::info;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -106,17 +107,28 @@ impl InUseFactorsAccess for DynamoDbBackedInUseFactorsAccess<'_> {
             .key("id", AttributeValue::S(T::entry_id().to_string()))
             .send()
             .await
-            .map_err(|_| ())?
+            .map_err(|_| {
+                info!("Error getting in use factors item from DynamoDB");
+                ()
+            })?
             .item
             .and_then(|record| record.get("data").cloned())
             .ok_or(())
-            .and_then(|attr_value| AttributeValue::as_l(&attr_value).map_err(|_| ()).cloned())?;
+            .and_then(|attr_value| {
+                AttributeValue::as_l(&attr_value)
+                    .map_err(|_| {
+                        info!("Error unpacking in use factors item from DynamoDB list");
+                        ()
+                    })
+                    .cloned()
+            })?;
 
         Ok(data
             .into_iter()
             .map(|item| {
                 from_item::<HashMap<String, AttributeValue>, T>(
                     AttributeValue::as_m(&item).cloned().map_err(|_| {
+                        info!("Error deserializing in use factors item from DynamoDB: {item:?}");
                         serde::de::Error::custom(
                             "Could not deserialize item into object as expected",
                         )

@@ -21,6 +21,7 @@ serde_valid = "2.0.1"
 tokio = { version = "1", features = ["full"] }
 thiserror = "2.0.18"
 this-error-from-box = "0.2.1"
+tracing = "0.1.44"
 smartstring = { version = "1.0.1", features = ["serde"] }
 serde_repr = "0.1.20"
 

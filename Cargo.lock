@@ -2804,6 +2804,7 @@ dependencies = [
  "this-error-from-box",
  "thiserror 2.0.19",
  "tokio",
+ "tracing",
 ]
 
 [[package]]
