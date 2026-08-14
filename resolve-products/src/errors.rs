@@ -1,3 +1,4 @@
+use crate::in_use_factors::InUseFactorsInaccessibleError;
 use crate::products::FuelType;
 use itertools::Itertools;
 use jsonpath_rust::parser::errors::JsonPathError as OriginalJsonPathError;
@@ -55,7 +56,7 @@ pub enum ResolvePcdbProductsError {
     #[error("No energy supply provided for fuel type '{0}' to be mapped to")]
     NoEnergySupplyProvidedForFuelType(FuelType),
     #[error("The standing in use factors data was needed for a calculation, but was inaccessible")]
-    InUseFactorsInaccessibleError,
+    InUseFactorsInaccessibleError(#[from] InUseFactorsInaccessibleError),
     #[error(
         "The standing in use factors data did not contain an entry for a valid combination of attributes"
     )]

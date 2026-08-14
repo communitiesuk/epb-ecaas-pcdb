@@ -1,11 +1,13 @@
 //! module is concerned with in use factors data that is stored alongside product data under individual IDs
 //! with one `data` field containing a JSON list of items
 
-use crate::errors::ResolvePcdbProductsError;
 use crate::products::{
     HeatPumpVesselType, MechanicalVentilationDuctType, MechanicalVentilationInstallationType,
 };
 use aws_sdk_dynamodb::Client as DynamoDbClient;
+use aws_sdk_dynamodb::config::http::HttpResponse;
+use aws_sdk_dynamodb::error::SdkError;
+use aws_sdk_dynamodb::operation::get_item::GetItemError;
 use aws_sdk_dynamodb::types::AttributeValue;
 use rust_decimal::Decimal;
 use serde::Deserialize;
@@ -15,7 +17,6 @@ use serde_repr::Deserialize_repr;
 use std::collections::HashMap;
 use std::sync::Arc;
 use thiserror::Error;
-use tracing::info;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -106,54 +107,53 @@ impl InUseFactorsAccess for DynamoDbBackedInUseFactorsAccess<'_> {
             .table_name("products")
             .key("id", AttributeValue::S(T::entry_id().to_string()))
             .send()
-            .await
-            .map_err(|e| {
-                info!("Error getting in use factors item from DynamoDB, with error: {e:?}");
-                ()
-            })?
+            .await?
             .item
             .and_then(|record| record.get("data").cloned())
-            .ok_or(())
+            .ok_or(InUseFactorsInaccessibleError::DataKeyMissingFromInUseFactorsRecord)
             .and_then(|attr_value| {
                 AttributeValue::as_l(&attr_value)
-                    .map_err(|_| {
-                        info!("Error unpacking in use factors item from DynamoDB list");
-                        ()
+                    .map_err(|e| {
+                        InUseFactorsInaccessibleError::InUseFactorsRecordDataFieldNotList(e.clone())
                     })
                     .cloned()
             })?;
 
+        let mut erroring_attribute_values: Vec<AttributeValue> = vec![];
+
         Ok(data
             .into_iter()
             .map(|item| {
-                from_item::<HashMap<String, AttributeValue>, T>(
-                    AttributeValue::as_m(&item).cloned().map_err(|_| {
-                        info!("Error deserializing in use factors item from DynamoDB: {item:?}");
+                from_item::<HashMap<String, AttributeValue>, T>({
+                    let map = AttributeValue::as_m(&item).cloned();
+                    if map.is_err() {
+                        erroring_attribute_values.push(item.clone());
+                    }
+                    map.map_err(|_| {
                         serde::de::Error::custom(
                             "Could not deserialize item into object as expected",
                         )
-                    })?,
-                )
+                    })?
+                })
             })
             .collect::<Result<Vec<T>, _>>()
-            .map_err(|_| ())?)
+            .map_err(|_| {
+                InUseFactorsInaccessibleError::DeserializeError(erroring_attribute_values)
+            })?)
     }
 }
 
 #[derive(Debug, Error)]
 #[error("The expected in use factors data was not available on the PCDB data store.")]
-pub struct InUseFactorsInaccessibleError;
-
-impl From<()> for InUseFactorsInaccessibleError {
-    fn from(_: ()) -> Self {
-        Self
-    }
-}
-
-impl From<InUseFactorsInaccessibleError> for ResolvePcdbProductsError {
-    fn from(_: InUseFactorsInaccessibleError) -> Self {
-        Self::InUseFactorsInaccessibleError
-    }
+pub enum InUseFactorsInaccessibleError {
+    #[error("Could not make query for in use factors against DynamoDB: {0}")]
+    DynamoDbError(#[from] SdkError<GetItemError, HttpResponse>),
+    DataKeyMissingFromInUseFactorsRecord,
+    InUseFactorsRecordDataFieldNotList(AttributeValue),
+    DeserializeError(Vec<AttributeValue>),
+    #[cfg(test)]
+    #[error("Could not deserialize item into object as expected")]
+    IncorrectFixture(String),
 }
 
 #[derive(Debug, Error)]
@@ -181,9 +181,13 @@ pub mod mocks {
         async fn in_use_factors<T: InUseFactorsEntry>(
             &self,
         ) -> Result<Vec<T>, InUseFactorsInaccessibleError> {
-            let in_use_factors_json = IN_USE_FACTORS.get(T::entry_id()).ok_or(())?;
+            let in_use_factors_json: serde_json::Value = IN_USE_FACTORS[T::entry_id()].to_owned();
 
-            Ok(serde_json::from_value(in_use_factors_json.clone()).map_err(|_| ())?)
+            Ok(
+                serde_json::from_value(in_use_factors_json.clone()).map_err(|_| {
+                    InUseFactorsInaccessibleError::IncorrectFixture(in_use_factors_json.to_string())
+                })?,
+            )
         }
     }
 
