@@ -33,6 +33,13 @@ To convert JSON copied in a Mac OS clipboard:
 pbpaste | cargo run -p resolve-products --features="cli,aws-config" -- -
 ```
 
+### AWS IAM permissions for DynamoDB access
+
+If this package is being used within an AWS environment and using a DynamoDB store for the HEM database, the application that it is being used in requires the following permissions:
+
+- `dynamodb:GetItem`
+- `dynamodb:BatchGetItem`
+
 # Contributing
 
 ## Using the commit template
