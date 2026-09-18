@@ -1020,6 +1020,18 @@
         "sfp3": 0.8,
         "sfp2": 0.42,
         "productID": "decentralised_mev",
+        "configuration": 2,
+        "flowRate": 13,
+        "id": 3,
+        "sfp": 0.36,
+        "flowRate2": 8,
+        "flowRate3": 13,
+        "parentID": 1
+      },
+      {
+        "sfp3": 0.8,
+        "sfp2": 0.42,
+        "productID": "decentralised_mev",
         "configuration": 3,
         "flowRate": 13,
         "id": 3,
