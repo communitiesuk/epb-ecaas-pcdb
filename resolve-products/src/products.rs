@@ -521,6 +521,8 @@ pub(crate) struct DecentralisedMevTestDatum {
 #[repr(u8)]
 pub(crate) enum DecentralisedMevInstallationConfiguration {
     InCeiling = 1,
+    // following is not used, but PCDB data may include it for now
+    Deprecated = 2,
     ThroughWall = 3,
 }
 
