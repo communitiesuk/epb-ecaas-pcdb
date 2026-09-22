@@ -355,6 +355,8 @@ pub enum JsonPathError {
     EmptyInner(String),
     #[error("Invalid json path: {0}")]
     InvalidJsonPath(String),
+    #[error("Maximum nesting depth in JSONPath of {0} exceeded")]
+    MaxNestingDepthExceeded(usize),
 }
 
 impl From<OriginalJsonPathError> for JsonPathError {
@@ -377,6 +379,7 @@ impl From<OriginalJsonPathError> for JsonPathError {
             }
             OriginalJsonPathError::EmptyInner(x) => Self::EmptyInner(x),
             OriginalJsonPathError::InvalidJsonPath(x) => Self::InvalidJsonPath(x),
+            OriginalJsonPathError::MaxNestingDepthExceeded(n) => Self::MaxNestingDepthExceeded(n),
         }
     }
 }
