@@ -170,6 +170,7 @@ fn expected_transformed_mech_vent_input(product_reference: &str) -> Map<String, 
 mod tests {
     use super::*;
     use crate::in_use_factors::mocks::FixtureBackedInUseFactorsAccess;
+    use assert_ok::assert_ok;
     use rstest::{fixture, rstest};
     use serde_json::json;
     use std::collections::BTreeSet;
@@ -279,7 +280,7 @@ mod tests {
             &FixtureBackedInUseFactorsAccess,
         )
         .await;
-        assert!(result.is_ok());
+        assert_ok!(result);
 
         let pointers = [
             "/InfiltrationVentilation/MechanicalVentilation/decentralisedMev",

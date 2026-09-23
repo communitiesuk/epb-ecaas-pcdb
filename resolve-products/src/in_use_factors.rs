@@ -195,7 +195,7 @@ pub mod mocks {
     async fn test_can_access_mock() {
         let fixture_access = FixtureBackedInUseFactorsAccess;
         let result = fixture_access.in_use_factors::<MVInUseFactorEntry>().await;
-        assert!(result.is_ok());
+        assert!(result.is_ok(), "{result:?}");
         assert_eq!(
             result
                 .unwrap()

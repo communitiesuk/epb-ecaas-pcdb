@@ -88,6 +88,7 @@ pub fn transform(
 mod tests {
     use super::*;
     use crate::transform::catalogue::{mock_energy_supplies, transformed_input_matches_expected};
+    use assert_ok::assert_ok;
     use rstest::{fixture, rstest};
     use serde_json::{Value, json};
     use std::collections::HashMap;
@@ -146,7 +147,7 @@ mod tests {
             product_reference,
             &energy_supplies,
         );
-        assert!(result.is_ok());
+        assert_ok!(result);
 
         let expected_input = expected_boiler_input(product_reference);
         transformed_input_matches_expected(&boiler_input, expected_input);

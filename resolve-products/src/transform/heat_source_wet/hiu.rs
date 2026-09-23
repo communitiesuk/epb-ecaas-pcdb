@@ -33,6 +33,7 @@ pub(crate) fn transform(
 mod tests {
     use super::*;
     use crate::transform::catalogue::transformed_input_matches_expected;
+    use assert_ok::assert_ok;
     use serde_json::{from_str, json};
     use std::collections::HashMap;
 
@@ -61,7 +62,7 @@ mod tests {
             product_reference,
         );
 
-        assert!(result.is_ok());
+        assert_ok!(result);
         transformed_input_matches_expected(&input, expected);
     }
 

@@ -93,6 +93,7 @@ mod tests {
     use super::*;
     use crate::transform::catalogue::mock_energy_supplies;
     use crate::transform::space_heat_system::transform;
+    use assert_ok::assert_ok;
     use rstest::*;
     use serde_json::{from_str, json};
     use std::sync::LazyLock;
@@ -125,7 +126,7 @@ mod tests {
             }
         });
 
-        assert!(result.is_ok());
+        assert_ok!(result);
 
         assert_eq!(
             input,

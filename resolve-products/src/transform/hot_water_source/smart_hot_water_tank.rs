@@ -68,6 +68,7 @@ pub fn transform(
 mod tests {
     use super::*;
     use crate::products::Product;
+    use assert_ok::assert_ok;
     use serde_json::{from_str, json};
     use std::collections::HashMap;
 
@@ -100,7 +101,7 @@ mod tests {
             &HashMap::from([(product_reference.into(), pcdb_smart_tank)]),
         );
 
-        assert!(result.is_ok());
+        assert_ok!(result);
         assert_eq!(
             input,
             expected,

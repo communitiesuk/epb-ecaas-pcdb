@@ -54,6 +54,7 @@ pub(crate) fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use assert_ok::assert_ok;
     use serde_json::{from_str, json};
 
     fn input(product_reference: &str) -> JsonValue {
@@ -84,7 +85,7 @@ mod tests {
             &HashMap::from([(product_reference.into(), pcdb_shower)]),
         );
 
-        assert!(result.is_ok());
+        assert_ok!(result);
         assert_eq!(
             input,
             expected,

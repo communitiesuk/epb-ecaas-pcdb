@@ -80,6 +80,7 @@ mod tests {
     use crate::transform::mechanical_ventilation::{
         expected_transformed_mech_vent_input, mechanical_ventilation_pcdb_products,
     };
+    use assert_ok::assert_ok;
     use rstest::{fixture, rstest};
     use serde_json::{Value, json};
     use std::collections::HashMap;
@@ -138,7 +139,7 @@ mod tests {
             &in_use_factor_access,
         )
         .await;
-        assert!(result.is_ok());
+        assert_ok!(result);
 
         let expected_input = expected_transformed_mech_vent_input(product_reference);
         transformed_input_matches_expected(&mvhr_input, expected_input);
@@ -168,7 +169,7 @@ mod tests {
             &in_use_factor_access,
         )
         .await;
-        assert!(result.is_ok());
+        assert_ok!(result);
 
         let expected_input = expected_transformed_mech_vent_input(product_reference);
         transformed_input_matches_expected(&mvhr_input_value, expected_input);

@@ -89,6 +89,7 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use assert_ok::assert_ok;
     use rstest::rstest;
     use serde_json::{from_str, json};
     use std::collections::HashMap;
@@ -126,7 +127,7 @@ mod tests {
             &HashMap::from([(product_reference.into(), pcdb_wwhrs)]),
         );
 
-        assert!(result.is_ok());
+        assert_ok!(result);
         assert_eq!(
             input,
             expected,

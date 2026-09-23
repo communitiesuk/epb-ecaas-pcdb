@@ -147,6 +147,7 @@ mod tests {
     use super::*;
     use crate::ALL_PRODUCT_REFERENCE_FIELDS;
     use crate::transform::catalogue::{FixtureBackedProductCatalogue, mock_energy_supplies};
+    use assert_ok::assert_ok;
     use rstest::{fixture, rstest};
     use serde_json::{from_str, json};
 
@@ -255,7 +256,7 @@ mod tests {
             &energy_supplies,
         )
         .await;
-        assert!(result.is_ok());
+        assert_ok!(result);
 
         let pointers = [
             "/HeatSourceWet/hp",

@@ -95,6 +95,7 @@ mod tests {
     use crate::transform::EnergySupplies;
     use crate::transform::catalogue::{mock_energy_supplies, transformed_input_matches_expected};
     use crate::transform::heat_source_wet::heat_battery_dry_core::transform;
+    use assert_ok::assert_ok;
     use rstest::{fixture, rstest};
     use serde_json::{Map, Value as JsonValue, json};
     use std::collections::HashMap;
@@ -151,7 +152,7 @@ mod tests {
             product_reference,
             &energy_supplies,
         );
-        assert!(result.is_ok());
+        assert_ok!(result);
         let expected_input = expected_transformed_input(product_reference);
         transformed_input_matches_expected(&dry_core_input, expected_input);
     }

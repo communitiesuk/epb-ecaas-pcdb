@@ -114,6 +114,7 @@ mod tests {
     use super::*;
     use crate::in_use_factors::mocks::FixtureBackedInUseFactorsAccess;
     use crate::transform::catalogue::mock_energy_supplies;
+    use assert_ok::assert_ok;
     use rstest::*;
     use serde_json::{from_str, json};
     use std::collections::HashMap;
@@ -157,7 +158,7 @@ mod tests {
         )
         .await;
 
-        assert!(result.is_ok());
+        assert_ok!(result);
         assert_eq!(
             input,
             expected,

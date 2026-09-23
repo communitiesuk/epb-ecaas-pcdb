@@ -276,6 +276,7 @@ mod tests {
     use crate::transform::catalogue::{
         FixtureBackedProductCatalogue, mock_energy_supplies, transformed_input_matches_expected,
     };
+    use assert_ok::assert_ok;
     use rstest::{fixture, rstest};
     use serde_json::{Value, json};
     use std::collections::HashMap;
@@ -348,7 +349,7 @@ mod tests {
             &mock_energy_supplies(),
         )
         .await;
-        assert!(result.is_ok(), "result: {result:?}");
+        assert_ok!(result);
 
         let expected_input = expected_heat_pump_input(product_reference);
         transformed_input_matches_expected(&input, expected_input);
