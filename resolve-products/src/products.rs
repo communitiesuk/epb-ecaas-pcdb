@@ -136,7 +136,7 @@ pub(crate) enum Technology {
         #[serde(rename = "velocityInHEXTubeAt1LPerMinMPerS")]
         velocity_in_hex_tube_at_1_l_per_min_m_per_s: Decimal,
     },
-    #[serde(alias = "HeatBatteryDryCore", rename_all = "camelCase")]
+    #[serde(rename = "HeatBatteryDryCore", rename_all = "camelCase")]
     HeatBatteryDryCore {
         fuel: FuelType,
         electricity_circ_pump: Decimal,
@@ -203,7 +203,7 @@ pub(crate) enum Technology {
         /// Convective heat output fraction (unitless)
         frac_convective: Decimal,
     },
-    #[serde(alias = "FanCoils")]
+    #[serde(rename = "FanCoils")]
     FanCoil {
         /// The number of fan speeds (n) for which data are provided in the record (maximum 5)
         number_of_fan_speeds: usize,
@@ -212,27 +212,27 @@ pub(crate) enum Technology {
         frac_convective: Decimal,
         test_data: Vec<FanCoilTestDatum>,
     },
-    #[serde(alias = "CentralisedMev")]
+    #[serde(rename = "CentralisedMev")]
     CentralisedMev {
         #[serde(rename = "testData")]
         test_data: Vec<CentralisedMevTestDatum>,
     },
-    #[serde(alias = "CentralisedMvhr")]
+    #[serde(rename = "CentralisedMvhr")]
     CentralisedMvhr {
         #[serde(rename = "testData")]
         test_data: Vec<CentralisedMvhrTestDatum>,
     },
-    #[serde(alias = "DecentralisedMev")]
+    #[serde(rename = "DecentralisedMev")]
     DecentralisedMev {
         #[serde(rename = "testData")]
         test_data: Vec<DecentralisedMevTestDatum>,
     },
-    #[serde(alias = "CentralisedMv")]
+    #[serde(rename = "CentralisedMv")]
     CentralisedMv {
         #[serde(rename = "testData")]
         test_data: Vec<CentralisedMvTestDatum>,
     },
-    #[serde(alias = "SmartHotWaterTank")]
+    #[serde(rename = "SmartHotWaterTank")]
     SmartHotWaterTank {
         /// Usable temperature (unit: degree Celsius)
         temp_usable: Decimal,
