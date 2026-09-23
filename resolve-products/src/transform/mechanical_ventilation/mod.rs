@@ -45,11 +45,13 @@ pub async fn transform(
 
     for mech_vent in mechanical_ventilation.values_mut() {
         if let JsonValue::Object(mech_vent_object) = mech_vent {
+            if !mech_vent_object.contains_key(PRODUCT_REFERENCE_FIELD) {
+                continue;
+            }
+
             if let Some(vent_type) = mech_vent_object.get("vent_type").and_then(|v| v.as_str()) {
                 match vent_type {
-                    "Decentralised continuous MEV"
-                        if mech_vent_object.contains_key(PRODUCT_REFERENCE_FIELD) =>
-                    {
+                    "Decentralised continuous MEV" => {
                         let product_reference =
                             product_reference_from_json_object(mech_vent_object)?;
 
@@ -61,9 +63,7 @@ pub async fn transform(
                         )
                         .await?
                     }
-                    "Centralised continuous MEV"
-                        if mech_vent_object.contains_key(PRODUCT_REFERENCE_FIELD) =>
-                    {
+                    "Centralised continuous MEV" => {
                         let product_reference =
                             product_reference_from_json_object(mech_vent_object)?;
 
@@ -76,7 +76,7 @@ pub async fn transform(
                         )
                         .await?
                     }
-                    "MVHR" if mech_vent_object.contains_key(PRODUCT_REFERENCE_FIELD) => {
+                    "MVHR" => {
                         let product_reference =
                             product_reference_from_json_object(mech_vent_object)?;
 
