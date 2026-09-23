@@ -1,8 +1,7 @@
 mod air_powered_shower;
-mod heat_pump_hw_only;
 pub mod heat_source_wet;
+mod hot_water_source;
 mod mechanical_ventilation;
-mod smart_hot_water_tank;
 mod space_heat_system;
 mod wwhrs;
 
@@ -40,9 +39,8 @@ pub async fn transform_json(
 
     heat_source_wet::transform(json, &products, &product_catalogue, &energy_supplies).await?;
     space_heat_system::transform(json, &products, &energy_supplies)?;
+    hot_water_source::transform(json, &products, &in_use_factors_access, &energy_supplies).await?;
     wwhrs::transform(json, &products)?;
-    heat_pump_hw_only::transform(json, &products, &in_use_factors_access, &energy_supplies).await?;
-    smart_hot_water_tank::transform(json, &products)?;
     mechanical_ventilation::transform(json, &products, &in_use_factors_access).await?;
     air_powered_shower::transform(json, &products)?;
 
