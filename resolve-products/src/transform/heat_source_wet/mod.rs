@@ -44,12 +44,13 @@ pub async fn transform(
                             "is_heat_network value was expected on a HeatSourceWet node",
                         )
                     })?;
-                if is_heat_network {
-                    let heat_network_reference = String::from(heat_source_object.get("heat_network_reference").and_then(JsonValue::as_str).ok_or_else(
-                        || ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck(
-                            "heat_network_reference value was expected on a HeatSourceWet node with is_heat_network=true",
-                        )
-                    )?);
+                if let (true, Some(heat_network_reference)) = (
+                    is_heat_network,
+                    heat_source_object
+                        .get("heat_network_reference")
+                        .and_then(JsonValue::as_str),
+                ) {
+                    let heat_network_reference = heat_network_reference.to_owned();
                     heat_network::transform(
                         heat_source_object,
                         &products[heat_network_reference.as_str()],
@@ -204,6 +205,22 @@ mod tests {
                     "is_heat_network": true,
                     "heat_network_reference": "heatNetwork",
                     "sub_heat_network_name": "Thomas's Shed"
+                },
+                "hiu_no_heat_network_reference": {
+                    "type": "HIU",
+                    "EnergySupply": {
+                        "name": "custom_heat_network_supply",
+                        "factor": {
+                            "Emissions Factor kgCO2e/kWh": 0.99,
+                            "Emissions Factor kgCO2e/kWh including out-of-scope emissions": 0.99,
+                            "Primary Energy Factor kWh/kWh delivered": 0.99
+                        },
+                        "is_export_capable": false
+                    },
+                    "power_max": 3.0,
+                    "HIU_daily_loss": 0.8,
+                    "is_heat_network": true,
+                    "heat_network_type": "sleeved DHN"
                 }
             }
         })
