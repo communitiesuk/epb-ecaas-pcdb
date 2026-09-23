@@ -1,6 +1,6 @@
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
-use crate::products::{BoilerLocation, Product, Technology};
+use crate::products::{BoilerLocation, HeatSourceWetBoilerFields, Product, Technology};
 use crate::transform::{EnergySupplies, InvalidProductCategoryError, ResolveProductsResult};
 use rust_decimal::prelude::ToPrimitive;
 use serde_json::{Map, Value as JsonValue, json};
@@ -11,7 +11,16 @@ pub fn transform(
     product_reference: &str,
     energy_supplies: &EnergySupplies,
 ) -> ResolveProductsResult<()> {
-    if let Technology::Boiler {
+    println!("product: {product:?}");
+    let heat_source_wet_fields = match &product.technology {
+        Technology::RegularBoiler { heat_source_wet } => heat_source_wet,
+        Technology::CombiBoiler { heat_source_wet } => heat_source_wet,
+        _ => {
+            return Err(InvalidProductCategoryError::from((product_reference, "boiler")).into());
+        }
+    };
+
+    let HeatSourceWetBoilerFields {
         fuel,
         fuel_aux,
         rated_power,
@@ -24,62 +33,59 @@ pub fn transform(
         electricity_full_load,
         electricity_standby,
         ..
-    } = &product.technology
-    {
-        let energy_supply = energy_supplies
-            .get(fuel)
-            .ok_or_else(|| ResolvePcdbProductsError::from(fuel))?;
-        let energy_supply_aux = energy_supplies
-            .get(fuel_aux)
-            .ok_or_else(|| ResolvePcdbProductsError::from(fuel_aux))?;
-        boiler.insert("EnergySupply".into(), json!(energy_supply.as_ref()));
-        boiler.insert("EnergySupply_aux".into(), json!(energy_supply_aux.as_ref()));
+    } = heat_source_wet_fields;
 
-        boiler.insert("rated_power".into(), rated_power.to_f64().into());
-        boiler.insert(
-            "efficiency_full_load".into(),
-            efficiency_full_load.to_f64().into(),
-        );
-        boiler.insert(
-            "efficiency_part_load".into(),
-            efficiency_part_load.to_f64().into(),
-        );
-        boiler.insert("modulation_load".into(), modulation_load.to_f64().into());
-        boiler.insert(
-            "electricity_circ_pump".into(),
-            electricity_circ_pump.to_f64().into(),
-        );
-        boiler.insert(
-            "electricity_part_load".into(),
-            electricity_part_load.to_f64().into(),
-        );
-        boiler.insert(
-            "electricity_full_load".into(),
-            electricity_full_load.to_f64().into(),
-        );
-        boiler.insert(
-            "electricity_standby".into(),
-            electricity_standby.to_f64().into(),
-        );
+    let energy_supply = energy_supplies
+        .get(fuel)
+        .ok_or_else(|| ResolvePcdbProductsError::from(fuel))?;
+    let energy_supply_aux = energy_supplies
+        .get(fuel_aux)
+        .ok_or_else(|| ResolvePcdbProductsError::from(fuel_aux))?;
+    boiler.insert("EnergySupply".into(), json!(energy_supply.as_ref()));
+    boiler.insert("EnergySupply_aux".into(), json!(energy_supply_aux.as_ref()));
 
-        match boiler_location {
-            BoilerLocation::Unknown => {
-                let specified_location = boiler
+    boiler.insert("rated_power".into(), rated_power.to_f64().into());
+    boiler.insert(
+        "efficiency_full_load".into(),
+        efficiency_full_load.to_f64().into(),
+    );
+    boiler.insert(
+        "efficiency_part_load".into(),
+        efficiency_part_load.to_f64().into(),
+    );
+    boiler.insert("modulation_load".into(), modulation_load.to_f64().into());
+    boiler.insert(
+        "electricity_circ_pump".into(),
+        electricity_circ_pump.to_f64().into(),
+    );
+    boiler.insert(
+        "electricity_part_load".into(),
+        electricity_part_load.to_f64().into(),
+    );
+    boiler.insert(
+        "electricity_full_load".into(),
+        electricity_full_load.to_f64().into(),
+    );
+    boiler.insert(
+        "electricity_standby".into(),
+        electricity_standby.to_f64().into(),
+    );
+
+    match boiler_location {
+        BoilerLocation::Unknown => {
+            let specified_location = boiler
                     .get("specified_location")
                     .ok_or_else(|| ResolvePcdbProductsError::InvalidCombination("Expected location for boiler to be specified as boiler location from PCDB is unknown".into()))?;
 
-                boiler.insert("boiler_location".into(), specified_location.as_str().into());
-            }
-            _ => {
-                boiler.insert("boiler_location".into(), boiler_location.to_string().into());
-            }
+            boiler.insert("boiler_location".into(), specified_location.as_str().into());
         }
-
-        boiler.remove("specified_location");
-        boiler.remove(PRODUCT_REFERENCE_FIELD);
-    } else {
-        return Err(InvalidProductCategoryError::from((product_reference, "boiler")).into());
+        _ => {
+            boiler.insert("boiler_location".into(), boiler_location.to_string().into());
+        }
     }
+
+    boiler.remove("specified_location");
+    boiler.remove(PRODUCT_REFERENCE_FIELD);
 
     Ok(())
 }
@@ -147,6 +153,7 @@ mod tests {
             product_reference,
             &energy_supplies,
         );
+
         assert_ok!(result);
 
         let expected_input = expected_boiler_input(product_reference);

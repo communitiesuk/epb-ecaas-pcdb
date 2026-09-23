@@ -2,8 +2,8 @@ use crate::PRODUCT_REFERENCE_FIELD;
 use crate::errors::ResolvePcdbProductsError;
 use crate::products::{
     HeatPumpBackupControlType, HeatPumpExhaustAirMixedFields, HeatPumpSourceType,
-    HeatPumpTestDatum, HeatPumpTestDatumExhaustAirMixedFields, HeatPumpTestLetter, Product,
-    ProductCatalogue, Technology, find_product_for_reference,
+    HeatPumpTestDatum, HeatPumpTestDatumExhaustAirMixedFields, HeatPumpTestLetter,
+    HeatSourceWetBoilerFields, Product, ProductCatalogue, Technology, find_product_for_reference,
 };
 use crate::transform::{EnergySupplies, InvalidProductCategoryError, ResolveProductsResult};
 use rust_decimal::prelude::ToPrimitive;
@@ -97,7 +97,19 @@ pub async fn transform(
             if let Some(boiler_product_id) = boiler_product_id {
                 let boiler_product =
                     find_product_for_reference(boiler_product_id, catalogue).await?;
-                if let Technology::Boiler {
+                let heat_source_fields = match boiler_product.technology {
+                    Technology::RegularBoiler { heat_source_wet } => heat_source_wet,
+                    Technology::CombiBoiler { heat_source_wet } => heat_source_wet,
+                    _ => {
+                        return Err(InvalidProductCategoryError::from((
+                            boiler_product_id.as_str(),
+                            "boiler",
+                        ))
+                        .into());
+                    }
+                };
+
+                let HeatSourceWetBoilerFields {
                     rated_power,
                     efficiency_full_load,
                     efficiency_part_load,
@@ -110,54 +122,53 @@ pub async fn transform(
                     fuel,
                     fuel_aux,
                     ..
-                } = boiler_product.technology
-                {
-                    let boiler = heat_pump
-                        .entry("boiler")
-                        .or_insert_with(Default::default)
-                        .as_object_mut()
-                        .ok_or_else(|| {
-                            ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck(
-                                "Boiler JSON node within a heat pump was expected to be an object",
-                            )
-                        })?;
-                    boiler.insert("rated_power".into(), rated_power.as_f64().into());
-                    boiler.insert(
-                        "efficiency_full_load".into(),
-                        efficiency_full_load.as_f64().into(),
-                    );
-                    boiler.insert(
-                        "efficiency_part_load".into(),
-                        efficiency_part_load.as_f64().into(),
-                    );
-                    boiler.insert("boiler_location".into(), json!(boiler_location));
-                    boiler.insert("modulation_load".into(), modulation_load.as_f64().into());
-                    boiler.insert(
-                        "electricity_circ_pump".into(),
-                        electricity_circ_pump.as_f64().into(),
-                    );
-                    boiler.insert(
-                        "electricity_part_load".into(),
-                        electricity_part_load.as_f64().into(),
-                    );
-                    boiler.insert(
-                        "electricity_full_load".into(),
-                        electricity_full_load.as_f64().into(),
-                    );
-                    boiler.insert(
-                        "electricity_standby".into(),
-                        electricity_standby.as_f64().into(),
-                    );
+                } = heat_source_fields;
 
-                    let energy_supply = energy_supplies
-                        .get(&fuel)
-                        .ok_or_else(|| ResolvePcdbProductsError::from(&fuel))?;
-                    let energy_supply_aux = energy_supplies
-                        .get(&fuel_aux)
-                        .ok_or_else(|| ResolvePcdbProductsError::from(&fuel_aux))?;
-                    boiler.insert("EnergySupply".into(), json!(energy_supply.as_ref()));
-                    boiler.insert("EnergySupply_aux".into(), json!(energy_supply_aux.as_ref()));
-                }
+                let boiler = heat_pump
+                    .entry("boiler")
+                    .or_insert_with(Default::default)
+                    .as_object_mut()
+                    .ok_or_else(|| {
+                        ResolvePcdbProductsError::InvalidRequestEncounteredAfterSchemaCheck(
+                            "Boiler JSON node within a heat pump was expected to be an object",
+                        )
+                    })?;
+                boiler.insert("rated_power".into(), rated_power.as_f64().into());
+                boiler.insert(
+                    "efficiency_full_load".into(),
+                    efficiency_full_load.as_f64().into(),
+                );
+                boiler.insert(
+                    "efficiency_part_load".into(),
+                    efficiency_part_load.as_f64().into(),
+                );
+                boiler.insert("boiler_location".into(), json!(boiler_location));
+                boiler.insert("modulation_load".into(), modulation_load.as_f64().into());
+                boiler.insert(
+                    "electricity_circ_pump".into(),
+                    electricity_circ_pump.as_f64().into(),
+                );
+                boiler.insert(
+                    "electricity_part_load".into(),
+                    electricity_part_load.as_f64().into(),
+                );
+                boiler.insert(
+                    "electricity_full_load".into(),
+                    electricity_full_load.as_f64().into(),
+                );
+                boiler.insert(
+                    "electricity_standby".into(),
+                    electricity_standby.as_f64().into(),
+                );
+
+                let energy_supply = energy_supplies
+                    .get(&fuel)
+                    .ok_or_else(|| ResolvePcdbProductsError::from(&fuel))?;
+                let energy_supply_aux = energy_supplies
+                    .get(&fuel_aux)
+                    .ok_or_else(|| ResolvePcdbProductsError::from(&fuel_aux))?;
+                boiler.insert("EnergySupply".into(), json!(energy_supply.as_ref()));
+                boiler.insert("EnergySupply_aux".into(), json!(energy_supply_aux.as_ref()));
             }
         } else {
             // ensure we don't keep any boiler node on the heat pump

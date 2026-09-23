@@ -98,19 +98,15 @@ pub(crate) enum Technology {
         #[serde(flatten)]
         exhaust_air_mixed_fields: Option<HeatPumpExhaustAirMixedFields>,
     },
-    #[serde(alias = "RegularBoiler", alias = "CombiBoiler")]
-    Boiler {
-        fuel: FuelType,
-        fuel_aux: FuelType,
-        rated_power: Decimal,
-        efficiency_full_load: Decimal,
-        efficiency_part_load: Decimal,
-        boiler_location: BoilerLocation,
-        modulation_load: Decimal,
-        electricity_circ_pump: Decimal,
-        electricity_part_load: Decimal,
-        electricity_full_load: Decimal,
-        electricity_standby: Decimal,
+    #[serde(rename = "RegularBoiler")]
+    RegularBoiler {
+        #[serde(flatten)]
+        heat_source_wet: HeatSourceWetBoilerFields,
+    },
+    #[serde(rename = "CombiBoiler")]
+    CombiBoiler {
+        #[serde(flatten)]
+        heat_source_wet: HeatSourceWetBoilerFields,
     },
     #[serde(rename = "HeatBatteryPCM")]
     HeatBatteryPcm {
@@ -374,6 +370,22 @@ pub(crate) enum HeatPumpTestLetter {
     D,
     E,
     F,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct HeatSourceWetBoilerFields {
+    pub(crate) fuel: FuelType,
+    pub(crate) fuel_aux: FuelType,
+    pub(crate) rated_power: Decimal,
+    pub(crate) efficiency_full_load: Decimal,
+    pub(crate) efficiency_part_load: Decimal,
+    pub(crate) boiler_location: BoilerLocation,
+    pub(crate) modulation_load: Decimal,
+    pub(crate) electricity_circ_pump: Decimal,
+    pub(crate) electricity_part_load: Decimal,
+    pub(crate) electricity_full_load: Decimal,
+    pub(crate) electricity_standby: Decimal,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize_enum_str, Eq, Hash, PartialEq, Serialize_enum_str)]
