@@ -36,7 +36,8 @@
     "ratedPower": 0,
     "rejectedEnergy1": 0.0,
     "storageLossFactor1": 0.1,
-    "storeType": 0
+    "storeType": 0,
+    "separateDhwTests": "No_additional_tests"
   },
   "boiler_unknown_location": {
     "id": "222",
@@ -75,6 +76,7 @@
     "ratedPower": 0,
     "rejectedEnergy1": 0.0,
     "storageLossFactor1": 0.1,
-    "storeType": 0
+    "storeType": 0,
+    "separateDhwTests": "M&L"
   }
 }
