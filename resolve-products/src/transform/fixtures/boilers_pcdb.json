@@ -76,6 +76,8 @@
     "ratedPower": 0,
     "rejectedEnergy1": 0.0,
     "storageLossFactor1": 0.1,
+    "storageLossFactor2": 0.2,
+    "rejectedFactor3": 0.4,
     "storeType": 0,
     "separateDhwTests": "M&L"
   }
