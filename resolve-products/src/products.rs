@@ -107,6 +107,9 @@ pub(crate) enum Technology {
     CombiBoiler {
         #[serde(flatten)]
         heat_source_wet: HeatSourceWetBoilerFields,
+
+        #[serde(flatten)]
+        hot_water_source: CombiBoilerHotWaterSourceFields,
     },
     #[serde(rename = "HeatBatteryPCM")]
     HeatBatteryPcm {
@@ -386,6 +389,34 @@ pub(crate) struct HeatSourceWetBoilerFields {
     pub(crate) electricity_part_load: Decimal,
     pub(crate) electricity_full_load: Decimal,
     pub(crate) electricity_standby: Decimal,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct CombiBoilerHotWaterSourceFields {
+    // TODO once PCDB data is guaranteed to coain
+    #[serde(default)]
+    pub(crate) separate_dhw_tests: CombiBoilerHotWaterTestType,
+    pub(crate) rejected_energy_1: f64,
+    pub(crate) storage_loss_factor_1: f64,
+    pub(crate) storage_loss_factor_2: Option<f64>,
+    pub(crate) rejected_factor_3: Option<f64>,
+}
+
+// TODO once PCDB data is guaranteed to contain separateDhwTests field, the derive for the Default trait should be removed
+#[derive(Clone, Copy, Default, Deserialize_enum_str, PartialEq, Debug, Serialize_enum_str)]
+pub(crate) enum CombiBoilerHotWaterTestType {
+    #[serde(rename = "M&L")]
+    ML,
+    #[serde(rename = "M&S")]
+    MS,
+    #[serde(rename = "M_only")]
+    MOnly,
+    #[serde(rename = "No_additional_tests")]
+    // 'No_additional_tests' is most common type in the wild, so a good default for now
+    #[default]
+    // TODO: once PCDB data is guaranteed to contain separateDhwTests field, this default annotation should be removed
+    NoAdditionalTests,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize_enum_str, Eq, Hash, PartialEq, Serialize_enum_str)]

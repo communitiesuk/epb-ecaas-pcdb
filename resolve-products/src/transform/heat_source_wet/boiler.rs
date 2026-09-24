@@ -11,10 +11,11 @@ pub fn transform(
     product_reference: &str,
     energy_supplies: &EnergySupplies,
 ) -> ResolveProductsResult<()> {
-    println!("product: {product:?}");
     let heat_source_wet_fields = match &product.technology {
         Technology::RegularBoiler { heat_source_wet } => heat_source_wet,
-        Technology::CombiBoiler { heat_source_wet } => heat_source_wet,
+        Technology::CombiBoiler {
+            heat_source_wet, ..
+        } => heat_source_wet,
         _ => {
             return Err(InvalidProductCategoryError::from((product_reference, "boiler")).into());
         }

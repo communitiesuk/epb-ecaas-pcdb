@@ -64,6 +64,68 @@ async fn test_valid_input_succeeds(#[case] input: &str, #[case] expected_transfo
 }
 
 #[tokio::test]
+async fn test_valid_input_with_combi_boiler_succeeds() {
+    let environment = common::setup().await;
+    let client = environment.dynamo_client();
+
+    let mut input_json: Value = serde_json::from_str(INPUT_WITH_PRODUCT_REFS).unwrap();
+    let mut expected_json: Value =
+        serde_json::from_str(include_str!("fixtures/input_transformed.json")).unwrap();
+
+    input_json["HotWaterSource"]["hw cylinder"] = json!({
+        "type": "CombiBoiler",
+        "ColdWaterSource": "mains water",
+        "HeatSourceWet": "boiler",
+        "product_reference": "boiler",
+    });
+    expected_json["HotWaterSource"]["hw cylinder"] = json!({
+        "type": "CombiBoiler",
+        "ColdWaterSource": "mains water",
+        "HeatSourceWet": "boiler",
+        "rejected_energy_1": 0.0,
+        "storage_loss_factor_1": 0.1,
+        "separate_DHW_tests": "No_additional_tests",
+    });
+
+    let expected_transformed = serde_json::to_string(&expected_json).unwrap();
+
+    let mut input_reader = Cursor::new(serde_json::to_string(&input_json).unwrap());
+
+    let result = resolve_products::resolve_products(&mut input_reader, client).await;
+
+    assert!(result.is_ok(), "{}", result.unwrap_err());
+
+    let transformed_input: Value = serde_json::from_reader(result.unwrap()).unwrap();
+    let expected: Value = from_str(&expected_transformed).unwrap();
+
+    assert!(
+        !to_string(&transformed_input)
+            .unwrap()
+            .contains(PRODUCT_REFERENCE_FIELD),
+        "transformed input: {}",
+        serde_json::to_string_pretty(&transformed_input).unwrap()
+    );
+
+    let mut actual_keys = transformed_input.as_object().unwrap().keys().collect_vec();
+    actual_keys.sort();
+    let mut expected_keys = expected.as_object().unwrap().keys().collect_vec();
+    expected_keys.sort();
+
+    assert_eq!(actual_keys, expected_keys);
+    for key in expected_keys {
+        assert_eq!(transformed_input[key], expected[key], "{:?}", key);
+    }
+
+    let schema_validation = validate_against_target_schema(&transformed_input).await;
+
+    assert!(
+        schema_validation.is_ok(),
+        "{:?}",
+        schema_validation.unwrap_err()
+    );
+}
+
+#[tokio::test]
 async fn test_unknown_product_ref_errors() {
     let environment = common::setup().await;
     let client = environment.dynamo_client();

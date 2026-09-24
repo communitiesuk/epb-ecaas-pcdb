@@ -6,6 +6,7 @@ use serde_json::Value as JsonValue;
 use smartstring::alias::String;
 use std::collections::HashMap;
 
+mod combi_boiler;
 pub mod heat_pump_hw_only;
 pub mod smart_hot_water_tank;
 
@@ -27,6 +28,7 @@ pub async fn transform(
         .map(|sources| sources.values_mut().filter_map(JsonValue::as_object_mut))
         .into_iter()
         .flatten();
+
     for heat_source in heat_sources {
         if let Some(heat_source_type) = heat_source.get("type").and_then(|v| v.as_str()) {
             match heat_source_type {
@@ -58,6 +60,9 @@ pub async fn transform(
     match source_type.as_str() {
         "SmartHotWaterTank" => {
             smart_hot_water_tank::transform(hot_water_source, products)?;
+        }
+        "CombiBoiler" => {
+            combi_boiler::transform(hot_water_source, products)?;
         }
         _ => {}
     }

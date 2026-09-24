@@ -1,0 +1,20 @@
+{
+  "boiler": {
+    "type": "CombiBoiler",
+    "ColdWaterSource": "mains water",
+    "HeatSourceWet": "combi boiler",
+    "separate_DHW_tests": "No_additional_tests",
+    "rejected_energy_1": 0.0,
+    "storage_loss_factor_1": 0.1
+  },
+  "boiler_unknown_location": {
+    "type": "CombiBoiler",
+    "ColdWaterSource": "mains water",
+    "HeatSourceWet": "combi boiler",
+    "separate_DHW_tests": "M&L",
+    "rejected_energy_1": 0.0,
+    "storage_loss_factor_1": 0.1,
+    "storage_loss_factor_2": 0.2,
+    "rejected_factor_3": 0.4
+  }
+}

@@ -230,7 +230,8 @@
     "ratedPower": 1,
     "rejectedEnergy1": 0.0,
     "storageLossFactor1": 0.1,
-    "storeType": 0
+    "storeType": 0,
+    "separateDhwTests": "No_additional_tests"
   },
   "hb_pcm": {
     "id": "hb_pcm",

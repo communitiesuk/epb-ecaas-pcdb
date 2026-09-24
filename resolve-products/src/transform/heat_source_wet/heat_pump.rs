@@ -99,7 +99,9 @@ pub async fn transform(
                     find_product_for_reference(boiler_product_id, catalogue).await?;
                 let heat_source_fields = match boiler_product.technology {
                     Technology::RegularBoiler { heat_source_wet } => heat_source_wet,
-                    Technology::CombiBoiler { heat_source_wet } => heat_source_wet,
+                    Technology::CombiBoiler {
+                        heat_source_wet, ..
+                    } => heat_source_wet,
                     _ => {
                         return Err(InvalidProductCategoryError::from((
                             boiler_product_id.as_str(),
