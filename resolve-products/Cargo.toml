@@ -31,7 +31,7 @@ cli = ["dep:clap"]
 assert_ok = "1.0.2"
 aws-config = { version = "1.8.14", features = ["behavior-version-latest"] }
 parking_lot = "0.12.5"
-rstest = "0.26.1"
+rstest = "0.27.0"
 testcontainers-modules = { version = "0.15.0", features = ["dynamodb"] }
 
 
