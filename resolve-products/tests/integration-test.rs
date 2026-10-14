@@ -237,7 +237,7 @@ async fn test_pcdb_product_missing_field_errors() {
     assert!(result.is_err());
     assert!(matches!(
         result.unwrap_err(),
-        ResolvePcdbProductsError::DeserializeError(_)
+        ResolvePcdbProductsError::DeserializeProductError { product_reference: _, source: _ }
     ));
 }
 
@@ -381,4 +381,24 @@ async fn test_unknown_product_variant_caught_as_error() {
         result.unwrap_err(),
         ResolvePcdbProductsError::UnsupportedProductCategory { .. }
     ));
+}
+
+#[tokio::test]
+async fn test_deserialization_error() {
+    let environment = common::setup().await;
+    let client = environment.dynamo_client();
+
+    let mut input: Value = from_str(INPUT_WITH_PRODUCT_REFS).unwrap();
+    input["HeatSourceWet"]["Heat pump"]["product_reference"] = json!("invalid_hp");
+    let mut input_reader = Cursor::new(input.to_string());
+
+    let result = resolve_products::resolve_products(&mut input_reader, client).await;
+    let error = result.unwrap_err();
+    match error {
+        ResolvePcdbProductsError::DeserializeProductError { product_reference, source } => {
+            assert_eq!(product_reference, "invalid_hp");
+            assert_eq!(source.to_string(), "missing field `powerSourceCircPump`");
+        }
+        _ => panic!("Should have encountered DeserializeProductError"),
+    }
 }

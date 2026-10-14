@@ -694,16 +694,23 @@ impl ProductCatalogue for DynamoDbBackedProductCatalogue<'_> {
             .iter()
             .cloned()
             .map(|item| {
-                let product = from_item::<_, Product>(item);
-                let product = match product {
-                    Ok(product) => product,
-                    Err(e) => return Err(e),
-                };
+                let product_reference = item
+                    .get("id")
+                    .map(|id| match id {
+                        AttributeValue::S(s) => s.clone(),
+                        other => format!("{other:?}"),
+                    })
+                    .unwrap();
+                let product = from_item::<_, Product>(item).map_err(|source| {
+                    ResolvePcdbProductsError::DeserializeProductError {
+                        product_reference,
+                        source,
+                    }
+                })?;
 
                 Ok((String::from(product.id.to_string()), product))
             })
-            .collect::<Result<HashMap<_, _>, _>>();
-
-        products.map_err(ResolvePcdbProductsError::DeserializeError)
+            .collect::<Result<HashMap<_, _>, ResolvePcdbProductsError>>()?;
+        Ok(products)
     }
 }
