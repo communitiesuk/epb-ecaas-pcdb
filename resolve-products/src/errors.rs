@@ -9,6 +9,7 @@ use serde_valid::json::ToJsonString;
 use std::collections::BTreeSet;
 use std::fmt::{Display, Formatter};
 use std::string::FromUtf8Error;
+use std::sync::Arc;
 use this_error_from_box::this_error_from_box;
 use thiserror::Error;
 
@@ -174,7 +175,7 @@ pub enum JsonValidationErrorKind {
     /// Results from a [`fancy_regex::RuntimeError::BacktrackLimitExceeded`] variant when matching
     BacktrackLimitExceeded,
     /// The input value doesn't match expected constant.
-    Constant { expected_value: Value },
+    Constant { expected_value: Arc<Value> },
     /// The input array doesn't contain items conforming to the specified schema.
     Contains,
     /// The input value does not respect the defined contentEncoding
@@ -184,7 +185,7 @@ pub enum JsonValidationErrorKind {
     /// Custom error message for user-defined validation.
     Custom { message: String },
     /// The input value doesn't match any of specified options.
-    Enum { options: Value },
+    Enum { options: Arc<Value> },
     /// Value is too large.
     ExclusiveMaximum { limit: Value },
     /// Value is too small.
