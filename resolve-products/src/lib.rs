@@ -13,6 +13,7 @@ use serde_json::Value as JsonValue;
 use std::fmt::Debug;
 use std::io::{BufReader, Cursor, Read};
 use std::sync::LazyLock;
+use jsonschema::validator;
 
 pub async fn resolve_products(
     json: impl Read,
@@ -23,17 +24,8 @@ pub async fn resolve_products(
     let mut input: JsonValue =
         serde_json::from_reader(reader).map_err(|_| ResolvePcdbProductsError::InvalidJson)?;
 
-    let schema_validator = {
-        let schema = serde_json::from_str(include_str!("./combined_schema.json"))
-            .expect("Schema file was not parseable.");
-        jsonschema::async_validator_for(&schema).await.expect(
-            "Failed to create validator for schema. \
-             This is a bug in resolve-products. Please report it.",
-        )
-    };
-
     // validate first
-    if let Err(e) = schema_validator.validate(&input) {
+    if let Err(e) = CombinedSchema::validate(&input) {
         return Err(JsonValidationError::from(e).into());
     }
 
@@ -79,3 +71,6 @@ fn extract_product_references(json: &JsonValue) -> ResolveProductsResult<Vec<Str
         // ensure we get unique product reference
         .map(|v| v.into_iter().unique().collect())
 }
+
+#[validator(path = "./src/combined_schema.json")]
+struct CombinedSchema;

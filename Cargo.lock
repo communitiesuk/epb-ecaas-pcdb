@@ -2081,7 +2081,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7b055418f7dbe79d0c3c6236e4c7dc6de804ec25bbacd5eb2df914de42fa6d61"
 dependencies = [
  "ahash 0.8.12",
- "async-trait",
  "bytecount",
  "data-encoding",
  "email_address",
@@ -2090,6 +2089,7 @@ dependencies = [
  "getrandom 0.3.4",
  "idna",
  "itoa",
+ "jsonschema-macros",
  "jsonschema-regex",
  "jsonschema-value",
  "num-cmp",
@@ -2102,9 +2102,37 @@ dependencies = [
  "serde",
  "serde_json",
  "strum",
- "tokio",
  "unicode-general-category",
  "uuid-simd",
+]
+
+[[package]]
+name = "jsonschema-macros"
+version = "0.58.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e2a69dfc7e9b2accaa8285e37f99b09e533026a6e16678f9e9dc902b9a47e578"
+dependencies = [
+ "jsonschema-macros-core",
+ "proc-macro2",
+]
+
+[[package]]
+name = "jsonschema-macros-core"
+version = "0.58.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "84287770d96c394d39693aff7a7a9ee3d12e4416456f4b225dd4f84554d642d5"
+dependencies = [
+ "fancy-regex",
+ "indexmap 2.14.0",
+ "jsonschema-regex",
+ "percent-encoding",
+ "proc-macro-crate",
+ "proc-macro2",
+ "quote",
+ "referencing",
+ "regex",
+ "serde_json",
+ "syn 2.0.119",
 ]
 
 [[package]]
@@ -2681,9 +2709,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ddfcda65789fdadcc3ddde7b127bd2272deb3fc97fddb4fc94a499f839989990"
 dependencies = [
  "ahash 0.8.12",
- "async-trait",
  "fluent-uri",
- "futures",
  "getrandom 0.3.4",
  "hashbrown 0.17.1",
  "itoa",
