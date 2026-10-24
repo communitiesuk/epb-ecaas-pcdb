@@ -7,7 +7,6 @@ use crate::transform::{
     product_reference_from_json_object,
 };
 use serde_json::{Map, Value as JsonValue, json};
-use smartstring::alias::String;
 use std::collections::HashMap;
 
 pub async fn transform(

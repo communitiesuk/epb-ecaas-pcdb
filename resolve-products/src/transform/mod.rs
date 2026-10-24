@@ -14,7 +14,6 @@ use crate::{PRODUCT_REFERENCE_FIELD, extract_product_references};
 use aws_sdk_dynamodb::client::Client as DynamoDbClient;
 use serde_json::Map;
 use serde_json::value::Value as JsonValue;
-use smartstring::alias::String;
 use std::collections::HashMap;
 use std::sync::Arc;
 use thiserror::Error;
@@ -156,8 +155,8 @@ mod catalogue {
     impl ProductCatalogue for FixtureBackedProductCatalogue {
         async fn find_products_for_references(
             &self,
-            product_references: &[smartstring::alias::String],
-        ) -> ResolveProductsResult<HashMap<smartstring::alias::String, Product>> {
+            product_references: &[String],
+        ) -> ResolveProductsResult<HashMap<String, Product>> {
             let mut missing_product_references = vec![];
             let result = product_references
                 .iter()

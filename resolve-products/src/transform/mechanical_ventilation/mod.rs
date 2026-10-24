@@ -18,12 +18,11 @@ use rust_decimal::Decimal;
 #[cfg(test)]
 use serde_json::Map;
 use serde_json::Value as JsonValue;
-use smartstring::alias::String as SmartString;
 use std::collections::HashMap;
 
 pub async fn transform(
     json: &mut JsonValue,
-    products: &HashMap<SmartString, Product>,
+    products: &HashMap<String, Product>,
     in_use_factors_access: &impl InUseFactorsAccess,
 ) -> ResolveProductsResult<()> {
     let number_of_wetrooms = match json.pointer_mut("/NumberOfWetRooms") {
@@ -176,12 +175,12 @@ mod tests {
     use std::collections::BTreeSet;
 
     #[fixture]
-    fn mechanical_ventilation_pcdb_products() -> HashMap<SmartString, Product> {
+    fn mechanical_ventilation_pcdb_products() -> HashMap<String, Product> {
         serde_json::from_str(include_str!("../fixtures/mechanical_ventilation_pcdb.json")).unwrap()
     }
 
     #[fixture]
-    fn non_mech_vent_pcdb_products() -> HashMap<SmartString, Product> {
+    fn non_mech_vent_pcdb_products() -> HashMap<String, Product> {
         serde_json::from_str(include_str!("../fixtures/hiu_pcdb.json")).unwrap()
     }
 
@@ -271,7 +270,7 @@ mod tests {
     #[tokio::test]
     #[rstest]
     async fn test_transform_mechanical_ventilation_products(
-        mechanical_ventilation_pcdb_products: HashMap<SmartString, Product>,
+        mechanical_ventilation_pcdb_products: HashMap<String, Product>,
     ) {
         let mut mechanical_ventilation_input = mechanical_ventilation_input();
         let result = transform(
@@ -326,7 +325,7 @@ mod tests {
     #[tokio::test]
     #[rstest]
     async fn test_reference_to_wrong_category_errors(
-        non_mech_vent_pcdb_products: HashMap<SmartString, Product>,
+        non_mech_vent_pcdb_products: HashMap<String, Product>,
         mut mechanical_ventilation_input_referencing_bad_category: JsonValue,
         mapped_mech_vent_types: BTreeSet<String>,
     ) {

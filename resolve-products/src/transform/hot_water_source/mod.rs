@@ -3,7 +3,6 @@ use crate::in_use_factors::InUseFactorsAccess;
 use crate::products::Product;
 use crate::transform::{EnergySupplies, ResolveProductsResult};
 use serde_json::Value as JsonValue;
-use smartstring::alias::String;
 use std::collections::HashMap;
 
 mod combi_boiler;

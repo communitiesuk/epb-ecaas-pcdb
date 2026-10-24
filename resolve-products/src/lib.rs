@@ -10,7 +10,6 @@ use aws_sdk_dynamodb::Client as DynamoDbClient;
 use itertools::Itertools;
 use jsonpath_rust::JsonPath;
 use serde_json::Value as JsonValue;
-use smartstring::alias::String;
 use std::fmt::Debug;
 use std::io::{BufReader, Cursor, Read};
 use std::sync::LazyLock;

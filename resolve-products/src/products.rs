@@ -12,7 +12,6 @@ use serde_enum_str::{Deserialize_enum_str, Serialize_enum_str};
 use serde_json::{Number, Value};
 use serde_repr::Deserialize_repr;
 use serde_valid::Validate;
-use smartstring::alias::String;
 use std::collections::{HashMap, HashSet};
 
 pub(crate) async fn find_products_for_references(
@@ -708,7 +707,7 @@ impl ProductCatalogue for DynamoDbBackedProductCatalogue<'_> {
                     }
                 })?;
 
-                Ok((String::from(product.id.to_string()), product))
+                Ok((product.id.to_string(), product))
             })
             .collect::<Result<HashMap<_, _>, ResolvePcdbProductsError>>()?;
         Ok(products)

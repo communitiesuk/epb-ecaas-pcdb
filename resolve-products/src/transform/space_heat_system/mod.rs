@@ -7,7 +7,6 @@ use crate::PRODUCT_REFERENCE_FIELD;
 use crate::products::Product;
 use crate::transform::{EnergySupplies, ResolveProductsResult, product_reference_from_json_object};
 use serde_json::{Value as JsonValue, json};
-use smartstring::alias::String;
 use std::collections::HashMap;
 
 pub fn transform(

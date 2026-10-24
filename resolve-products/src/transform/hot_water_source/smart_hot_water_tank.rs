@@ -5,7 +5,6 @@ use crate::transform::{
     InvalidProductCategoryError, ResolveProductsResult, product_reference_from_json_object,
 };
 use serde_json::{Map, Value as JsonValue};
-use smartstring::alias::String;
 use std::collections::HashMap;
 
 pub fn transform(

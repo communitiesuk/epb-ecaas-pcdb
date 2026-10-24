@@ -10,12 +10,11 @@ use crate::errors::ResolvePcdbProductsError;
 use crate::products::{Product, ProductCatalogue};
 use crate::transform::{EnergySupplies, ResolveProductsResult, product_reference_from_json_object};
 use serde_json::Value as JsonValue;
-use smartstring::alias::String as SmartString;
 use std::collections::HashMap;
 
 pub async fn transform(
     json: &mut JsonValue,
-    products: &HashMap<SmartString, Product>,
+    products: &HashMap<String, Product>,
     catalogue: &impl ProductCatalogue,
     energy_supplies: &EnergySupplies,
 ) -> ResolveProductsResult<()> {
@@ -152,16 +151,16 @@ mod tests {
     use serde_json::{from_str, json};
 
     #[fixture]
-    fn heat_source_wet_pcdb_products() -> HashMap<SmartString, Product> {
-        let hps: HashMap<SmartString, Product> =
+    fn heat_source_wet_pcdb_products() -> HashMap<String, Product> {
+        let hps: HashMap<String, Product> =
             from_str(include_str!("../fixtures/heat_pump_pcdb.json")).unwrap();
-        let boilers: HashMap<SmartString, Product> =
+        let boilers: HashMap<String, Product> =
             from_str(include_str!("../fixtures/boilers_pcdb.json")).unwrap();
-        let pcm_heat_batteries: HashMap<SmartString, Product> =
+        let pcm_heat_batteries: HashMap<String, Product> =
             from_str(include_str!("../fixtures/heat_batteries_pcdb.json")).unwrap();
-        let hiu: HashMap<SmartString, Product> =
+        let hiu: HashMap<String, Product> =
             from_str(include_str!("../fixtures/hiu_pcdb.json")).unwrap();
-        let heat_network: HashMap<SmartString, Product> =
+        let heat_network: HashMap<String, Product> =
             from_str(include_str!("../fixtures/heat_network_pcdb.json")).unwrap();
         hps.into_iter()
             .chain(boilers)
@@ -244,7 +243,7 @@ mod tests {
     #[tokio::test]
     #[rstest]
     async fn test_transform_multiple_heat_source_wet_products(
-        heat_source_wet_pcdb_products: HashMap<SmartString, Product>,
+        heat_source_wet_pcdb_products: HashMap<String, Product>,
         dummy_catalogue: impl ProductCatalogue,
         energy_supplies: EnergySupplies,
     ) {
@@ -311,7 +310,7 @@ mod tests {
     #[case(incorrect_boiler_input())]
     #[case(incorrect_heat_pump_input())]
     async fn test_tranform_errors_given_product_type_mismatch(
-        heat_source_wet_pcdb_products: HashMap<SmartString, Product>,
+        heat_source_wet_pcdb_products: HashMap<String, Product>,
         dummy_catalogue: impl ProductCatalogue,
         energy_supplies: EnergySupplies,
         #[case] mut input: JsonValue,
