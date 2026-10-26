@@ -131,7 +131,7 @@ pub(crate) enum Technology {
         phase_transition_temperature_lower: Decimal,
         rated_charge_power: Decimal,
         simultaneous_charging_and_discharging: bool,
-        #[serde(rename = "velocityInHEXTubeAt1LPerMinMPerS")]
+        #[serde(rename = "velocityInHexTubeAt1LPerMinMPerS")]
         velocity_in_hex_tube_at_1_l_per_min_m_per_s: Decimal,
     },
     #[serde(rename = "HeatBatteryDryCore", rename_all = "camelCase")]

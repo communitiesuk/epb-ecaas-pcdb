@@ -255,7 +255,7 @@
     "phaseTransitionTemperatureUpper": 65.0,
     "ratedChargePower": 1.5,
     "simultaneousChargingAndDischarging": false,
-    "velocityInHEXTubeAt1LPerMinMPerS": 0.05,
+    "velocityInHexTubeAt1LPerMinMPerS": 0.05,
     "controlCharge": "hb_charge_control",
     "serviceProvision": "DHW",
     "firstYearOfManufacture": "2025",
