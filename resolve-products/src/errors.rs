@@ -48,7 +48,9 @@ pub enum ResolvePcdbProductsError {
     InvalidProduct(String, &'static str),
     #[error("Error encountered while trying to access PCDB store.")]
     AccessError(#[from] Box<aws_sdk_dynamodb::Error>),
-    #[error("Error encountered while deserializing PCDB product with reference '{product_reference}': {source}")]
+    #[error(
+        "Error encountered while deserializing PCDB product with reference '{product_reference}': {source}"
+    )]
     DeserializeProductError {
         product_reference: String,
         #[source]

@@ -9,11 +9,11 @@ use crate::transform::{ResolveProductsResult, transform_json};
 use aws_sdk_dynamodb::Client as DynamoDbClient;
 use itertools::Itertools;
 use jsonpath_rust::JsonPath;
+use jsonschema::validator;
 use serde_json::Value as JsonValue;
 use std::fmt::Debug;
 use std::io::{BufReader, Cursor, Read};
 use std::sync::LazyLock;
-use jsonschema::validator;
 
 pub async fn resolve_products(
     json: impl Read,
