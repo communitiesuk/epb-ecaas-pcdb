@@ -17,7 +17,7 @@ serde = { version = "1.0.228", features = ["derive", "rc"] }
 serde-enum-str = "0.5.0"
 serde_dynamo = { version = "4", features = ["aws-sdk-dynamodb+1"] }
 serde_json = "1.0.143"
-serde_valid = "2.0.1"
+serde_valid = "3.2.0"
 tokio = { version = "1", features = ["full"] }
 thiserror = "2.0.18"
 this-error-from-box = "0.2.1"
