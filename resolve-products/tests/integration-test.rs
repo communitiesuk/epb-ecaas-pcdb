@@ -15,7 +15,7 @@ static TARGET_SCHEMA: LazyLock<Value> =
 const INPUT_WITH_PRODUCT_REFS: &str = include_str!("fixtures/input_with_product_refs.json");
 
 async fn validate_against_target_schema(input: &Value) -> Result<(), ValidationError<'_>> {
-    let schema_validator = jsonschema::async_validator_for(&TARGET_SCHEMA).await?;
+    let schema_validator = jsonschema::validator_for(&TARGET_SCHEMA)?;
 
     schema_validator.validate(input)
 }
