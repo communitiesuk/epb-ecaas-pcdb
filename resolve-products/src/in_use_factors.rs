@@ -82,7 +82,7 @@ pub trait InUseFactorsEntry: DeserializeOwned {
 pub trait InUseFactorsAccess {
     async fn in_use_factors<T: InUseFactorsEntry>(
         &self,
-    ) -> Result<Vec<T>, InUseFactorsInaccessibleError>;
+    ) -> Result<Vec<T>, Box<InUseFactorsInaccessibleError>>;
 }
 
 pub struct DynamoDbBackedInUseFactorsAccess<'a> {
@@ -100,14 +100,15 @@ impl<'a> DynamoDbBackedInUseFactorsAccess<'a> {
 impl InUseFactorsAccess for DynamoDbBackedInUseFactorsAccess<'_> {
     async fn in_use_factors<T: InUseFactorsEntry>(
         &self,
-    ) -> Result<Vec<T>, InUseFactorsInaccessibleError> {
+    ) -> Result<Vec<T>, Box<InUseFactorsInaccessibleError>> {
         let data = self
             .dynamo_db_client
             .get_item()
             .table_name("products")
             .key("id", AttributeValue::S(T::entry_id().to_string()))
             .send()
-            .await?
+            .await
+            .map_err(|e| Box::new(InUseFactorsInaccessibleError::DynamoDbError(Box::from(e))))?
             .item
             .and_then(|record| record.get("data").cloned())
             .ok_or(InUseFactorsInaccessibleError::DataKeyMissingFromInUseFactorsRecord)
@@ -121,8 +122,7 @@ impl InUseFactorsAccess for DynamoDbBackedInUseFactorsAccess<'_> {
 
         let mut erroring_attribute_values: Vec<AttributeValue> = vec![];
 
-        Ok(data
-            .into_iter()
+        data.into_iter()
             .map(|item| {
                 from_item::<HashMap<String, AttributeValue>, T>({
                     let map = AttributeValue::as_m(&item).cloned();
@@ -138,8 +138,8 @@ impl InUseFactorsAccess for DynamoDbBackedInUseFactorsAccess<'_> {
             })
             .collect::<Result<Vec<T>, _>>()
             .map_err(|_| {
-                InUseFactorsInaccessibleError::DeserializeError(erroring_attribute_values)
-            })?)
+                InUseFactorsInaccessibleError::DeserializeError(erroring_attribute_values).into()
+            })
     }
 }
 
@@ -147,7 +147,7 @@ impl InUseFactorsAccess for DynamoDbBackedInUseFactorsAccess<'_> {
 #[error("The expected in use factors data was not available on the PCDB data store.")]
 pub enum InUseFactorsInaccessibleError {
     #[error("Could not make query for in use factors against DynamoDB: {0}")]
-    DynamoDbError(#[from] SdkError<GetItemError, HttpResponse>),
+    DynamoDbError(#[from] Box<SdkError<GetItemError, HttpResponse>>),
     DataKeyMissingFromInUseFactorsRecord,
     InUseFactorsRecordDataFieldNotList(AttributeValue),
     DeserializeError(Vec<AttributeValue>),
@@ -180,7 +180,7 @@ pub mod mocks {
     impl InUseFactorsAccess for FixtureBackedInUseFactorsAccess {
         async fn in_use_factors<T: InUseFactorsEntry>(
             &self,
-        ) -> Result<Vec<T>, InUseFactorsInaccessibleError> {
+        ) -> Result<Vec<T>, Box<InUseFactorsInaccessibleError>> {
             let in_use_factors_json: serde_json::Value = IN_USE_FACTORS[T::entry_id()].to_owned();
 
             Ok(

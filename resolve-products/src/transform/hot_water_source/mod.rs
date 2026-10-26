@@ -29,19 +29,14 @@ pub async fn transform(
         .flatten();
 
     for heat_source in heat_sources {
-        if let Some(heat_source_type) = heat_source.get("type").and_then(|v| v.as_str()) {
-            match heat_source_type {
-                "HeatPump_HWOnly" => {
-                    heat_pump_hw_only::transform(
-                        heat_source,
-                        products,
-                        in_use_factors_access,
-                        energy_supplies,
-                    )
-                    .await?;
-                }
-                _ => {}
-            }
+        if let Some("HeatPump_HWOnly") = heat_source.get("type").and_then(|v| v.as_str()) {
+            heat_pump_hw_only::transform(
+                heat_source,
+                products,
+                in_use_factors_access,
+                energy_supplies,
+            )
+            .await?;
         }
     }
 

@@ -97,16 +97,18 @@ pub async fn setup() -> TestEnvironment {
 
 async fn create_products_table(
     client: &DynamoDbClient,
-) -> Result<CreateTableOutput, SdkError<CreateTableError, HttpResponse>> {
+) -> Result<CreateTableOutput, Box<SdkError<CreateTableError, HttpResponse>>> {
     let id_attribute = AttributeDefinition::builder()
         .attribute_name("id")
         .attribute_type(ScalarAttributeType::S)
-        .build()?;
+        .build()
+        .map_err(|e| Box::new(SdkError::from(e)))?;
 
     let keys = KeySchemaElement::builder()
         .attribute_name("id")
         .key_type(KeyType::Hash)
-        .build()?;
+        .build()
+        .map_err(|e| Box::new(SdkError::from(e)))?;
 
     client
         .create_table()
@@ -116,6 +118,7 @@ async fn create_products_table(
         .billing_mode(BillingMode::PayPerRequest)
         .send()
         .await
+        .map_err(Box::new)
 }
 
 async fn populate_products_table(client: DynamoDbClient) {

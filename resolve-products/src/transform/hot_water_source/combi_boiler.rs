@@ -80,13 +80,12 @@ mod tests {
         let result: ResolveProductsResult<()> = pcdb_combi_boilers
             .into_iter()
             .zip(inputs.iter_mut())
-            .map(|((name, combi_boiler), input)| {
+            .try_for_each(|((name, combi_boiler), input)| {
                 transform(
                     input.as_object_mut().unwrap(),
                     &HashMap::from([(name, combi_boiler)]),
                 )
-            })
-            .collect::<Result<_, _>>();
+            });
 
         assert_ok!(result);
 
