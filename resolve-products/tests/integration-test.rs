@@ -1,23 +1,20 @@
 use itertools::Itertools;
-use jsonschema::ValidationError;
+use jsonschema::{ValidationError, validator};
 use resolve_products::PRODUCT_REFERENCE_FIELD;
 use resolve_products::errors::ResolvePcdbProductsError;
 use rstest::rstest;
 use serde_json::{Value, from_str, json, to_string};
 use std::io::Cursor;
-use std::sync::LazyLock;
 
 mod common;
 
-static TARGET_SCHEMA: LazyLock<Value> =
-    LazyLock::new(|| from_str(include_str!("fixtures/target_schema.json")).unwrap());
+#[validator(path = "./tests/fixtures/target_schema.json")]
+pub(crate) struct TargetSchema;
 
 const INPUT_WITH_PRODUCT_REFS: &str = include_str!("fixtures/input_with_product_refs.json");
 
 async fn validate_against_target_schema(input: &Value) -> Result<(), ValidationError<'_>> {
-    let schema_validator = jsonschema::validator_for(&TARGET_SCHEMA)?;
-
-    schema_validator.validate(input)
+    TargetSchema::validate(input)
 }
 
 // TODO add radiator to input_with_product_refs once wet distribution thermal mass issue (reported to DESNZ) has been resolved
