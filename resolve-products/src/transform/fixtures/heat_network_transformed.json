@@ -8,7 +8,9 @@
         "Emissions Factor kgCO2e/kWh including out-of-scope emissions": 0.415,
         "Primary Energy Factor kWh/kWh delivered": 1.89
       }
-    }
+    },
+    "is_heat_network": true,
+    "heat_network_type": "sleeved DHN"
   },
   "heatNetworkFatController": {
     "EnergySupply": {
@@ -19,6 +21,8 @@
         "Emissions Factor kgCO2e/kWh including out-of-scope emissions": 0.329,
         "Primary Energy Factor kWh/kWh delivered": 1.49
       }
-    }
+    },
+    "is_heat_network": true,
+    "heat_network_type": "sleeved DHN"
   }
 }

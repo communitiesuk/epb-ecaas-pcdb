@@ -81,7 +81,9 @@ mod tests {
     ) -> Value {
         json!({
             "heat_network_reference": heat_network_reference,
-            "sub_heat_network_name": sub_heat_network_name
+            "sub_heat_network_name": sub_heat_network_name,
+            "is_heat_network": true,
+            "heat_network_type": "sleeved DHN"
         })
     }
 

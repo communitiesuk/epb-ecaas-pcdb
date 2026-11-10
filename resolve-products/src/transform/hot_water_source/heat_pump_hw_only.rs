@@ -133,6 +133,7 @@ mod tests {
             "type": "HeatPump_HWOnly",
             "heater_position": 0.1,
             "product_reference": product_reference,
+            "thermostat_position": 0.6,
         })
     }
 

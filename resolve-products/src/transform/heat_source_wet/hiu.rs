@@ -43,7 +43,7 @@ mod tests {
             "EnergySupply": "mains elec",
             "product_reference": product_reference,
             "building_level_distribution_losses": 1,
-            "is_heat_network": false,
+            "is_heat_network": false
         })
     }
 

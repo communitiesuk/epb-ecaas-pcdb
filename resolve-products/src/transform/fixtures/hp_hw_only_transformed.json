@@ -5,6 +5,7 @@
   "in_use_factor_mismatch": 0.95,
   "power_max": 3.0,
   "tank_volume_declared": 100.0,
+  "thermostat_position": 0.6,
   "heater_position": 0.1,
   "type": "HeatPump_HWOnly",
   "test_data": {

@@ -1947,6 +1947,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "json-patch"
+version = "5.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa295c8f71b9bad32d060e0e145f96dcba0cc6c6171e129646140d1c96b05617"
+dependencies = [
+ "jsonptr",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "jsonpath-rust"
 version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1957,6 +1969,16 @@ dependencies = [
  "regex",
  "serde_json",
  "thiserror 2.0.21",
+]
+
+[[package]]
+name = "jsonptr"
+version = "0.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72c22d99362c7aac7d77efab6b49c2181674b165d7e6e7c755b3432ded64bf51"
+dependencies = [
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -2640,6 +2662,7 @@ dependencies = [
  "aws-sdk-dynamodb",
  "clap",
  "itertools 0.15.0",
+ "json-patch",
  "jsonpath-rust",
  "jsonschema",
  "parking_lot",
