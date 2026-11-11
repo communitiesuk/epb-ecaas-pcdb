@@ -309,7 +309,7 @@ mod tests {
     #[rstest]
     #[case(incorrect_boiler_input())]
     #[case(incorrect_heat_pump_input())]
-    async fn test_tranform_errors_given_product_type_mismatch(
+    async fn test_transform_errors_given_product_type_mismatch(
         heat_source_wet_pcdb_products: HashMap<String, Product>,
         dummy_catalogue: impl ProductCatalogue,
         energy_supplies: EnergySupplies,
