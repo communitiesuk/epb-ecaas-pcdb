@@ -77,12 +77,14 @@ struct CombinedSchema;
 
 #[cfg(test)]
 mod tests {
+    use crate::CombinedSchema;
     use assert_ok::assert_ok;
     use json_patch::{PatchOperation, ReplaceOperation, merge, patch};
     use jsonschema::validator;
     use rstest::*;
     use serde_json::{Value, json};
     use std::fs::File;
+    use std::io::BufReader;
 
     #[validator(path = "./tests/fixtures/target_schema.json")]
     pub(crate) struct TargetSchema;
@@ -221,9 +223,9 @@ mod tests {
         #[case] operation: Operation,
         #[case] under_key: Option<&str>,
     ) {
-        let snippet: Value = serde_json::from_reader(
+        let snippet: Value = serde_json::from_reader(BufReader::new(
             File::open(["./src/transform/fixtures/", fixture, ".json"].concat()).unwrap(),
-        )
+        ))
         .unwrap();
 
         let snippets = match format {
@@ -263,5 +265,25 @@ mod tests {
 
             assert_ok!(result);
         }
+    }
+
+    #[rstest]
+    #[case("input_with_product_refs")]
+    #[case("input_with_unknown_product_refs")]
+    fn test_integration_input_with_product_refs_conforms_to_combined_schema(#[case] file: &str) {
+        let input: Value = serde_json::from_reader(BufReader::new(
+            File::open(["tests/fixtures/", file, ".json"].concat()).unwrap(),
+        ))
+        .unwrap();
+
+        assert_ok!(CombinedSchema::validate(&input));
+    }
+
+    #[rstest]
+    fn test_integration_input_transformed_comforms_to_target_schema() {
+        let input: Value =
+            serde_json::from_str(include_str!("../tests/fixtures/input_transformed.json")).unwrap();
+
+        assert_ok!(TargetSchema::validate(&input));
     }
 }
