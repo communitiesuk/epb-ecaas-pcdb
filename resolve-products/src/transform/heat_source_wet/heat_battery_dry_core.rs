@@ -47,6 +47,13 @@ pub(crate) fn transform(
         );
         dry_core_battery.insert("fan_pwr".into(), fan_pwr.as_f64().into());
 
+        if test_data.is_empty() {
+            return Err(ResolvePcdbProductsError::InvalidProduct(
+                product_reference.into(),
+                "fancoil test data was unexpectedly empty",
+            ));
+        }
+
         let (dry_core_min_output, dry_core_max_output): (Vec<[f64; 2]>, Vec<[f64; 2]>) = test_data
             .iter()
             .sorted_by(|a, b| Ord::cmp(&a.charge_level, &b.charge_level))
@@ -60,22 +67,8 @@ pub(crate) fn transform(
             })
             .unzip();
 
-        let state_of_charge_init = test_data
-            .iter()
-            .map(|datum| datum.charge_level)
-            .min()
-            .ok_or_else(|| {
-                ResolvePcdbProductsError::InvalidProduct(
-                    product_reference.into(),
-                    "fancoil test data was unexpectedly empty",
-                )
-            })?;
         dry_core_battery.insert("dry_core_min_output".into(), dry_core_min_output.into());
         dry_core_battery.insert("dry_core_max_output".into(), dry_core_max_output.into());
-        dry_core_battery.insert(
-            "state_of_charge_init".into(),
-            state_of_charge_init.as_f64().into(),
-        );
 
         dry_core_battery.remove(PRODUCT_REFERENCE_FIELD);
     } else {

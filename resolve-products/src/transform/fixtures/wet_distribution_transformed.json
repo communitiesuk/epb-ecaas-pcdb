@@ -91,6 +91,5 @@
   },
   "bypass_fraction_recirculated": 0.8,
   "variable_flow": false,
-  "design_flow_rate": 6,
-  "thermal_mass": 0.001
+  "design_flow_rate": 6
 }
