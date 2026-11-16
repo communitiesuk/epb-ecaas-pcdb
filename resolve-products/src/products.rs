@@ -608,9 +608,9 @@ pub(crate) struct HeatPumpHotWaterOnlyTestDatum {
 pub(crate) struct SubHeatNetwork {
     #[serde(rename = "subheatNetworkName")]
     pub(crate) name: String,
-    #[serde(rename = "emissionsFactorkgCO2ekWh")]
+    #[serde(rename = "emissionsFactorkgCo2EkWh")]
     pub(crate) emissions_factor: Decimal,
-    #[serde(rename = "emissionsFactorkgCO2ekWhincludingOutOfScopeEmissions")]
+    #[serde(rename = "emissionsFactorkgCo2EkWhincludingOutOfScopeEmissions")]
     pub(crate) emissions_factor_including_out_of_scope: Decimal,
     #[serde(rename = "primaryEnergyFactorkWhkWhDelivered")]
     pub(crate) primary_energy_factor: Decimal,

@@ -29,8 +29,8 @@
         "id": 23,
         "heatNetworkId": 3,
         "subheatNetworkName": "Default New Connection",
-        "emissionsFactorkgCO2ekWh": 0.252,
-        "emissionsFactorkgCO2ekWhincludingOutOfScopeEmissions": 0.252,
+        "emissionsFactorkgCo2EkWh": 0.252,
+        "emissionsFactorkgCo2EkWhincludingOutOfScopeEmissions": 0.252,
         "costOfHeat": 4.58
       },
       {
@@ -42,8 +42,8 @@
         "id": 24,
         "heatNetworkId": 3,
         "subheatNetworkName": "Thomas's Shed",
-        "emissionsFactorkgCO2ekWh": 0.414,
-        "emissionsFactorkgCO2ekWhincludingOutOfScopeEmissions": 0.415,
+        "emissionsFactorkgCo2EkWh": 0.414,
+        "emissionsFactorkgCo2EkWhincludingOutOfScopeEmissions": 0.415,
         "costOfHeat": 7.54
       },
       {
@@ -55,8 +55,8 @@
         "id": 25,
         "heatNetworkId": 3,
         "subheatNetworkName": "Chez the Fat Controller",
-        "emissionsFactorkgCO2ekWh": 0.327,
-        "emissionsFactorkgCO2ekWhincludingOutOfScopeEmissions": 0.329,
+        "emissionsFactorkgCo2EkWh": 0.327,
+        "emissionsFactorkgCo2EkWhincludingOutOfScopeEmissions": 0.329,
         "costOfHeat": 5.95
       }
     ],
@@ -93,8 +93,8 @@
         "id": 23,
         "heatNetworkId": 3,
         "subheatNetworkName": "Default New Connection",
-        "emissionsFactorkgCO2ekWh": 0.252,
-        "emissionsFactorkgCO2ekWhincludingOutOfScopeEmissions": 0.252,
+        "emissionsFactorkgCo2EkWh": 0.252,
+        "emissionsFactorkgCo2EkWhincludingOutOfScopeEmissions": 0.252,
         "costOfHeat": 4.58
       },
       {
@@ -106,8 +106,8 @@
         "id": 24,
         "heatNetworkId": 3,
         "subheatNetworkName": "Thomas's Shed",
-        "emissionsFactorkgCO2ekWh": 0.414,
-        "emissionsFactorkgCO2ekWhincludingOutOfScopeEmissions": 0.415,
+        "emissionsFactorkgCo2EkWh": 0.414,
+        "emissionsFactorkgCo2EkWhincludingOutOfScopeEmissions": 0.415,
         "costOfHeat": 7.54
       },
       {
@@ -119,8 +119,8 @@
         "id": 25,
         "heatNetworkId": 3,
         "subheatNetworkName": "Chez the Fat Controller",
-        "emissionsFactorkgCO2ekWh": 0.327,
-        "emissionsFactorkgCO2ekWhincludingOutOfScopeEmissions": 0.329,
+        "emissionsFactorkgCo2EkWh": 0.327,
+        "emissionsFactorkgCo2EkWhincludingOutOfScopeEmissions": 0.329,
         "costOfHeat": 5.95
       }
     ],
