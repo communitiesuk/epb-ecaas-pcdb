@@ -32,6 +32,7 @@ pub(crate) fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tests::replace_on_full_input_and_assert_against_combined_schema;
     use crate::transform::catalogue::transformed_input_matches_expected;
     use assert_ok::assert_ok;
     use serde_json::{from_str, json};
@@ -81,5 +82,13 @@ mod tests {
 
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("HIU"));
+    }
+
+    #[test]
+    fn test_input_against_combined_schema() {
+        replace_on_full_input_and_assert_against_combined_schema(
+            input("1234"),
+            "/HeatSourceWet/HIU",
+        );
     }
 }

@@ -286,6 +286,7 @@ pub async fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tests::replace_on_full_input_and_assert_against_combined_schema;
     use crate::transform::catalogue::{
         FixtureBackedProductCatalogue, mock_energy_supplies, transformed_input_matches_expected,
     };
@@ -366,5 +367,13 @@ mod tests {
 
         let expected_input = expected_heat_pump_input(product_reference);
         transformed_input_matches_expected(&input, expected_input);
+    }
+
+    #[test]
+    fn test_input_against_combined_schema() {
+        replace_on_full_input_and_assert_against_combined_schema(
+            heat_pump_input("1234"),
+            "/HeatSourceWet/Heat pump",
+        );
     }
 }

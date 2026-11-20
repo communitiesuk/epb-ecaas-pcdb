@@ -70,6 +70,7 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tests::merge_onto_full_input_at_pointer_and_assert_against_combined_schema;
     use crate::transform::catalogue::transformed_input_matches_expected;
     use rstest::*;
     use serde_json::{Value, json};
@@ -148,6 +149,14 @@ mod tests {
         assert!(
             result.is_err(),
             "Expected error for 5th gen heat network with no heat pump"
+        );
+    }
+
+    #[test]
+    fn test_input_against_combined_schema() {
+        merge_onto_full_input_at_pointer_and_assert_against_combined_schema(
+            heat_network_reference_input("1234", "sub"),
+            "/HeatSourceWet/Heat pump",
         );
     }
 }

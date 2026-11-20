@@ -77,6 +77,7 @@ mod tests {
     use super::*;
     use crate::in_use_factors::mocks::FixtureBackedInUseFactorsAccess;
     use crate::products::Product;
+    use crate::tests::replace_on_full_input_and_assert_against_combined_schema;
     use crate::transform::catalogue::transformed_input_matches_expected;
     use crate::transform::mechanical_ventilation::{
         expected_transformed_mech_vent_input, mechanical_ventilation_pcdb_products,
@@ -218,5 +219,13 @@ mod tests {
         )
         .await;
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_input_against_combined_schema() {
+        replace_on_full_input_and_assert_against_combined_schema(
+            centralised_mv_input("mvhr1"),
+            "/InfiltrationVentilation/MechanicalVentilation/mech vent",
+        );
     }
 }

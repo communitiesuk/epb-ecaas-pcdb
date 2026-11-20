@@ -88,6 +88,7 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tests::merge_onto_demo_file_and_assert_against_combined_schema;
     use assert_ok::assert_ok;
     use rstest::rstest;
     use serde_json::{from_str, json};
@@ -147,5 +148,10 @@ mod tests {
 
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("WWHRS"));
+    }
+
+    #[test]
+    fn test_input_fixture_conforms_to_target_schema() {
+        merge_onto_demo_file_and_assert_against_combined_schema(input("1234"));
     }
 }

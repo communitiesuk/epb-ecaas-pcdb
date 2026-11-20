@@ -85,6 +85,7 @@ pub(crate) fn transform(
 #[cfg(test)]
 mod tests {
     use crate::products::Product;
+    use crate::tests::replace_on_full_input_and_assert_against_combined_schema;
     use crate::transform::EnergySupplies;
     use crate::transform::catalogue::{mock_energy_supplies, transformed_input_matches_expected};
     use crate::transform::heat_source_wet::heat_battery_dry_core::transform;
@@ -148,5 +149,13 @@ mod tests {
         assert_ok!(result);
         let expected_input = expected_transformed_input(product_reference);
         transformed_input_matches_expected(&dry_core_input, expected_input);
+    }
+
+    #[test]
+    fn test_input_against_combined_schema() {
+        replace_on_full_input_and_assert_against_combined_schema(
+            dry_core_heat_battery_input("1234"),
+            "/HeatSourceWet/Heat battery dry core",
+        );
     }
 }

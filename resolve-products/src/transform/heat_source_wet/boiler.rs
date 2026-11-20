@@ -94,6 +94,7 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tests::replace_on_full_input_and_assert_against_combined_schema;
     use crate::transform::catalogue::{mock_energy_supplies, transformed_input_matches_expected};
     use assert_ok::assert_ok;
     use rstest::{fixture, rstest};
@@ -179,5 +180,13 @@ mod tests {
             &energy_supplies,
         );
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_input_against_combined_schema() {
+        replace_on_full_input_and_assert_against_combined_schema(
+            boiler_input("1234", Some("internal")),
+            "/HeatSourceWet/Regular boiler",
+        );
     }
 }

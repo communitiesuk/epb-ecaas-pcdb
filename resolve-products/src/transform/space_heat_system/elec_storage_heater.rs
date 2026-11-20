@@ -70,6 +70,7 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tests::replace_on_full_input_and_assert_against_combined_schema;
     use crate::transform::catalogue::{mock_energy_supplies, transformed_input_matches_expected};
     use crate::transform::space_heat_system::tests::SPACE_HEATING_PCDB_PRODUCTS;
     use assert_ok::assert_ok;
@@ -129,6 +130,14 @@ mod tests {
                 .unwrap_err()
                 .to_string()
                 .contains("electric storage heater")
+        );
+    }
+
+    #[test]
+    fn test_input_against_combined_schema() {
+        replace_on_full_input_and_assert_against_combined_schema(
+            input("1234"),
+            "/SpaceHeatSystem/Wet distribution",
         );
     }
 }

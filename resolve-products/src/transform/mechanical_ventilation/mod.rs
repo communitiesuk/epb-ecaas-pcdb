@@ -169,6 +169,7 @@ fn expected_transformed_mech_vent_input(product_reference: &str) -> Map<String, 
 mod tests {
     use super::*;
     use crate::in_use_factors::mocks::FixtureBackedInUseFactorsAccess;
+    use crate::tests::merge_onto_demo_file_and_assert_against_combined_schema;
     use assert_ok::assert_ok;
     use rstest::{fixture, rstest};
     use serde_json::json;
@@ -360,6 +361,20 @@ mod tests {
             .unwrap()
             .as_f64(),
             1.6
+        );
+    }
+
+    #[rstest]
+    fn test_mech_vent_input_conforms_to_combined_schema(mechanical_ventilation_input: JsonValue) {
+        merge_onto_demo_file_and_assert_against_combined_schema(mechanical_ventilation_input);
+    }
+
+    #[rstest]
+    fn test_mech_vent_input_with_bad_category_conforms_to_combined_schema(
+        mechanical_ventilation_input_referencing_bad_category: JsonValue,
+    ) {
+        merge_onto_demo_file_and_assert_against_combined_schema(
+            mechanical_ventilation_input_referencing_bad_category,
         );
     }
 }

@@ -76,13 +76,14 @@ fn extract_product_references(json: &JsonValue) -> ResolveProductsResult<Vec<Str
 struct CombinedSchema;
 
 #[cfg(test)]
-mod tests {
+pub mod tests {
     use crate::CombinedSchema;
     use assert_ok::assert_ok;
     use json_patch::{PatchOperation, ReplaceOperation, merge, patch};
     use jsonschema::validator;
     use rstest::*;
-    use serde_json::{Value, json};
+    use serde_json::{Value, from_str, json};
+    use std::borrow::Borrow;
     use std::fs::File;
     use std::io::BufReader;
 
@@ -313,5 +314,57 @@ mod tests {
             serde_json::from_str(include_str!("../tests/fixtures/input_transformed.json")).unwrap();
 
         assert_ok!(TargetSchema::validate(&input));
+    }
+
+    #[rstest]
+    fn test_demo_file_conforms_to_target_schema() {
+        let input: Value =
+            serde_json::from_str(include_str!("../tests/fixtures/demo_fhs.json")).unwrap();
+
+        assert_ok!(TargetSchema::validate(&input));
+    }
+
+    pub fn merge_onto_demo_file_and_assert_against_combined_schema(snippet: impl Borrow<Value>) {
+        let mut full_input: Value =
+            from_str(include_str!("../tests/fixtures/demo_fhs.json")).unwrap();
+        merge(&mut full_input, snippet.borrow());
+
+        println!("{}", serde_json::to_string_pretty(&full_input).unwrap());
+
+        assert_ok!(CombinedSchema::validate(&full_input));
+    }
+
+    pub fn merge_onto_full_input_at_pointer_and_assert_against_combined_schema(
+        snippet: impl Borrow<Value>,
+        pointer: &str,
+    ) {
+        let mut full_input: Value = from_str(include_str!(
+            "../tests/fixtures/input_with_product_refs.json"
+        ))
+        .unwrap();
+        let pointer = full_input.pointer_mut(pointer).unwrap();
+        merge(pointer, snippet.borrow());
+
+        assert_ok!(CombinedSchema::validate(&full_input));
+    }
+
+    pub fn replace_on_full_input_and_assert_against_combined_schema(
+        snippet: impl Borrow<Value>,
+        pointer: &str,
+    ) {
+        let mut full_input: Value = from_str(include_str!(
+            "../tests/fixtures/input_with_product_refs.json"
+        ))
+        .unwrap();
+        let patch_operation = [PatchOperation::Replace(ReplaceOperation {
+            path: pointer.parse().unwrap(),
+            value: snippet.borrow().clone(),
+        })];
+
+        patch(&mut full_input, &patch_operation).unwrap();
+
+        println!("{}", serde_json::to_string_pretty(&full_input).unwrap());
+
+        assert_ok!(CombinedSchema::validate(&full_input));
     }
 }

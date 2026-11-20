@@ -67,6 +67,7 @@ pub fn transform(
 mod tests {
     use super::*;
     use crate::products::Product;
+    use crate::tests::replace_on_full_input_and_assert_against_combined_schema;
     use assert_ok::assert_ok;
     use serde_json::{from_str, json};
     use std::collections::HashMap;
@@ -153,5 +154,13 @@ mod tests {
             result.unwrap_err(),
             ResolvePcdbProductsError::InvalidCombination(_)
         ));
+    }
+
+    #[test]
+    fn test_input_against_combined_schema() {
+        replace_on_full_input_and_assert_against_combined_schema(
+            input("1234"),
+            "/HotWaterSource/hw cylinder",
+        );
     }
 }

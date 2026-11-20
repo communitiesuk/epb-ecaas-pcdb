@@ -101,6 +101,7 @@ pub(crate) async fn transform(
 mod tests {
     use super::*;
     use crate::in_use_factors::mocks::FixtureBackedInUseFactorsAccess;
+    use crate::tests::replace_on_full_input_and_assert_against_combined_schema;
     use crate::transform::catalogue::transformed_input_matches_expected;
     use crate::transform::mechanical_ventilation::{
         expected_transformed_mech_vent_input, mechanical_ventilation_pcdb_products,
@@ -268,5 +269,13 @@ mod tests {
 
         let expected_input = expected_transformed_mech_vent_input(product_reference);
         transformed_input_matches_expected(&mev_input, expected_input);
+    }
+
+    #[test]
+    fn test_input_against_combined_schema() {
+        replace_on_full_input_and_assert_against_combined_schema(
+            centralised_mev_input("mvhr1"),
+            "/InfiltrationVentilation/MechanicalVentilation/mech vent",
+        );
     }
 }
