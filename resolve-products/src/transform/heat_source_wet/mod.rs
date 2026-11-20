@@ -145,6 +145,7 @@ pub async fn transform(
 mod tests {
     use super::*;
     use crate::ALL_PRODUCT_REFERENCE_FIELDS;
+    use crate::tests::merge_onto_demo_file_and_assert_against_combined_schema;
     use crate::transform::catalogue::{FixtureBackedProductCatalogue, mock_energy_supplies};
     use assert_ok::assert_ok;
     use rstest::{fixture, rstest};
@@ -170,6 +171,7 @@ mod tests {
             .collect()
     }
 
+    #[fixture]
     fn heat_source_wet_input() -> JsonValue {
         json!({
             "HeatSourceWet": {
@@ -208,7 +210,8 @@ mod tests {
                     "building_level_distribution_losses": 1,
                     "is_heat_network": true,
                     "heat_network_reference": "heatNetwork",
-                    "sub_heat_network_name": "Thomas's Shed"
+                    "sub_heat_network_name": "Thomas's Shed",
+                    "heat_network_type": "sleeved DHN"
                 },
                 "hiu_no_heat_network_reference": {
                     "type": "HIU",
@@ -243,11 +246,11 @@ mod tests {
     #[tokio::test]
     #[rstest]
     async fn test_transform_multiple_heat_source_wet_products(
+        mut heat_source_wet_input: JsonValue,
         heat_source_wet_pcdb_products: HashMap<String, Product>,
         dummy_catalogue: impl ProductCatalogue,
         energy_supplies: EnergySupplies,
     ) {
-        let mut heat_source_wet_input = heat_source_wet_input();
         let result = transform(
             &mut heat_source_wet_input,
             &heat_source_wet_pcdb_products,
@@ -327,4 +330,11 @@ mod tests {
         let error = hp_result.unwrap_err().to_string();
         assert!(error.contains("There were mismatch errors where provided product references related to incompatible product categories"));
     }
+
+    #[rstest]
+    fn test_input_against_combined_schema(heat_source_wet_input: JsonValue) {
+        merge_onto_demo_file_and_assert_against_combined_schema(heat_source_wet_input);
+    }
+
+    // #[t]
 }

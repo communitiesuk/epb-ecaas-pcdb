@@ -76,13 +76,14 @@ fn extract_product_references(json: &JsonValue) -> ResolveProductsResult<Vec<Str
 struct CombinedSchema;
 
 #[cfg(test)]
-mod tests {
+pub mod tests {
     use crate::CombinedSchema;
     use assert_ok::assert_ok;
     use json_patch::{PatchOperation, ReplaceOperation, merge, patch};
     use jsonschema::validator;
     use rstest::*;
-    use serde_json::{Value, json};
+    use serde_json::{Value, from_str, json};
+    use std::borrow::Borrow;
     use std::fs::File;
     use std::io::BufReader;
 
@@ -92,7 +93,7 @@ mod tests {
     #[fixture]
     fn base_file() -> Value {
         serde_json::from_str(include_str!(
-            "./transform/fixtures/demo_FHS_hp_with_advancedstart.json"
+            "transform/fixtures/base_demo_files/demo_FHS_hp_with_advancedstart.json"
         ))
         .unwrap()
     }
@@ -115,6 +116,7 @@ mod tests {
         "",
         TransformedFileFormat::Full,
         Operation::Merge,
+        None,
         None
     )]
     #[case::boiler(
@@ -122,6 +124,7 @@ mod tests {
         "",
         TransformedFileFormat::Full,
         Operation::Merge,
+        None,
         None
     )]
     #[case::combi_boiler(
@@ -129,6 +132,7 @@ mod tests {
         "/HotWaterSource/hw cylinder",
         TransformedFileFormat::Dictionary,
         Operation::Replace,
+        None,
         None
     )]
     #[case::esh(
@@ -136,20 +140,23 @@ mod tests {
         "/SpaceHeatSystem",
         TransformedFileFormat::Full,
         Operation::Replace,
-        Some("esh")
+        Some("esh"),
+        None
     )]
     #[case::fancoil(
         "fancoil_transformed",
-        "/SpaceHeatSystem/radiators/emitters/0",
+        "/SpaceHeatSystem/SpaceHeatSystem1/emitters/0",
         TransformedFileFormat::Full,
         Operation::Replace,
-        None
+        None,
+        Some("DESN-H-End-02-HP-cMEV-fan-coil")
     )]
     #[case::heat_battery_input(
         "heat_battery_input_transformed",
         "",
         TransformedFileFormat::Full,
         Operation::Merge,
+        None,
         None
     )]
     #[case::heat_network(
@@ -157,6 +164,7 @@ mod tests {
         "/HeatSourceWet/hp",
         TransformedFileFormat::Dictionary,
         Operation::Merge,
+        None,
         None
     )]
     #[case::heat_pump(
@@ -164,6 +172,7 @@ mod tests {
         "/HeatSourceWet",
         TransformedFileFormat::Dictionary,
         Operation::Replace,
+        None,
         None
     )]
     #[case::hiu(
@@ -171,20 +180,23 @@ mod tests {
         "/HeatSourceWet",
         TransformedFileFormat::Full,
         Operation::Replace,
-        Some("hiu")
+        Some("hiu"),
+        None
     )]
     #[case::hp_hw_only(
         "hp_hw_only_transformed",
         "/HotWaterSource/hw cylinder/HeatSource",
         TransformedFileFormat::Full,
         Operation::Merge,
-        Some("hp_hw_only")
+        Some("hp_hw_only"),
+        Some("DESN-H-End-02-HP-cMEV-HWOHP-SHWT")
     )]
     #[case::mechanical_ventilation(
         "mechanical_ventilation_input_transformed",
         "/InfiltrationVentilation",
         TransformedFileFormat::Full,
         Operation::Merge,
+        None,
         None
     )]
     #[case::radiator(
@@ -192,6 +204,7 @@ mod tests {
         "/SpaceHeatSystem/radiators/emitters/0",
         TransformedFileFormat::Full,
         Operation::Replace,
+        None,
         None
     )]
     #[case::smart_hw_tank(
@@ -199,6 +212,7 @@ mod tests {
         "/HotWaterSource/hw cylinder",
         TransformedFileFormat::Full,
         Operation::Replace,
+        None,
         None
     )]
     #[case::wet_distribution(
@@ -206,27 +220,42 @@ mod tests {
         "/SpaceHeatSystem",
         TransformedFileFormat::Full,
         Operation::Merge,
-        Some("wet_distribution")
+        Some("wet_distribution"),
+        None
     )]
     #[case::wwhrs(
         "wwhrs_transformed",
         "",
         TransformedFileFormat::Dictionary,
         Operation::Merge,
+        None,
         None
     )]
     fn check_transformed_fixtures_against_target_schema(
-        mut base_file: Value,
+        base_file: Value,
         #[case] fixture: &str,
         #[case] json_pointer: &str,
         #[case] format: TransformedFileFormat,
         #[case] operation: Operation,
         #[case] under_key: Option<&str>,
+        #[case] specialised_file: Option<&str>,
     ) {
         let snippet: Value = serde_json::from_reader(BufReader::new(
             File::open(["./src/transform/fixtures/", fixture, ".json"].concat()).unwrap(),
         ))
         .unwrap();
+
+        let mut base_file = specialised_file
+            .map(|file| {
+                serde_json::from_reader(BufReader::new(
+                    File::open(
+                        ["./src/transform/fixtures/base_demo_files/", file, ".json"].concat(),
+                    )
+                    .unwrap(),
+                ))
+                .unwrap()
+            })
+            .unwrap_or(base_file);
 
         let snippets = match format {
             TransformedFileFormat::Full => under_key
@@ -285,5 +314,57 @@ mod tests {
             serde_json::from_str(include_str!("../tests/fixtures/input_transformed.json")).unwrap();
 
         assert_ok!(TargetSchema::validate(&input));
+    }
+
+    #[rstest]
+    fn test_demo_file_conforms_to_target_schema() {
+        let input: Value =
+            serde_json::from_str(include_str!("../tests/fixtures/demo_fhs.json")).unwrap();
+
+        assert_ok!(TargetSchema::validate(&input));
+    }
+
+    pub fn merge_onto_demo_file_and_assert_against_combined_schema(snippet: impl Borrow<Value>) {
+        let mut full_input: Value =
+            from_str(include_str!("../tests/fixtures/demo_fhs.json")).unwrap();
+        merge(&mut full_input, snippet.borrow());
+
+        println!("{}", serde_json::to_string_pretty(&full_input).unwrap());
+
+        assert_ok!(CombinedSchema::validate(&full_input));
+    }
+
+    pub fn merge_onto_full_input_at_pointer_and_assert_against_combined_schema(
+        snippet: impl Borrow<Value>,
+        pointer: &str,
+    ) {
+        let mut full_input: Value = from_str(include_str!(
+            "../tests/fixtures/input_with_product_refs.json"
+        ))
+        .unwrap();
+        let pointer = full_input.pointer_mut(pointer).unwrap();
+        merge(pointer, snippet.borrow());
+
+        assert_ok!(CombinedSchema::validate(&full_input));
+    }
+
+    pub fn replace_on_full_input_and_assert_against_combined_schema(
+        snippet: impl Borrow<Value>,
+        pointer: &str,
+    ) {
+        let mut full_input: Value = from_str(include_str!(
+            "../tests/fixtures/input_with_product_refs.json"
+        ))
+        .unwrap();
+        let patch_operation = [PatchOperation::Replace(ReplaceOperation {
+            path: pointer.parse().unwrap(),
+            value: snippet.borrow().clone(),
+        })];
+
+        patch(&mut full_input, &patch_operation).unwrap();
+
+        println!("{}", serde_json::to_string_pretty(&full_input).unwrap());
+
+        assert_ok!(CombinedSchema::validate(&full_input));
     }
 }

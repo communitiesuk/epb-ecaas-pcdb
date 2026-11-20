@@ -53,6 +53,7 @@ pub(crate) fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tests::merge_onto_demo_file_and_assert_against_combined_schema;
     use assert_ok::assert_ok;
     use serde_json::{from_str, json};
 
@@ -110,5 +111,10 @@ mod tests {
                 .to_string()
                 .contains("air powered shower")
         );
+    }
+
+    #[test]
+    fn test_input_fixture_conforms_to_target_schema() {
+        merge_onto_demo_file_and_assert_against_combined_schema(input("1234"));
     }
 }

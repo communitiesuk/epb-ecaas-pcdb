@@ -6,7 +6,7 @@ mod underfloor_heating;
 use crate::PRODUCT_REFERENCE_FIELD;
 use crate::products::Product;
 use crate::transform::{EnergySupplies, ResolveProductsResult, product_reference_from_json_object};
-use serde_json::{Value as JsonValue, json};
+use serde_json::Value as JsonValue;
 use std::collections::HashMap;
 
 pub fn transform(
@@ -65,18 +65,6 @@ pub fn transform(
                                 }
                             }
                         }
-
-                        // NB. it should be that this following check, and behaviour, needs to be removed for 1.0.0-alpha9!
-
-                        // for 1.0.0-alpha7, if there are any emitters with an 'n' field and "thermal_mass" isn't already
-                        // set as a sibling field to emitters, then set one with the token non-zero value 0.001 because
-                        // the schema needs it (this is fixed in subsequent versions of FHS)
-                        let emitters = system.get("emitters").and_then(|v| v.as_array());
-                        if emitters.into_iter().flatten().any(|emitter| {
-                            emitter.get("n").is_some() && !system.contains_key("thermal_mass")
-                        }) {
-                            system.insert("thermal_mass".to_string(), json!(0.001));
-                        }
                     }
                     _ => {} // TODO could add warning about unexpected type being reached
                 }
@@ -90,6 +78,7 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tests::merge_onto_demo_file_and_assert_against_combined_schema;
     use crate::transform::catalogue::mock_energy_supplies;
     use crate::transform::space_heat_system::transform;
     use assert_ok::assert_ok;
@@ -105,9 +94,13 @@ mod tests {
     pub(crate) static SPACE_HEATING_PCDB_PRODUCTS: LazyLock<HashMap<String, Product>> =
         LazyLock::new(|| from_str(include_str!("../fixtures/space_heating_pcdb.json")).unwrap());
 
+    #[fixture]
+    fn input() -> JsonValue {
+        from_str(include_str!("../fixtures/space_heating_input.json")).unwrap()
+    }
+
     #[rstest]
-    fn test_transform_space_heating(energy_supplies: EnergySupplies) {
-        let mut input = from_str(include_str!("../fixtures/space_heating_input.json")).unwrap();
+    fn test_transform_space_heating(energy_supplies: EnergySupplies, mut input: JsonValue) {
         let expected_esh: JsonValue =
             from_str(include_str!("../fixtures/esh_transformed.json")).unwrap();
         let expected_wet_distribution: JsonValue = from_str(include_str!(
@@ -134,5 +127,10 @@ mod tests {
             serde_json::to_string_pretty(&input).unwrap(),
             serde_json::to_string_pretty(&expected_input).unwrap()
         );
+    }
+
+    #[rstest]
+    fn test_input_conforms_to_combined_schema(input: JsonValue) {
+        merge_onto_demo_file_and_assert_against_combined_schema(input);
     }
 }

@@ -40,6 +40,7 @@ pub fn transform(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tests::replace_on_full_input_and_assert_against_combined_schema;
     use crate::transform::catalogue::transformed_input_matches_expected;
     use crate::transform::space_heat_system::tests::SPACE_HEATING_PCDB_PRODUCTS;
     use assert_ok::assert_ok;
@@ -49,7 +50,6 @@ mod tests {
     fn input(product_reference: &str) -> JsonValue {
         json!({
             "wet_emitter_type": "radiator",
-            "radiator_type": "standard",
             "product_reference": product_reference,
             "length": 7,
         })
@@ -87,5 +87,13 @@ mod tests {
 
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("radiator"));
+    }
+
+    #[test]
+    fn test_input_against_combined_schema() {
+        replace_on_full_input_and_assert_against_combined_schema(
+            input("1234"),
+            "/SpaceHeatSystem/Wet distribution/emitters/0",
+        );
     }
 }

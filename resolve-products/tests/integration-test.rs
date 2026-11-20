@@ -4,7 +4,7 @@ use resolve_products::PRODUCT_REFERENCE_FIELD;
 use resolve_products::errors::ResolvePcdbProductsError;
 use rstest::rstest;
 use serde_json::{Value, from_str, json, to_string};
-use std::io::Cursor;
+use std::io::{BufReader, Cursor};
 
 mod common;
 
@@ -250,7 +250,7 @@ async fn test_invalid_pcdb_product_errors() {
     // reference a PCDB heat battery that's invalid due to missing test data
     input["HeatSourceWet"]["Heat battery dry core"]["product_reference"] =
         json!("hb_dry_core_empty_test_data");
-    let mut input_reader = Cursor::new(input.to_string());
+    let mut input_reader = BufReader::new(Cursor::new(input.to_string()));
 
     let result = resolve_products::resolve_products(&mut input_reader, client).await;
 

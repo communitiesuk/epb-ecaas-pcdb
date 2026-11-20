@@ -16,13 +16,11 @@
       "emitters": [
         {
           "wet_emitter_type": "radiator",
-          "radiator_type": "standard",
           "product_reference": "60",
           "length": 7
         },
         {
           "wet_emitter_type": "radiator",
-          "radiator_type": "standard",
           "product_reference": "60",
           "length": 7
         },

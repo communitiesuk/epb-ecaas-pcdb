@@ -112,6 +112,7 @@ enum InstallationLocation {
 mod tests {
     use super::*;
     use crate::in_use_factors::mocks::FixtureBackedInUseFactorsAccess;
+    use crate::tests::replace_on_full_input_and_assert_against_combined_schema;
     use crate::transform::catalogue::transformed_input_matches_expected;
     use crate::transform::mechanical_ventilation::{
         expected_transformed_mech_vent_input, mechanical_ventilation_pcdb_products,
@@ -204,5 +205,13 @@ mod tests {
         )
         .await;
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_input_against_combined_schema() {
+        replace_on_full_input_and_assert_against_combined_schema(
+            decentralised_mev_input("decentralisedMev", "in_ceiling", "other_wet_room"),
+            "/InfiltrationVentilation/MechanicalVentilation/dMEV",
+        );
     }
 }

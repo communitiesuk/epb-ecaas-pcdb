@@ -148,7 +148,6 @@ pub(crate) enum Technology {
         /// Fan power (W)
         fan_pwr: Decimal,
         test_data: Vec<HeatBatteryDryCoreTestDatum>,
-        // TODO: state_of_charge_init needs to come from somewhere = account for this
     },
     #[serde(rename = "HeatInterfaceUnit")]
     Hiu {

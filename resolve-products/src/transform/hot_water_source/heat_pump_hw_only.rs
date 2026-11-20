@@ -112,6 +112,7 @@ pub async fn transform(
 mod tests {
     use super::*;
     use crate::in_use_factors::mocks::FixtureBackedInUseFactorsAccess;
+    use crate::tests::replace_on_full_input_and_assert_against_combined_schema;
     use crate::transform::catalogue::mock_energy_supplies;
     use assert_ok::assert_ok;
     use rstest::*;
@@ -193,6 +194,14 @@ mod tests {
                 .unwrap_err()
                 .to_string()
                 .contains("hot water only heat pump")
+        );
+    }
+
+    #[test]
+    fn test_input_against_combined_schema() {
+        replace_on_full_input_and_assert_against_combined_schema(
+            input("1234"),
+            "/HotWaterSource/hw cylinder/HeatSource/hw only hp",
         );
     }
 }

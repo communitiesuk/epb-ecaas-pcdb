@@ -56,7 +56,6 @@
       "rated_power_instant": 2.5,
       "heat_storage_capacity": 20.0,
       "number_of_units": 2,
-      "state_of_charge_init": 0.0,
       "is_heat_network": false,
       "fan_pwr": 11.0,
       "dry_core_min_output": [
@@ -98,7 +97,6 @@
       "rated_power_instant": 2.5,
       "heat_storage_capacity": 20.0,
       "number_of_units": 2,
-      "state_of_charge_init": 0.0,
       "is_heat_network": false,
       "fan_pwr": 11.0,
       "dry_core_min_output": [

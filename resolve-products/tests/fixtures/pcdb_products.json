@@ -1536,7 +1536,7 @@
     "testData": [
       {
         "dryCoreMinOutput": 0,
-        "productID": "esh_with_gas ",
+        "productID": "esh_with_gas",
         "testPoint": 0,
         "id": 287,
         "dryCoreMaxOutput": 0,
@@ -1545,7 +1545,7 @@
     ],
     "storageCapacity": 20,
     "fanPwr": 12,
-    "productID": "esh_with_gas ",
+    "productID": "esh_with_gas",
     "ratedPowerInstant": 2.5,
     "ratedPower": 2.2,
     "airFlowType": "fan-assisted",
