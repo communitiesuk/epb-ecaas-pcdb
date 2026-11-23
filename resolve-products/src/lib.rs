@@ -363,8 +363,6 @@ pub mod tests {
 
         patch(&mut full_input, &patch_operation).unwrap();
 
-        println!("{}", serde_json::to_string_pretty(&full_input).unwrap());
-
         assert_ok!(CombinedSchema::validate(&full_input));
     }
 }
